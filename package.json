@@ -1,0 +1,27 @@
+{
+  "name": "images",
+  "version": "1.0.0",
+  "description": "NPM package to expose sharp functionalities trough express middleware.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szz-dvl/images.git"
+  },
+  "keywords": [
+    "sharp",
+    "images",
+    "express"
+  ],
+  "author": "szz-dvl",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/szz-dvl/images/issues"
+  },
+  "homepage": "https://github.com/szz-dvl/images#readme",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
