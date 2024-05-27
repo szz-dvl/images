@@ -1,4 +1,4 @@
-type ImageSize = [number, number]
+type ImageSize = [number | null, number | null]
 
 enum ImageFormat = {
     JPEG = "jpeg",

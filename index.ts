@@ -62,7 +62,7 @@ export default class Images {
 
 	if (!requestUrl.startsWith(this.opts.url.prefix))
 	    next()
-
+	
 	
 	
     }
