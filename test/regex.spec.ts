@@ -30,7 +30,7 @@ describe("extractUrlInfo", () => {
 		  });
 	})
 
-	it("must return a UrlInfo object without size given a url without size and an ImagesOpts object", () => {
+	it("must fail given a url without size and an ImagesOpts object", () => {
 		const opts : ImagesOpts = {
 			url: {
 				pattern: "/:dir/:size/:file.:ext"
@@ -40,16 +40,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
-			"dir": "animal",
-			"ext": "png",
-			"filename": "giraffe",
-			"path": "animal/giraffe.png",
-			"size": [
-			  null,
-			  null,
-			],
-		  });
+		expect(result).toBe(null);
 	})
 
 	it("must return a UrlInfo object only with width given a url without height and an ImagesOpts object", () => {
@@ -96,7 +87,29 @@ describe("extractUrlInfo", () => {
 		  });
 	})
 
-	it("must accept UrlInfo objects without extension given a url and an ImagesOpts object", () => {
+	it("must return a UrlInfo object only without resize given a url with 0x0 size and an ImagesOpts object", () => {
+		const opts : ImagesOpts = {
+			url: {
+				pattern: "/:dir/:size/:file.:ext"
+			},
+			allowedFormats: "*"
+		} as ImagesOpts
+
+		const result = extractUrlInfo("/animal/0x0/giraffe.png", opts)
+
+		expect(result).toStrictEqual({
+			"dir": "animal",
+			"ext": "png",
+			"filename": "giraffe",
+			"path": "animal/giraffe.png",
+			"size": [
+			  null,
+			  null,
+			],
+		  });
+	})
+
+	it("must accept UrlInfo objects without extension given a url and a ImagesOpts object", () => {
 		const opts : ImagesOpts = {
 			url: {
 				pattern: "/:dir/:size/:file.:ext"
@@ -118,7 +131,7 @@ describe("extractUrlInfo", () => {
 		  });
 	})
 
-	it("must NOT accept UrlInfo objects with size given a pattern without :size in the ImagesOpts object", () => {
+	it("must ignore size given a pattern without :size in the ImagesOpts object", () => {
 		const opts : ImagesOpts = {
 			url: {
 				pattern: "/:dir/:file.:ext"
@@ -129,10 +142,10 @@ describe("extractUrlInfo", () => {
 		const result = extractUrlInfo("/animal/100x100/giraffe.png", opts)
 
 		expect(result).toStrictEqual({
-			"dir": "animal",
+			"dir": "animal/100x100",
 			"ext": "png",
 			"filename": "giraffe",
-			"path": "animal/giraffe.png",
+			"path": "animal/100x100/giraffe.png",
 			"size": [
 			  null,
 			  null,
@@ -143,12 +156,12 @@ describe("extractUrlInfo", () => {
 	it("must accept UrlInfo objects with images in the root folder", () => {
 		const opts : ImagesOpts = {
 			url: {
-				pattern: "/:dir/:file.:ext"
+				pattern: "/:dir/:size/:file.:ext"
 			},
 			allowedFormats: "*"
 		} as ImagesOpts
 
-		const result = extractUrlInfo("/./100x100/giraffe.png", opts)
+		const result = extractUrlInfo("/./0x0/giraffe.png", opts)
 
 		expect(result).toStrictEqual({
 			"dir": ".",
@@ -177,6 +190,50 @@ describe("extractUrlInfo", () => {
 			"ext": "png",
 			"filename": "giraffe",
 			"path": "giraffe.png",
+			"size": [
+			  100,
+			  100,
+			],
+		  });
+	})
+
+	it("must accept UrlInfo objects with images in the root folder and a size", () => {
+		const opts : ImagesOpts = {
+			url: {
+				pattern: "/:dir/:size/:file.:ext"
+			},
+			allowedFormats: "*"
+		} as ImagesOpts
+
+		const result = extractUrlInfo("/100x100/giraffe.png", opts)
+
+		expect(result).toStrictEqual({
+			"dir": undefined,
+			"ext": "png",
+			"filename": "giraffe",
+			"path": "giraffe.png",
+			"size": [
+			  100,
+			  100,
+			],
+		  });
+	})
+
+	it("must accept UrlInfo objects with a directory depth > 1 ", () => {
+		const opts : ImagesOpts = {
+			url: {
+				pattern: "/:dir/:size/:file.:ext"
+			},
+			allowedFormats: "*"
+		} as ImagesOpts
+
+		const result = extractUrlInfo("/animal/mammals/100x100/giraffe.png", opts)
+
+		expect(result).toStrictEqual({
+			"dir": "animal/mammals",
+			"ext": "png",
+			"filename": "giraffe",
+			"path": "animal/mammals/giraffe.png",
 			"size": [
 			  100,
 			  100,

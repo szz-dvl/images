@@ -1,4 +1,4 @@
-import { ImageFormat, ImageSize, ImagesOpts } from "./types";
+import { ImageSize, ImagesOpts } from "./types";
 import { join } from "node:path";
 import { getAllowedExtension } from "./utils"
 
@@ -14,69 +14,34 @@ export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }
 
     /* https://github.com/shopsinc/imgr/blob/master/lib/server.js#L308 */
 
+    const constrains = [];
     const patternMatch = pattern.replace(/\./g, '(?:\\.)?');
     const constrainMatch = /:(dir|size|file|ext)/g
     const parsed: Record<string, string> = {}
     let match;
 
     while ((match = constrainMatch.exec(patternMatch))) {
+        constrains.push(match[1]);
+    }
 
-        const constrain = match[1];
-        let regex;
+    const urlPattern = patternMatch
+        .replace("/:dir", "(?:/(.+?))?")
+        .replace(":size", "(\\d+x{1}|x{1}\\d+|\\d+x{1}\\d+)")
+        .replace(":file", "([^/.]+)")
+        .replace(":ext", "(?<=(?:\\.)?)([^/.]*?)")
 
-        switch (constrain) {
-            case "size": {
-                const urlPattern = patternMatch
-                    .replace(":size", "(\\d+x{1}|x{1}\\d+|\\d+x{1}\\d+)")
-                    .replace("/:dir", ".*")
-                    .replace(":file", ".*")
-                    .replace(":ext", ".*")
+    const regex = new RegExp('^' + urlPattern + '$');
+    
+    match = regex.exec(url);
 
-                regex = new RegExp('^' + urlPattern + '$');
-            }
-            break;
-            case "dir": {
-                const urlPattern = patternMatch
-                    .replace("/:dir", "(?:/([^/]+))?")
-                    .replace("/:size", ".*")
-                    .replace(":file", ".*")
-                    .replace(":ext", ".*")
+    if (!match) {
+        return null;
+    }
 
-                regex = new RegExp('^' + urlPattern + '$');
-            }
-            break;
-            case "file": {
-                const urlPattern = patternMatch
-                    .replace(":file", "([^/.]+)")
-                    .replace("/:size", ".*")
-                    .replace(":dir", ".*")
-                    .replace(":ext", ".*")
-
-                regex = new RegExp('^' + urlPattern + '$');
-            }
-            break;
-            case "ext": {
-                const urlPattern = patternMatch
-                    .replace(":ext", "(?<=\\.)([^/]+?)")
-                    .replace("/:size", ".*")
-                    .replace(":dir", ".*")
-                    .replace(":file", ".*")
-
-                regex = new RegExp('^' + urlPattern + '$');
-            }
-            break;
-            default:
-                break;
-        }
-
-        const dataMatch = url.match(regex!);
-
-        if (!dataMatch) {
-            continue;
-        }   
-            
-        parsed[constrain] = dataMatch[1];
-
+    let idx = 0;
+    for (const constrain of constrains) {
+        parsed[constrain] = match[idx + 1];
+        idx ++;
     }
 
     const allowedExt = getAllowedExtension(parsed.ext, allowedFormats);
@@ -84,7 +49,10 @@ export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }
     const result: UrlInfo = {
         path: join(parsed.dir || '', parsed.file + (allowedExt ? ('.' + allowedExt) : '')),
         dir: parsed.dir,
-        size: parsed.size ? parsed.size.split('x', 2).map(s => s ? Number(s) : null) as ImageSize : [null, null],
+
+        /* 0x0 for no resize */
+        size: parsed.size ? parsed.size.split('x', 2).map(s => s && s !== "0" ? Number(s) : null) as ImageSize : [null, null],
+
         filename: parsed.file,
         ext: parsed.ext || null
     }
