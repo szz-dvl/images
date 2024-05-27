@@ -1,6 +1,4 @@
 import { describe, expect, it } from '@jest/globals';
-import { extractUrlInfo } from "../src/regex";
-import { ImagesOpts } from '../src/types';
 import { getAllowedExtension } from '../src/utils';
 
 describe("getAllowedExtension", () => {
