@@ -38,49 +38,52 @@ export default class Images {
 			return next();
 
 		const absolutePath = join(this.opts.dir, urlInfo.val.path)
-		const exactMatch = await checkFile(absolutePath);
-		
-		if (exactMatch.ok)
-			return res.status(200).sendFile(exactMatch.val);
-
 		const allowed = allowedSize(urlInfo.val.size, this.opts);
 
 		if (!allowed)
 			return next(); /** Size not allowed ¿404? */
-
-		const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size);
-
-		if (cachedFile.ok)
-			return res.status(204).sendFile(cachedFile.val)
 
 		const { glob, ext } = globExtension(absolutePath)
 
 		if (ext && !urlInfo.val.ext)
 			return next(); /** Format not allowed ¿404? */
 
-		const files = findFiles(glob)
-		const candidate = await files.iterate().next()
+		const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size);
 
-		if (!candidate.value)
+		if (cachedFile.ok)
+			return res.status(204).sendFile(cachedFile.val)
+
+		const exactMatch = await checkFile(absolutePath);
+		
+		let candidate: string | void;
+		if (exactMatch.ok)
+			candidate = exactMatch.val;
+		else {
+			const files = findFiles(glob)
+			const first = await files.iterate().next()
+			candidate = first.value
+		}
+		
+		if (!candidate)
 			return res.status(404).send()
-
-		if (!urlInfo.val.ext)
-			return res.status(200).sendFile(candidate.value)
-
-		const converter = convertFile(candidate.value, urlInfo.val.size, urlInfo.val.ext, this.opts)
+		
+		const converter = convertFile(candidate, urlInfo.val.size, urlInfo.val.ext, this.opts)
 
 		if (converter.err)
 			return next(converter.val)
+
+		if (converter.val.code === 200)
+			return res.status(converter.val.code).sendFile(candidate) /** No change */
 
 		const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size)
 
 		if (writer.err)
 			return next(writer.val)
 
-		res.status(201).setHeader("Content-Type", getFormatMimeType(urlInfo.val.ext))
+		res.status(converter.val.code).setHeader("Content-Type", converter.val.mime)
 		
-		createReadStream(candidate.value)
-			.pipe(converter.val)
+		createReadStream(candidate)
+			.pipe(converter.val.sharp)
 			.pipe(writer.val)
 			.pipe(res)
 	}

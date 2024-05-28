@@ -87,7 +87,7 @@ export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize)
 	return join(dir, ".cache", sizeDir, path);
 }
 
-export const getFormatMimeType = (ext: ImageFormat): ImageMimeType => {
+export const getFormatMimeType = (ext: ImageFormat | null): ImageMimeType => {
 
 	switch(ext) {
         case ImageFormat.PNG: {

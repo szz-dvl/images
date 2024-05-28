@@ -38,7 +38,7 @@ describe("middleware", () => {
 
     it("must fetch an image", async () => {
         
-        const result = await fetch("http://localhost:3000/0x0/giraffe.jpeg")
+        const result = await fetch("http://localhost:3000/0x50/giraffe.png")
         const image = await result.blob();
 
         console.log(image, result.status);
