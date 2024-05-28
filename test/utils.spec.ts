@@ -10,13 +10,13 @@ describe("getAllowedExtension", () => {
 	it("Must return a valid extension if a valid string is provided", () => {
 		const result = getAllowedExtension("png", '*')
 
-        expect(result).toBe("png")
+        expect(result.val).toBe("png")
 	})
 
     it("Must accept JPG as JPEG", () => {
 		const result = getAllowedExtension("jpg", '*')
 
-        expect(result).toBe("jpeg")
+        expect(result.val).toBe("jpeg")
 	})
 
 })

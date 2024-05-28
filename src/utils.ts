@@ -12,7 +12,7 @@ export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat
 		let found: Result<ImageFormat, Error> = Err(new Error("Unrecognized format", { cause: ext }))
 
 		forIn(ImageFormat, (value, key) => {
-			if (isNaN(Number(key)) && !found) {
+			if (isNaN(Number(key)) && found.err) {
 				if (value.toString() === ext || ext === "jpg" && value === ImageFormat.JPEG) {
 					found = Ok(value);
 				}
@@ -22,7 +22,11 @@ export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat
 		return found;
 	}
 
-	return allowedFormats.has(ext as ImageFormat) ? Ok(ext as ImageFormat) : ext === "jpg" ? Ok(ImageFormat.JPEG) : Err(new Error("Unrecognized format", { cause: ext }));
+	return allowedFormats.has(ext as ImageFormat) ? 
+		Ok(ext as ImageFormat) : 
+			ext === "jpg" ? 
+			Ok(ImageFormat.JPEG) : 
+			Err(new Error("Unrecognized format", { cause: ext }));
 }
 
 export const pruneExtension = (ext: string): string => {

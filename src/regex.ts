@@ -47,7 +47,7 @@ export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }
     const allowedExt = getAllowedExtension(parsed.ext, allowedFormats);
 
     const result: UrlInfo = {
-        path: join(parsed.dir || '', parsed.file + (allowedExt ? ('.' + allowedExt) : '')),
+        path: join(parsed.dir || '', parsed.file + (allowedExt.ok ? ('.' + allowedExt.val) : '')),
         dir: parsed.dir,
 
         /* 0x0 for no resize */

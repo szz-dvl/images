@@ -18,7 +18,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/100x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal",
 			"ext": "png",
 			"filename": "giraffe",
@@ -40,7 +40,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/giraffe.png", opts)
 
-		expect(result).toBe(null);
+		expect(result.err).toBeTruthy();
 	})
 
 	it("must return a UrlInfo object only with width given a url without height and an ImagesOpts object", () => {
@@ -53,7 +53,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/100x/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal",
 			"ext": "png",
 			"filename": "giraffe",
@@ -75,7 +75,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal",
 			"ext": "png",
 			"filename": "giraffe",
@@ -97,7 +97,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/0x0/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal",
 			"ext": "png",
 			"filename": "giraffe",
@@ -119,7 +119,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/100x100/giraffe", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal",
 			"ext": null,
 			"filename": "giraffe",
@@ -141,7 +141,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/100x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal/100x100",
 			"ext": "png",
 			"filename": "giraffe",
@@ -163,7 +163,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/./0x0/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": ".",
 			"ext": "png",
 			"filename": "giraffe",
@@ -185,7 +185,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/./100x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": ".",
 			"ext": "png",
 			"filename": "giraffe",
@@ -207,7 +207,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/100x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": undefined,
 			"ext": "png",
 			"filename": "giraffe",
@@ -229,7 +229,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/animal/mammals/100x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": "animal/mammals",
 			"ext": "png",
 			"filename": "giraffe",
@@ -251,7 +251,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/./100x100/giraffe.jpeg", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": ".",
 			"ext": "jpeg",
 			"filename": "giraffe",
@@ -273,7 +273,7 @@ describe("extractUrlInfo", () => {
 
 		const result = extractUrlInfo("/./100x100/giraffe.png", opts)
 
-		expect(result).toStrictEqual({
+		expect(result.val).toStrictEqual({
 			"dir": ".",
 			"ext": "png",
 			"filename": "giraffe",
