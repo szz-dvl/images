@@ -1,6 +1,6 @@
 import { forIn } from 'lodash';
 import { ImageFormat, ImageSize, ImagesOpts } from './types';
-import { extname } from "node:path";
+import { extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
 
 export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat> | "*"): Result<ImageFormat, Error> => {
@@ -45,7 +45,7 @@ export const globExtension = (path: string): GlobExtension => {
 	if (!ext)
 		return { ext, glob: `${path}.*` };
 
-	return { ext, glob: path.replace(ext, ".*") }
+	return { ext, glob: path.replace(`.${ext}`, ".*") }
 }
 
 export const allowedSize = ([targetWidth, targetHeight]: ImageSize, { limits: { width, height }, allowedSizes }: ImagesOpts): boolean => {
@@ -60,4 +60,23 @@ export const allowedSize = ([targetWidth, targetHeight]: ImageSize, { limits: { 
 		return true;
 
 	return allowedSizes.has([targetWidth, targetHeight]);
+}
+
+export const buildSizeDirectory = ([width, height]: ImageSize): string => {
+
+	if (!width && !height)
+		return '';
+
+	let dir = width ? `${width.toString()}x` : 'x';
+
+	if (height)
+		dir += height.toString();
+
+	return dir;
+}
+
+export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize) => {
+	const sizeDir = buildSizeDirectory(size)
+
+	return join(dir, ".cache", sizeDir, path);
 }
