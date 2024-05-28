@@ -19,7 +19,8 @@ export enum ImageMimeType {
     GIF = "image/gif",
     SVG = "image/svg",
     JP2 = "image/jp2",
-    HEIF = "application/octet-stream"
+    HEIF = "application/octet-stream",
+    ANY = "application/octet-stream"
 }
 
 export const ImageKnownExtensions = {

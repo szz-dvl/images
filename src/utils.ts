@@ -1,6 +1,6 @@
 import { forIn } from 'lodash';
 import { ImageSize, ImagesOpts } from './types';
-import { ImageFormat, ImageKnownExtensions } from "./constants";
+import { ImageFormat, ImageKnownExtensions, ImageMimeType } from "./constants";
 import { extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
 
@@ -85,4 +85,37 @@ export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize)
 	const sizeDir = buildSizeDirectory(size)
 
 	return join(dir, ".cache", sizeDir, path);
+}
+
+export const getFormatMimeType = (ext: ImageFormat): ImageMimeType => {
+
+	switch(ext) {
+        case ImageFormat.PNG: {
+            return ImageMimeType.PNG;
+        }
+        case ImageFormat.AVIF: {
+            return ImageMimeType.AVIF;
+        };
+        case ImageFormat.WEBP: {
+            return ImageMimeType.WEBP;
+        }
+        case ImageFormat.JPEG: {
+            return ImageMimeType.JPEG;
+        }
+        case ImageFormat.GIF: {
+			return ImageMimeType.GIF;
+        }
+        case ImageFormat.TIFF: {
+			return ImageMimeType.TIFF;
+        }
+        case ImageFormat.JP2: {
+			return ImageMimeType.JP2;
+        }
+        case ImageFormat.HEIF: {
+            return ImageMimeType.HEIF;
+        }
+    }
+
+	return ImageMimeType.ANY;
+
 }

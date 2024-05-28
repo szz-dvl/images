@@ -1,12 +1,11 @@
 import { cwd } from "node:process";
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
-import { allowedSize, globExtension } from "./utils";
+import { allowedSize, getFormatMimeType, globExtension } from "./utils";
 import { join } from "node:path";
 import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile } from "./convert";
-import { Writable, pipeline } from "node:stream";
-import { close, createReadStream, open, write } from "node:fs";
+import { createReadStream } from "node:fs";
 import { Response, Request, NextFunction } from "express";
 
 export default class Images {
@@ -71,21 +70,19 @@ export default class Images {
 		const converter = convertFile(candidate.value, urlInfo.val.size, urlInfo.val.ext, this.opts)
 
 		if (converter.err)
-			return next()
+			return next(converter.val)
 
 		const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size)
 
 		if (writer.err)
 			return next(writer.val)
 
-		writer.val.writer.on("close", () => {
-			/** */
-			return res.status(201).sendFile(writer.val.filename)
-		})
+		res.status(201).setHeader("Content-Type", getFormatMimeType(urlInfo.val.ext))
 		
 		createReadStream(candidate.value)
 			.pipe(converter.val)
-			.pipe(writer.val.writer);
+			.pipe(writer.val)
+			.pipe(res)
 	}
 
 }

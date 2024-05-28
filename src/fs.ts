@@ -82,12 +82,7 @@ export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize
 	}
 }
 
-export type WriterResult = {
-	writer: WriteStream,
-	filename: string 
-}
-
-export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<WriterResult, Error>> => {
+export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<Transform, Error>> => {
 
 	const cachePath = getCachePath(path, opts, size);
 	const cacheDir = dirname(cachePath);
@@ -99,40 +94,15 @@ export const getCacheWriter = async (path: string, opts: ImagesOpts, size: Image
 
 	const writeable = createWriteStream(cachePath);
 
-	// const cacheWriter = new WriteStream({
-	// 	write(chunk, encoding, callback) {
-	// 		writeable.write(chunk)
-	// 		callback(null);
-	// 	},
-	// 	destroy(err, cb) {
-	// 		console.log("destroy")
-	// 		writeable.close()
-	// 		cb(err)
-	// 	}
-	// }); 
-
-
-/*	const cacheWriter = new Transform({
+	const cacheWriter = new Transform({
 		transform(chunk, encoding, callback) {
 			writeable.write(chunk)
 			callback(null, chunk);
 		},
-		final() {
-			console.log("final")
-		},
-		destroy(err, callback) {
-			console.log("destroy")	
-		},
-		flush(callback) {
-			console.log("flush")
+		final(callback) {
 			writeable.close(callback)
-		}
-		
+		},
 	}); 
-	cacheWriter._flush = (cb) => {
-		console.log("_flush");
-		cb(null);
-	} */
 
-	return Ok({ writer: writeable, filename: cachePath });
+	return Ok(cacheWriter);
 }
