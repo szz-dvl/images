@@ -3,6 +3,8 @@ import * as http from "http";
 import { setupExpressServer } from './utils/server';
 import Images from "../src/images"
 import { rmSync } from 'fs';
+import { createDirIfNotExists } from '../src/fs';
+import { cp } from 'fs/promises';
 
 describe("middleware", () => {
     jest.setTimeout(10000)
@@ -11,18 +13,23 @@ describe("middleware", () => {
 
     beforeAll((done) => {
 
-        rmSync(`${__dirname}/images/.cache`, { recursive: true, force: true });
+        rmSync(`${__dirname}/images/`, { recursive: true, force: true });
 
-        const images = new Images({
-            dir: `${__dirname}/images`,
-            formatOpts: {
-                heif: {
-                    compression: 'av1'
-                }
-            }
-        })
-
-        server = setupExpressServer(images.middleware.bind(images), done);
+        createDirIfNotExists(`${__dirname}/images/`).then(() => {
+            cp(`${__dirname}/original/giraffe.png`, `${__dirname}/images/giraffe.png`).then(() => {
+                
+                const images = new Images({
+                    dir: `${__dirname}/images`,
+                    formatOpts: {
+                        heif: {
+                            compression: 'av1'
+                        }
+                    }
+                })
+        
+                server = setupExpressServer(images.middleware.bind(images), done);
+            });
+        });
     })
 
     it("must succeed", () => {
@@ -31,11 +38,10 @@ describe("middleware", () => {
 
     it("must fetch an image", async () => {
         
-        const result = await fetch("http://localhost:3000/0x0/giraffe.heif")
+        const result = await fetch("http://localhost:3000/0x0/giraffe.jpeg")
         const image = await result.blob();
 
         console.log(image, result.status);
-
 
     })
 

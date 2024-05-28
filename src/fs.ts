@@ -4,7 +4,7 @@ import { Glob } from "glob";
 import { Err, Ok, Result } from "ts-results";
 import { ImageSize, ImagesOpts } from "./types";
 import { getCachePath } from "./utils";
-import { createWriteStream } from "node:fs";
+import { WriteStream, createWriteStream } from "node:fs";
 
 import { Transform, Writable } from "node:stream";
 import { close, open, write } from "node:fs";
@@ -37,10 +37,11 @@ export const findFiles = (glob: string): Glob<{}> => {
 	return new Glob(glob, {})
 }
 
-export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<string, Error>> => {
+export const checkFile = async (path: string): Promise<Result<string, Error>> => {
 
-	const cachePath = getCachePath(path, opts, size);
-	const effectivePath = resolve(cachePath);
+	const effectivePath = resolve(path);
+
+	console.log(`Checking for file: ${effectivePath}`);
 
 	try {
 
@@ -58,43 +59,35 @@ export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize
 	}
 }
 
+export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<string, Error>> => {
 
-class CacheWriter extends Writable {
+	const cachePath = getCachePath(path, opts, size);
+	const effectivePath = resolve(cachePath);
 
-	private filename: string;
-	private fd: number | null;
+	console.log(`Checking for cached file: ${effectivePath}`);
 
-	constructor(filename: string) {
-	  super();
-	  this.filename = filename;
-	  this.fd = null;
+	try {
+
+		const statResult = await stat(effectivePath);
+
+		if (!statResult.isFile())
+			return Err(new Error("Not a file", { cause: statResult }))
+
+		return Ok(effectivePath)
+
+	} catch (err) {
+
+		return Err(new Error("File not found", { cause: err }))
+
 	}
-	
-	_construct(callback: (arg0?: NodeJS.ErrnoException) => void) {
-	  open(this.filename, (err, fd) => {
-		if (err) {
-		  callback(err);
-		} else {
-		  this.fd = fd;
-		  callback();
-		}
-	  });
-	}
+}
 
-	_write(chunk: Uint8Array, encoding: BufferEncoding, callback: (err: NodeJS.ErrnoException | null, written: number, buffer: Uint8Array) => void) {
-	  write(this.fd!, chunk, callback);
-	}
-	_destroy(err: any, callback: (arg0: any) => void) {
-	  if (this.fd) {
-		close(this.fd, (er) => callback(er || err));
-	  } else {
-		callback(err);
-	  }
-	}
-  }
+export type WriterResult = {
+	writer: WriteStream,
+	filename: string 
+}
 
-//Promise<Result<(stream: any) =>AsyncGenerator<any, void, unknown>, Error>>
-export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<Transform, Error>> => {
+export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<WriterResult, Error>> => {
 
 	const cachePath = getCachePath(path, opts, size);
 	const cacheDir = dirname(cachePath);
@@ -106,32 +99,40 @@ export const getCacheWriter = async (path: string, opts: ImagesOpts, size: Image
 
 	const writeable = createWriteStream(cachePath);
 
-	const cacheWriter = new Transform({
+	// const cacheWriter = new WriteStream({
+	// 	write(chunk, encoding, callback) {
+	// 		writeable.write(chunk)
+	// 		callback(null);
+	// 	},
+	// 	destroy(err, cb) {
+	// 		console.log("destroy")
+	// 		writeable.close()
+	// 		cb(err)
+	// 	}
+	// }); 
+
+
+/*	const cacheWriter = new Transform({
 		transform(chunk, encoding, callback) {
 			writeable.write(chunk)
 			callback(null, chunk);
 		},
-	}); 
-
-	cacheWriter.on("end", () => {
-		writeable.close()
-	})
-
-	return Ok(cacheWriter);
-
-	/* 
-	const writeable = createWriteStream(cachePath);
-
-	return Ok(async function* (stream: any) {
-		console.log(stream);
-
-		for await (const chunk of stream) {
-			console.log(chunk)
-			writeable.write(chunk)
-			yield chunk;
+		final() {
+			console.log("final")
+		},
+		destroy(err, callback) {
+			console.log("destroy")	
+		},
+		flush(callback) {
+			console.log("flush")
+			writeable.close(callback)
 		}
+		
+	}); 
+	cacheWriter._flush = (cb) => {
+		console.log("_flush");
+		cb(null);
+	} */
 
-		writeable.close();
-	});
-	*/
+	return Ok({ writer: writeable, filename: cachePath });
 }

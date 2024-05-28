@@ -3,7 +3,7 @@ import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
 import { allowedSize, globExtension } from "./utils";
 import { join } from "node:path";
-import { checkCache, findFiles, getCacheWriter } from "./fs";
+import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile } from "./convert";
 import { Writable, pipeline } from "node:stream";
 import { close, createReadStream, open, write } from "node:fs";
@@ -38,6 +38,12 @@ export default class Images {
 		if (urlInfo.err)
 			return next();
 
+		const absolutePath = join(this.opts.dir, urlInfo.val.path)
+		const exactMatch = await checkFile(absolutePath);
+		
+		if (exactMatch.ok)
+			return res.status(200).sendFile(exactMatch.val);
+
 		const allowed = allowedSize(urlInfo.val.size, this.opts);
 
 		if (!allowed)
@@ -46,12 +52,11 @@ export default class Images {
 		const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size);
 
 		if (cachedFile.ok)
-			return res.status(201).sendFile(cachedFile.val)
+			return res.status(204).sendFile(cachedFile.val)
 
-		const absolutePath = join(this.opts.dir, urlInfo.val.path)
 		const { glob, ext } = globExtension(absolutePath)
 
-		if (!ext && urlInfo.val.ext)
+		if (ext && !urlInfo.val.ext)
 			return next(); /** Format not allowed ¿404? */
 
 		const files = findFiles(glob)
@@ -60,10 +65,10 @@ export default class Images {
 		if (!candidate.value)
 			return res.status(404).send()
 
-		if (!ext)
+		if (!urlInfo.val.ext)
 			return res.status(200).sendFile(candidate.value)
 
-		const converter = convertFile(candidate.value, urlInfo.val.size, ext, this.opts)
+		const converter = convertFile(candidate.value, urlInfo.val.size, urlInfo.val.ext, this.opts)
 
 		if (converter.err)
 			return next()
@@ -72,11 +77,15 @@ export default class Images {
 
 		if (writer.err)
 			return next(writer.val)
+
+		writer.val.writer.on("close", () => {
+			/** */
+			return res.status(201).sendFile(writer.val.filename)
+		})
 		
 		createReadStream(candidate.value)
 			.pipe(converter.val)
-			.pipe(writer.val)
-			.pipe(res);
+			.pipe(writer.val.writer);
 	}
 
 }

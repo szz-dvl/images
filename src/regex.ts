@@ -2,13 +2,14 @@ import { ImageSize, ImagesOpts } from "./types";
 import { join } from "node:path";
 import { getAllowedExtension } from "./utils"
 import { Err, Ok, Result } from "ts-results";
+import { ImageFormat } from "./constants";
 
 export type UrlInfo = {
     path: string,
     dir: string,
     size: ImageSize,
     filename: string,
-    ext: string | null
+    ext: ImageFormat | null
 }
 
 export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }: ImagesOpts): Result<UrlInfo, Error> => {
@@ -47,14 +48,14 @@ export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }
     const allowedExt = getAllowedExtension(parsed.ext, allowedFormats);
 
     const result: UrlInfo = {
-        path: join(parsed.dir || '', parsed.file + (allowedExt.ok ? ('.' + allowedExt.val) : '')),
+        path: join(parsed.dir || '', parsed.file + (parsed.ext ? ('.' + parsed.ext) : '')),
         dir: parsed.dir,
 
         /* 0x0 for no resize */
         size: parsed.size ? parsed.size.split('x', 2).map(s => s && s !== "0" ? Number(s) : null) as ImageSize : [null, null],
 
         filename: parsed.file,
-        ext: parsed.ext || null
+        ext: allowedExt.err ? null : allowedExt.val
     }
 
     return Ok(result);

@@ -1,19 +1,17 @@
-import { AvifOptions, GifOptions, HeifOptions, Jp2Options, JpegOptions, PngOptions, TiffOptions, TileOptions, WebpOptions } from "sharp"
+import { 
+    AvifOptions, 
+    GifOptions, 
+    HeifOptions, 
+    Jp2Options, 
+    JpegOptions, 
+    PngOptions, 
+    TiffOptions, 
+    TileOptions, 
+    WebpOptions 
+} from "sharp"
+import { ImageFormat } from "./constants"
 
 export type ImageSize = [number | null, number | null]
-
-export enum ImageFormat {
-    JPEG = "jpeg",
-    PNG = "png",
-    WEBP = "webp",
-    AVIF = "avif",
-    TIFF = "tiff",
-    GIF = "gif",
-    SVG = "svg",
-    JP2 = "jp2",
-    DZI = "dzi",
-    HEIF = "heif"
-}
 
 export type FormatsOpts = {
     webp?: WebpOptions,

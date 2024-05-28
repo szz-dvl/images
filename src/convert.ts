@@ -1,5 +1,6 @@
 import { createReadStream } from "fs";
-import { ImageFormat, ImageSize, ImagesOpts } from "./types";
+import { ImageSize, ImagesOpts } from "./types";
+import { ImageFormat } from "./constants";
 import sharp, { Sharp } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 
@@ -32,10 +33,6 @@ export const convertFile = (from: string, size: ImageSize, ext: ImageFormat, { f
         break;
         case ImageFormat.GIF: {
             converter.gif(formatOpts?.gif)
-        }
-        break;
-        case ImageFormat.DZI: {
-            converter.tile(formatOpts?.dzi)
         }
         break;
         case ImageFormat.TIFF: {

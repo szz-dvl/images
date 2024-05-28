@@ -1,7 +1,12 @@
 import { forIn } from 'lodash';
-import { ImageFormat, ImageSize, ImagesOpts } from './types';
+import { ImageSize, ImagesOpts } from './types';
+import { ImageFormat, ImageKnownExtensions } from "./constants";
 import { extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
+
+export const isKnownExtension = (ext: string, current: ImageFormat) => {
+	return ImageKnownExtensions[current].includes(ext)
+}
 
 export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat> | "*"): Result<ImageFormat, Error> => {
 
@@ -13,7 +18,7 @@ export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat
 
 		forIn(ImageFormat, (value, key) => {
 			if (isNaN(Number(key)) && found.err) {
-				if (value.toString() === ext || ext === "jpg" && value === ImageFormat.JPEG) {
+				if (isKnownExtension(ext, value)) {
 					found = Ok(value);
 				}
 			}
@@ -22,11 +27,12 @@ export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat
 		return found;
 	}
 
-	return allowedFormats.has(ext as ImageFormat) ? 
-		Ok(ext as ImageFormat) : 
-			ext === "jpg" ? 
-			Ok(ImageFormat.JPEG) : 
-			Err(new Error("Unrecognized format", { cause: ext }));
+	for (const allowed of allowedFormats) {
+		if (isKnownExtension(ext, allowed))
+			return Ok(allowed)
+	}
+
+	return Err(new Error("Unrecognized format", { cause: ext }));
 }
 
 export const pruneExtension = (ext: string): string => {
@@ -34,13 +40,13 @@ export const pruneExtension = (ext: string): string => {
 }
 
 export type GlobExtension = {
-	ext: ImageFormat,
+	ext: string,
 	glob: string,
 }
 
 export const globExtension = (path: string): GlobExtension => {
 
-	const ext: ImageFormat = pruneExtension(extname(path)) as ImageFormat;
+	const ext = pruneExtension(extname(path));
 
 	if (!ext)
 		return { ext, glob: `${path}.*` };
@@ -75,7 +81,7 @@ export const buildSizeDirectory = ([width, height]: ImageSize): string => {
 	return dir;
 }
 
-export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize) => {
+export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize): string => {
 	const sizeDir = buildSizeDirectory(size)
 
 	return join(dir, ".cache", sizeDir, path);
