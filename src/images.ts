@@ -1,6 +1,13 @@
 import { cwd } from "node:process";
-import { createDirIfNotExists } from "./fs";
 import { ImagesOpts } from "./types";
+import { extractUrlInfo } from "./regex";
+import { allowedSize, globExtension } from "./utils";
+import { join } from "node:path";
+import { findFiles } from "./fs";
+import { convertFile } from "./convert";
+import { pipeline } from "node:stream";
+import { createReadStream } from "node:fs";
+import { ServerResponse } from "node:http";
 
 export default class Images {
 
@@ -15,10 +22,6 @@ export default class Images {
 		limits: {
 			width: 1920,
 			height: 1080,
-		},
-		quality: {
-			webp: 80,
-			avif: 80,
 		}
 	}
 
@@ -29,18 +32,34 @@ export default class Images {
 		}
 	}
 
-	public async init() {
-		await createDirIfNotExists(this.opts.dir);
-	}
-
-	public async middleware(req: Request, res: Response, next: (err?: Error) => {}) {
+	public async middleware(req: Request, res: ServerResponse, next: (err?: Error) => {}) {
 
 		const requestUrl = req.url;
+		const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
-		if (!requestUrl.startsWith(this.opts.url.prefix))
-			next()
+		if (!urlInfo)
+			return next();
 
+		const allowed = allowedSize(urlInfo.size, this.opts);
 
+		if (!allowed)
+			return next();
+
+		const absolutePath = join(this.opts.dir, urlInfo.path)
+		const { glob, ext } = globExtension(absolutePath)
+
+		if (!ext && urlInfo.ext) 
+			return next(); /** Format not allowed ¿404? */
+
+		const files = findFiles(glob)
+		const candidate = await files.iterate().next()
+
+		const converter = convertFile(candidate.value, urlInfo.size, ext, this.opts)
+		
+		if (!converter)
+			return next()
+
+		pipeline(createReadStream(candidate.value!), converter, res)
 
 	}
 

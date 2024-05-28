@@ -2,7 +2,7 @@ export * as Images from "./images"
 export {
     ImageSize,
     ImageFormat,
-    FormatsQuality,
+    FormatsOpts,
     ImageUrlPattern,
     ImageLimits,
     ImagesOpts

@@ -30,6 +30,8 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "glob": "^10.4.1",
+    "lodash": "^4.17.21",
+    "sharp": "^0.33.4"
   }
 }

@@ -1,5 +1,6 @@
 import { stat, mkdir } from "node:fs/promises"
 import { resolve } from "node:path"
+import { Glob } from "glob";
 
 export const createDirIfNotExists = async (path: string): Promise<void> => {
 	const effectivePath = resolve(path);
@@ -21,4 +22,10 @@ export const createDirIfNotExists = async (path: string): Promise<void> => {
 		await mkdir(effectivePath, { recursive: true });
 
 	}
+}
+
+export const findFiles = (glob: string) => {
+
+	return new Glob(glob, {})
+
 }

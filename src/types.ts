@@ -1,3 +1,5 @@
+import { AvifOptions, GifOptions, HeifOptions, Jp2Options, JpegOptions, PngOptions, TiffOptions, TileOptions, WebpOptions } from "sharp"
+
 export type ImageSize = [number | null, number | null]
 
 export enum ImageFormat {
@@ -9,12 +11,20 @@ export enum ImageFormat {
     GIF = "gif",
     SVG = "svg",
     JP2 = "jp2",
-    DZI = "dzi"
+    DZI = "dzi",
+    HEIF = "heif"
 }
 
-export type FormatsQuality = {
-    webp?: number,
-    avif?: number
+export type FormatsOpts = {
+    webp?: WebpOptions,
+    avif?: AvifOptions,
+    jpeg?: JpegOptions,
+    png?: PngOptions,
+    tiff?: TiffOptions,
+    gif?: GifOptions,
+    jp2?: Jp2Options,
+    dzi?: TileOptions,
+    heif?: HeifOptions
 }
 
 export type ImageUrlPattern = {
@@ -33,5 +43,5 @@ export type ImagesOpts = {
     allowedSizes: Set<ImageSize> | "*",
     allowedFormats: Set<ImageFormat> | "*",
     limits: ImageLimits,
-    quality?: FormatsQuality
+    formatOpts?: FormatsOpts
 }
