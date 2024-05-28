@@ -1,8 +1,9 @@
 import { stat, mkdir } from "node:fs/promises"
 import { resolve } from "node:path"
-import { Glob } from "glob";
+import { Glob, GlobOptions } from "glob";
+import { Err, Ok, Result } from "ts-results";
 
-export const createDirIfNotExists = async (path: string): Promise<void> => {
+export const createDirIfNotExists = async (path: string): Promise<Result<void,Error>> => {
 	const effectivePath = resolve(path);
 
 	try {
@@ -10,22 +11,22 @@ export const createDirIfNotExists = async (path: string): Promise<void> => {
 		const statResult = await stat(effectivePath);
 
 		if (!statResult.isDirectory())
-			throw new Error("Not a directory", { cause: statResult });
+			return Err(new Error("Not a directory", { cause: statResult }));
 
 	} catch (e) {
 
 		const err = e as any;
 
 		if (err.code !== "ENOENT")
-			throw err;
+			return Err(err);
 
 		await mkdir(effectivePath, { recursive: true });
 
 	}
+
+	return Ok.EMPTY
 }
 
-export const findFiles = (glob: string) => {
-
+export const findFiles = (glob: string): Glob<{}> => {
 	return new Glob(glob, {})
-
 }

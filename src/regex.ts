@@ -1,6 +1,7 @@
 import { ImageSize, ImagesOpts } from "./types";
 import { join } from "node:path";
 import { getAllowedExtension } from "./utils"
+import { Err, Ok, Result } from "ts-results";
 
 export type UrlInfo = {
     path: string,
@@ -10,7 +11,7 @@ export type UrlInfo = {
     ext: string | null
 }
 
-export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }: ImagesOpts): UrlInfo | null => {
+export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }: ImagesOpts): Result<UrlInfo, Error> => {
 
     /* https://github.com/shopsinc/imgr/blob/master/lib/server.js#L308 */
 
@@ -31,11 +32,10 @@ export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }
         .replace(":ext", "(?<=(?:\\.)?)([^/.]*?)")
 
     const regex = new RegExp('^' + urlPattern + '$');
-    
     match = regex.exec(url);
 
     if (!match) {
-        return null;
+        return Err(new Error("Bad URL", { cause: url }));
     }
 
     let idx = 0;
@@ -57,5 +57,5 @@ export const extractUrlInfo = (url: string, { url: { pattern }, allowedFormats }
         ext: parsed.ext || null
     }
 
-    return result;
+    return Ok(result);
 }

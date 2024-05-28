@@ -7,7 +7,7 @@ import { findFiles } from "./fs";
 import { convertFile } from "./convert";
 import { pipeline } from "node:stream";
 import { createReadStream } from "node:fs";
-import { ServerResponse } from "node:http";
+import { Response, Request, NextFunction } from "express";
 
 export default class Images {
 
@@ -32,34 +32,37 @@ export default class Images {
 		}
 	}
 
-	public async middleware(req: Request, res: ServerResponse, next: (err?: Error) => {}) {
+	public async middleware(req: Request, res: Response, next: NextFunction) {
 
 		const requestUrl = req.url;
 		const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
-		if (!urlInfo)
+		if (urlInfo.err)
 			return next();
 
-		const allowed = allowedSize(urlInfo.size, this.opts);
+		const allowed = allowedSize(urlInfo.val.size, this.opts);
 
 		if (!allowed)
 			return next();
 
-		const absolutePath = join(this.opts.dir, urlInfo.path)
+		const absolutePath = join(this.opts.dir, urlInfo.val.path)
 		const { glob, ext } = globExtension(absolutePath)
 
-		if (!ext && urlInfo.ext) 
+		if (!ext && urlInfo.val.ext) 
 			return next(); /** Format not allowed ¿404? */
 
 		const files = findFiles(glob)
 		const candidate = await files.iterate().next()
 
-		const converter = convertFile(candidate.value, urlInfo.size, ext, this.opts)
+		if (!candidate.value)
+			return res.status(404).send()
+
+		const converter = convertFile(candidate.value, urlInfo.val.size, ext, this.opts)
 		
-		if (!converter)
+		if (converter.err)
 			return next()
 
-		pipeline(createReadStream(candidate.value!), converter, res)
+		pipeline(createReadStream(candidate.value), converter.val, res)
 
 	}
 

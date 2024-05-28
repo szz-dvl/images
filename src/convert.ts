@@ -1,16 +1,14 @@
 import { createReadStream } from "fs";
 import { ImageFormat, ImageSize, ImagesOpts } from "./types";
 import sharp, { Sharp } from "sharp";
+import { Err, Ok, Result } from "ts-results";
 
-export const convertFile = (from: string | void, size: ImageSize, ext: ImageFormat, { formatOpts }: ImagesOpts): Sharp | null => {
-
-    if (!from)
-        return null;
+export const convertFile = (from: string, size: ImageSize, ext: ImageFormat, { formatOpts }: ImagesOpts): Result<Sharp, Error> => {
 
     console.log(`Converting file ${from} to ${ext}`);
 
     if (ext === ImageFormat.SVG) 
-        return null;
+        return Err(new Error("Bad target format", { cause: ext }));
 
     const converter = sharp()
         .resize(...size)
@@ -54,5 +52,5 @@ export const convertFile = (from: string | void, size: ImageSize, ext: ImageForm
         break;
     }
 
-    return converter;
+    return Ok(converter);
 }

@@ -1,19 +1,20 @@
 import { forIn } from 'lodash';
 import { ImageFormat, ImageSize, ImagesOpts } from './types';
 import { extname } from "node:path";
+import { Err, Ok, Result } from 'ts-results';
 
-export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat> | "*"): ImageFormat | null => {
+export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat> | "*"): Result<ImageFormat, Error> => {
 
 	if (allowedFormats === "*") {
 
 		/* https://blog.logrocket.com/iterate-over-enums-typescript */
 
-		let found: ImageFormat | null = null
+		let found: Result<ImageFormat, Error> = Err(new Error("Unrecognized format", { cause: ext }))
 
 		forIn(ImageFormat, (value, key) => {
 			if (isNaN(Number(key)) && !found) {
 				if (value.toString() === ext || ext === "jpg" && value === ImageFormat.JPEG) {
-					found = value;
+					found = Ok(value);
 				}
 			}
 		});
@@ -21,10 +22,10 @@ export const getAllowedExtension = (ext: string, allowedFormats: Set<ImageFormat
 		return found;
 	}
 
-	return allowedFormats.has(ext as ImageFormat) ? ext as ImageFormat : ext === "jpg" ? ImageFormat.JPEG : null;
+	return allowedFormats.has(ext as ImageFormat) ? Ok(ext as ImageFormat) : ext === "jpg" ? Ok(ImageFormat.JPEG) : Err(new Error("Unrecognized format", { cause: ext }));
 }
 
-export const pruneExtension = (ext: string) => {
+export const pruneExtension = (ext: string): string => {
 	return ext.startsWith(".") ? ext.replace(".", "") : ext;
 }
 
