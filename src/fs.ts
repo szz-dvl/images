@@ -4,10 +4,9 @@ import { Glob } from "glob";
 import { Err, Ok, Result } from "ts-results";
 import { ImageSize, ImagesOpts } from "./types";
 import { getCachePath } from "./utils";
-import { WriteStream, createWriteStream } from "node:fs";
+import { createWriteStream } from "node:fs";
 
-import { Transform, Writable } from "node:stream";
-import { close, open, write } from "node:fs";
+import { Transform } from "node:stream";
 
 export const createDirIfNotExists = async (path: string): Promise<Result<void, Error>> => {
 	const effectivePath = resolve(path);

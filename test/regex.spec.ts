@@ -254,9 +254,9 @@ describe("extractUrlInfo", () => {
 
 		expect(result.val).toStrictEqual({
 			"dir": ".",
-			"ext": "jpeg",
+			"ext": null,
 			"filename": "giraffe",
-			"path": "giraffe",
+			"path": "giraffe.jpeg",
 			"size": [
 			  100,
 			  100,

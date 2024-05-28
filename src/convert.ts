@@ -1,4 +1,3 @@
-import { createReadStream } from "fs";
 import { ImageSize, ImagesOpts } from "./types";
 import { ImageFormat } from "./constants";
 import sharp, { Sharp } from "sharp";
