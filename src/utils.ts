@@ -75,7 +75,7 @@ export const buildEffectsSuffix = (effects: ParsedQs) => {
 
 	for (const effect in effects) {
 		const effectValue = effects[effect];
-		suffix += `${effect}-${effectValue}_`;
+		suffix += `${effect}=${effectValue}-`;
 	}
 
 	return suffix.substring(0, suffix.length - 1)
