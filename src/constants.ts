@@ -72,7 +72,6 @@ export enum ImageEffect {
     RECOMB = "recomb",
     MODULATE = "modulate",
     TINT = "tint",
-    GREYSCALE = "greyscale",
     GRAYSCALE = "grayscale",
     PIPELINECOLOURSPACE = "pipelineColourspace",
     PIPELINECOLORSPACE = "pipelineColorspace",

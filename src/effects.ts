@@ -25,6 +25,10 @@ import { applySharpenEffect } from "./effects/sharpen";
 import { applyThresholdEffect } from "./effects/threshold";
 import { applyTrimEffect } from "./effects/trim";
 import { applyUnflattenEffect } from "./effects/unflatten";
+import { applyTintEffect } from "./effects/tint";
+import { applyGrayscaleEffect } from "./effects/grayscale";
+import { applyToColorspaceEffect } from "./effects/toColorspace";
+import { applyPipelineColorspaceEffect } from "./effects/pipelineColorspace";
 
 export type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
 type EffectState = Record<ImageEffect, number>
@@ -207,6 +211,29 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
             case "trim": {
                 if (state(ImageEffect.TRIM))
                     result = applyTrimEffect(sharp, batch);
+            }
+                break;
+            case "tint": {
+                if (state(ImageEffect.TINT))
+                    result = applyTintEffect(sharp, batch);
+            }
+                break;
+            case "grayscale":
+            case "greyscale": {
+                if (state(ImageEffect.GRAYSCALE))
+                    result = applyGrayscaleEffect(sharp, batch);
+            }
+                break;
+            case "pipelineColorspace":
+            case "pipelineColourspace": {
+                if (state(ImageEffect.PIPELINECOLORSPACE))
+                    result = applyPipelineColorspaceEffect(sharp, batch);
+            }
+                break;
+            case "toColorspace":
+            case "toColourspace": {
+                if (state(ImageEffect.PIPELINECOLORSPACE))
+                    result = applyToColorspaceEffect(sharp, batch);
             }
                 break;
             case "resize":

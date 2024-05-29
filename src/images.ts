@@ -23,9 +23,12 @@ export default class Images {
 			allowedSizes: "*",
 			allowedFormats: "*",
 			allowedEffects: {
+				/** Resize */
 				[ImageEffect.EXTEND]: 1,
 				[ImageEffect.EXTRACT]: 1,
 				[ImageEffect.TRIM]: 1,
+
+				/** Operations */
 				[ImageEffect.ROTATE]: 1,
 				[ImageEffect.FLIP]: 1,
 				[ImageEffect.FLOP]: 1,
@@ -45,13 +48,14 @@ export default class Images {
 				[ImageEffect.LINEAR]: 1,
 				[ImageEffect.RECOMB]: 1,
 				[ImageEffect.MODULATE]: 1,
+
+				/** Color */
 				[ImageEffect.TINT]: 1,
-				[ImageEffect.GREYSCALE]: 1,
 				[ImageEffect.GRAYSCALE]: 1,
-				[ImageEffect.PIPELINECOLOURSPACE]: 1,
 				[ImageEffect.PIPELINECOLORSPACE]: 1,
-				[ImageEffect.TOCOLOURSPACE]: 1,
 				[ImageEffect.TOCOLORSPACE]: 1,
+
+				/** Channel */
 				[ImageEffect.REMOVEALPHA]: 1,
 				[ImageEffect.ENSUREALPHA]: 1,
 				[ImageEffect.EXTRACTCHANNEL]: 1,
