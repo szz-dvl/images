@@ -1,4 +1,4 @@
-import { BoolEnum, ClaheOptions, Kernel, Matrix3x3, Sharp, SharpenOptions } from "sharp";
+import { BoolEnum, ClaheOptions, Kernel, Matrix3x3, Region, Sharp, SharpenOptions } from "sharp";
 import { Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
 import { ImageEffect } from "./constants";
@@ -74,7 +74,7 @@ const applyAffineEffect = (sharp: Sharp, affineEffects: EffectOperation): Result
 
 const applySharpenEffect = (sharp: Sharp, sharpenEffects: EffectOperation): Result<void, Error> => {
 
-    let { opts } = getOperationDefinition(sharpenEffects)
+    const { opts } = getOperationDefinition(sharpenEffects)
 
     for (const opt in opts) {
         opts[opt] = Number(opts[opt])
@@ -135,10 +135,10 @@ const applyGammaEffect = (sharp: Sharp, gammaEffects: EffectOperation): Result<v
 
 const applyNegateEffect = (sharp: Sharp, negateEffects: EffectOperation): Result<void, Error> => {
 
-    let { opts } = getOperationDefinition(negateEffects)
+    const { opts } = getOperationDefinition(negateEffects)
 
     for (const opt in opts) {
-        opts[opt] = opts[opt] != "false"
+        opts[opt] = opts[opt] !== "false";
     }
 
     sharp.negate(opts);
@@ -148,7 +148,7 @@ const applyNegateEffect = (sharp: Sharp, negateEffects: EffectOperation): Result
 
 const applyNormaliseEffect = (sharp: Sharp, normaliseEffects: EffectOperation): Result<void, Error> => {
 
-    let { opts } = getOperationDefinition(normaliseEffects)
+    const { opts } = getOperationDefinition(normaliseEffects)
 
     for (const opt in opts) {
         opts[opt] = Number(opts[opt])
@@ -161,7 +161,7 @@ const applyNormaliseEffect = (sharp: Sharp, normaliseEffects: EffectOperation): 
 
 const applyClaheEffect = (sharp: Sharp, claheEffects: EffectOperation): Result<void, Error> => {
 
-    let { opts } = getOperationDefinition(claheEffects)
+    const { opts } = getOperationDefinition(claheEffects)
 
     for (const opt in opts) {
         opts[opt] = Number(opts[opt])
@@ -193,10 +193,10 @@ const applyConvolveEffect = (sharp: Sharp, convolveEffects: EffectOperation): Re
 
 const applyThresholdEffect = (sharp: Sharp, thresholdEffects: EffectOperation): Result<void, Error> => {
 
-    let { param: threshold, opts } = getOperationDefinition(thresholdEffects)
+    const { param: threshold, opts } = getOperationDefinition(thresholdEffects)
 
     for (const opt in opts) {
-        opts[opt] = opts[opt] != "false"
+        opts[opt] = opts[opt] !== "false";
     }
 
     sharp.threshold(Number(threshold), opts);
@@ -206,7 +206,7 @@ const applyThresholdEffect = (sharp: Sharp, thresholdEffects: EffectOperation): 
 
 const applyBooleanEffect = (sharp: Sharp, booleanEffects: EffectOperation): Result<void, Error> => {
 
-    let { opts } = getOperationDefinition(booleanEffects)
+    const { opts } = getOperationDefinition(booleanEffects)
 
     sharp.boolean(opts.operand as string, opts.operator as keyof BoolEnum);
 
@@ -234,8 +234,9 @@ const applyLinearEffect = (sharp: Sharp, linearEffects: EffectOperation): Result
 
 const applyRecombEffect = (sharp: Sharp, recombEffects: EffectOperation): Result<void, Error> => {
 
+    /** Queries must look like: ?recomb.0=1&recomb.0=1 ... &recomb.2=2 */
+
     const { opts } = getOperationDefinition(recombEffects);
-    const typed: Record<string, number | Array<number>> = {}
     const recombMatrix: Matrix3x3 = [] as unknown as Matrix3x3;
 
     for (const opt in opts) {
@@ -254,13 +255,75 @@ const applyRecombEffect = (sharp: Sharp, recombEffects: EffectOperation): Result
 
 const applyModulateEffect = (sharp: Sharp, modulateEffects: EffectOperation): Result<void, Error> => {
 
-    let { opts } = getOperationDefinition(modulateEffects)
+    const { opts } = getOperationDefinition(modulateEffects)
 
     for (const opt in opts) {
         opts[opt] = Number(opts[opt])
     }
 
     sharp.modulate(opts);
+
+    return Ok.EMPTY;
+}
+
+const applyExtendEffect = (sharp: Sharp, extendEffects: EffectOperation): Result<void, Error> => {
+
+    const { param: extend, opts } = getOperationDefinition(extendEffects)
+
+    if (extend) {
+        sharp.extend(Number(extend));
+        return Ok.EMPTY;
+    }
+
+    for (const opt in opts) {
+        switch (opt) {
+            case "top":
+            case "left":
+            case "bottom":
+            case "right":
+                opts[opt] = Number(opts[opt])
+            case "extendWith":
+            case "background":
+                opts[opt] = opts[opt].toString()
+        }
+    }
+
+    sharp.extend(opts);
+
+    return Ok.EMPTY;
+}
+
+const applyExtractEffect = (sharp: Sharp, extractEffects: EffectOperation): Result<void, Error> => {
+
+    /** A limitation if the package: extract will always happens before resizing  */
+
+    const { opts } = getOperationDefinition(extractEffects)
+
+    for (const opt in opts) {
+        opts[opt] = Number(opts[opt])
+    }
+
+    sharp.extract(opts as unknown as Region);
+
+    return Ok.EMPTY;
+}
+
+const applyTrimEffect = (sharp: Sharp, trimEffects: EffectOperation): Result<void, Error> => {
+
+    const { opts } = getOperationDefinition(trimEffects)
+
+    for (const opt in opts) {
+        switch (opt) {
+            case "threshold":
+                opts[opt] = Number(opts[opt])
+            case "lineArt":
+                opts[opt] !== "false"
+            case "background":
+                opts[opt] = opts[opt].toString()
+        }
+    }
+
+    sharp.trim(opts);
 
     return Ok.EMPTY;
 }
@@ -274,7 +337,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
         let effect = effectsKeys[i];
         const batch: EffectOperation = {}
-        const effectKey = effect.split(".")[0].replace("_", "")
+        const effectKey = effect.split(".")[0].replace("_", "") /** Several operations of the same kind must be prefixed with as many undescores (_) as times the operation was previously requested */
 
         do {
 
@@ -382,8 +445,23 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                     result = applyModulateEffect(sharp, batch);
             }
                 break;
+            case "extend": {
+                if (isAllowedEffect(ImageEffect.EXTEND, state))
+                    result = applyExtendEffect(sharp, batch);
+            }
+                break;
+            case "extract": {
+                if (isAllowedEffect(ImageEffect.EXTRACT, state))
+                    result = applyExtractEffect(sharp, batch);
+            }
+                break;
+            case "trim": {
+                if (isAllowedEffect(ImageEffect.TRIM, state))
+                    result = applyTrimEffect(sharp, batch);
+            }
+                break;
             case "resize":
-                continue;
+                continue; /** Treated later on in converter */
             default:
                 console.log(`Ignoring unrecognized effect: ${effectKey}`);
         }

@@ -40,7 +40,7 @@ const getResizeOptions = (effects: ParsedQs): Record<string, number | string | b
             case "withoutEnlargement":
             case "withoutReduction":
             case "fastShrinkOnLoad":
-                typed[opt] = opts[opt] != "false"
+                typed[opt] = opts[opt] !== "false"
                 break;
             default:
                 continue;
