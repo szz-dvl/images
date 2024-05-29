@@ -8,18 +8,20 @@ export enum ImageFormat {
     SVG = "svg",
     JP2 = "jp2",
     HEIF = "heif"
+
+    /** Accepting globs in the url we may be able to deal with DZI. Some effects may take advantage of this feature too. */
 }
 
 export enum ImageMimeType {
     JPEG = "image/jpeg",
     PNG = "image/png",
     WEBP = "image/webp",
-    AVIF = "application/octet-stream",
+    AVIF = "image/avif",
     TIFF = "image/tiff",
     GIF = "image/gif",
     SVG = "image/svg",
     JP2 = "image/jp2",
-    HEIF = "application/octet-stream",
+    HEIF = "image/heif",
     ANY = "application/octet-stream"
 }
 

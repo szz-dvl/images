@@ -25,7 +25,7 @@ describe("middleware", () => {
                             compression: 'av1'
                         }
                     }
-                })
+                });
         
                 server = setupExpressServer(images.middleware.bind(images), done);
             });
