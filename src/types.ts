@@ -9,7 +9,7 @@ import {
     TileOptions, 
     WebpOptions 
 } from "sharp"
-import { ImageFormat } from "./constants"
+import { ImageEffect, ImageFormat } from "./constants"
 
 export type ImageSize = [number | null, number | null]
 
@@ -40,6 +40,7 @@ export type ImagesOpts = {
     url: ImageUrlPattern,
     allowedSizes: Set<ImageSize> | "*",
     allowedFormats: Set<ImageFormat> | "*",
+    allowedEffects: Record<ImageEffect, number>,
     limits: ImageLimits,
     formatOpts?: FormatsOpts
 }

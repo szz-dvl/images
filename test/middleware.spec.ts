@@ -37,8 +37,8 @@ describe("middleware", () => {
     })
 
     it("must fetch an image", async () => {
-        
-        const result = await fetch("http://localhost:3000/0x250/giraffe.jpeg?rotate=120&rotate.background=%23FF0000&modulate.hue=60")
+
+        const result = await fetch("http://localhost:3000/0x250/giraffe.jpeg?modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&_rotate=90&flip")
         const image = await result.blob();
 
         console.log(image, result.status);

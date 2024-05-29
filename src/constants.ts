@@ -45,3 +45,40 @@ export const ImageKnownExtensions = {
         "HIF"
     ]
 }
+
+export enum ImageEffect {
+    EXTEND = "extend",
+    EXTRACT = "extract",
+    TRIM = "trim",
+    ROTATE = "rotate",
+    FLIP = "flip",
+    FLOP = "flop",
+    AFFINE = "affine",
+    SHARPEN = "sharpen",
+    MEDIAN = "median",
+    BLUR = "blur",
+    FLATTEN = "flatten",
+    UNFLATTEN = "unflatten",
+    GAMMA = "gamma",
+    NEGATE = "negate",
+    NORMALISE = "normalise",
+    CLAHE = "clahe",
+    CONVOLVE = "convolve",
+    THRESHOLD = "threshold",
+    BOOLEAN = "boolean",
+    LINEAR = "linear",
+    RECOMB = "recomb",
+    MODULATE = "modulate",
+    TINT = "tint",
+    GREYSCALE = "greyscale",
+    GRAYSCALE = "grayscale",
+    PIPELINECOLOURSPACE = "pipelineColourspace",
+    PIPELINECOLORSPACE = "pipelineColorspace",
+    TOCOLOURSPACE = "toColourspace",
+    TOCOLORSPACE = "toColorspace",
+    REMOVEALPHA = "removeAlpha",
+    ENSUREALPHA = "ensureAlpha",
+    EXTRACTCHANNEL = "extractChannel",
+    JOINCHANNEL = "joinChannel",
+    BANDBOOL = "bandbool"
+}

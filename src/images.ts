@@ -7,6 +7,7 @@ import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
 import { Response, Request, NextFunction } from "express";
+import { ImageEffect } from "./constants";
 
 export default class Images {
 
@@ -21,6 +22,42 @@ export default class Images {
 			},
 			allowedSizes: "*",
 			allowedFormats: "*",
+			allowedEffects: {
+				[ImageEffect.EXTEND]: 1,
+				[ImageEffect.EXTRACT]: 1,
+				[ImageEffect.TRIM]: 1,
+				[ImageEffect.ROTATE]: 1,
+				[ImageEffect.FLIP]: 1,
+				[ImageEffect.FLOP]: 1,
+				[ImageEffect.AFFINE]: 1,
+				[ImageEffect.SHARPEN]: 1,
+				[ImageEffect.MEDIAN]: 1,
+				[ImageEffect.BLUR]: 1,
+				[ImageEffect.FLATTEN]: 1,
+				[ImageEffect.UNFLATTEN]: 1,
+				[ImageEffect.GAMMA]: 1,
+				[ImageEffect.NEGATE]: 1,
+				[ImageEffect.NORMALISE]: 1,
+				[ImageEffect.CLAHE]: 1,
+				[ImageEffect.CONVOLVE]: 1,
+				[ImageEffect.THRESHOLD]: 1,
+				[ImageEffect.BOOLEAN]: 1,
+				[ImageEffect.LINEAR]: 1,
+				[ImageEffect.RECOMB]: 1,
+				[ImageEffect.MODULATE]: 1,
+				[ImageEffect.TINT]: 1,
+				[ImageEffect.GREYSCALE]: 1,
+				[ImageEffect.GRAYSCALE]: 1,
+				[ImageEffect.PIPELINECOLOURSPACE]: 1,
+				[ImageEffect.PIPELINECOLORSPACE]: 1,
+				[ImageEffect.TOCOLOURSPACE]: 1,
+				[ImageEffect.TOCOLORSPACE]: 1,
+				[ImageEffect.REMOVEALPHA]: 1,
+				[ImageEffect.ENSUREALPHA]: 1,
+				[ImageEffect.EXTRACTCHANNEL]: 1,
+				[ImageEffect.JOINCHANNEL]: 1,
+				[ImageEffect.BANDBOOL]: 1,
+			},
 			limits: {
 				width: 1920,
 				height: 1080,
@@ -31,62 +68,67 @@ export default class Images {
 
 	public async middleware(req: Request, res: Response, next: NextFunction) {
 
-		const effects = req.query;
-		const requestUrl = req.url.split("?")[0]!;
-		const urlInfo = extractUrlInfo(requestUrl, this.opts);
+		try {
 
-		if (urlInfo.err)
-			return next();
+			const effects = req.query;
+			const requestUrl = req.url.split("?")[0]!;
+			const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
-		const absolutePath = join(this.opts.dir, urlInfo.val.path)
-		const allowed = allowedSize(urlInfo.val.size, this.opts);
+			if (urlInfo.err)
+				return next();
 
-		if (!allowed)
-			return next(); /** Size not allowed ¿404? */
+			const absolutePath = join(this.opts.dir, urlInfo.val.path)
+			const allowed = allowedSize(urlInfo.val.size, this.opts);
 
-		const { glob, ext } = globExtension(absolutePath)
+			if (!allowed)
+				return next(); /** Size not allowed ¿404? */
 
-		if (ext && !urlInfo.val.ext)
-			return next(); /** Format not allowed ¿404? */
+			const { glob, ext } = globExtension(absolutePath)
 
-		const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size, effects);
+			if (ext && !urlInfo.val.ext)
+				return next(); /** Format not allowed ¿404? */
 
-		if (cachedFile.ok)
-			return res.status(204).sendFile(cachedFile.val)
+			const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size, effects);
 
-		const exactMatch = await checkFile(absolutePath);
-		
-		let candidate: string | void;
-		if (exactMatch.ok)
-			candidate = exactMatch.val;
-		else {
-			const files = findFiles(glob)
-			const first = await files.iterate().next()
-			candidate = first.value
+			if (cachedFile.ok)
+				return res.status(204).sendFile(cachedFile.val)
+
+			const exactMatch = await checkFile(absolutePath);
+
+			let candidate: string | void;
+			if (exactMatch.ok)
+				candidate = exactMatch.val;
+			else {
+				const files = findFiles(glob)
+				const first = await files.iterate().next()
+				candidate = first.value
+			}
+
+			if (!candidate)
+				return res.status(404).send()
+
+			const converter = convertFile(candidate, urlInfo.val.size, urlInfo.val.ext, this.opts, effects)
+
+			if (converter.err)
+				return next(converter.val)
+
+			if (converter.val.code === 200)
+				return res.status(converter.val.code).sendFile(candidate) /** No change */
+
+			const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size, effects)
+
+			if (writer.err)
+				return next(writer.val)
+
+			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime)
+
+			createReadStream(candidate)
+				.pipe(converter.val.sharp)
+				.pipe(writer.val)
+				.pipe(res)
+
+		} catch (err) {
+			return next(err)
 		}
-		
-		if (!candidate)
-			return res.status(404).send()
-		
-		const converter = convertFile(candidate, urlInfo.val.size, urlInfo.val.ext, this.opts, effects)
-
-		if (converter.err)
-			return next(converter.val)
-
-		if (converter.val.code === 200)
-			return res.status(converter.val.code).sendFile(candidate) /** No change */
-
-		const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size, effects)
-
-		if (writer.err)
-			return next(writer.val)
-
-		res.status(converter.val.code).setHeader("Content-Type", converter.val.mime)
-		
-		createReadStream(candidate)
-			.pipe(converter.val.sharp)
-			.pipe(writer.val)
-			.pipe(res)
 	}
-
 }

@@ -13,13 +13,13 @@ export type ConvertResult = {
     mime: ImageMimeType
 }
 
-export const convertFile = (from: string, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
+export const convertFile = (from: string, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
 
     let code = 200, mime = ImageMimeType.ANY;
 
-    const converter = sharp()
-
-    const effectsResult = applyImageEffects(converter, effects)
+    const converter = sharp();
+    
+    const effectsResult = applyImageEffects(converter, effects, allowedEffects);
 
     if (effectsResult.err)
         return effectsResult;
