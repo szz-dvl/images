@@ -29,6 +29,11 @@ import { applyTintEffect } from "./effects/tint";
 import { applyGrayscaleEffect } from "./effects/grayscale";
 import { applyToColorspaceEffect } from "./effects/toColorspace";
 import { applyPipelineColorspaceEffect } from "./effects/pipelineColorspace";
+import { applyRemoveAlphaEffect } from "./effects/removeAlpha";
+import { applyEnsureAlphaEffect } from "./effects/ensureAlpha";
+import { applyExtractChannelEffect } from "./effects/extractChannel";
+import { applyJoinChannelEffect } from "./effects/joinChannel";
+import { applyBandboolEffect } from "./effects/bandbool";
 
 export type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
 type EffectState = Record<ImageEffect, number>
@@ -236,6 +241,31 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                     result = applyToColorspaceEffect(sharp, batch);
             }
                 break;
+            case "removeAlpha": {
+                if (state(ImageEffect.REMOVEALPHA))
+                    result = applyRemoveAlphaEffect(sharp, batch);
+            }
+                break;
+            case "ensureAlpha": {
+                if (state(ImageEffect.ENSUREALPHA))
+                    result = applyEnsureAlphaEffect(sharp, batch);
+            }
+                break;
+            case "extractChannel": {
+                if (state(ImageEffect.EXTRACTCHANNEL))
+                    result = applyExtractChannelEffect(sharp, batch);
+            }
+                break;
+            case "joinChannel": {
+                if (state(ImageEffect.JOINCHANNEL))
+                    result = applyJoinChannelEffect(sharp, batch);
+            }
+                break;
+            case "bandbool": {
+                if (state(ImageEffect.BANDBOOL))
+                    result = applyBandboolEffect(sharp, batch);
+            }
+                break;
             case "resize":
                 continue; /** Treated later on in converter */
             default:
@@ -244,6 +274,10 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
         if (result.err)
             return result;
+
+        if (result.val === 201) {
+            console.log(`Applying effect: ${effectKey}`);
+        }
     }
 
     const { code }: EffectsState = state() as EffectsState;
