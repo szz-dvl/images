@@ -4,7 +4,7 @@ import { ParsedQs } from "qs";
 import { ImageEffect } from "./constants";
 import { cloneDeep } from "lodash";
 
-type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
+export type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
 type EffectState = Record<ImageEffect, number>
 
 const isAllowedEffect = (effect: ImageEffect, state: EffectState) => {
@@ -18,7 +18,7 @@ type OperationDefinition = {
     opts: Record<string, string | number | boolean | Array<string>>
 }
 
-const getOperationDefinition = (effects: EffectOperation): OperationDefinition => {
+export const getOperationDefinition = (effects: EffectOperation): OperationDefinition => {
 
     const definition: OperationDefinition = {
         param: undefined,
@@ -382,6 +382,8 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                     result = applyModulateEffect(sharp, batch);
             }
                 break;
+            case "resize":
+                continue;
             default:
                 console.log(`Ignoring unrecognized effect: ${effectKey}`);
         }

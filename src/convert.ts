@@ -4,7 +4,7 @@ import sharp, { Sharp } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
-import { applyImageEffects } from "./effects";
+import { EffectOperation, applyImageEffects, getOperationDefinition } from "./effects";
 import { ParsedQs } from "qs";
 
 export type ConvertResult = {
@@ -13,12 +13,49 @@ export type ConvertResult = {
     mime: ImageMimeType
 }
 
+const getResizeOptions = (effects: ParsedQs): Record<string, number | string | boolean> => {
+
+    const resizeKeys = Object.keys(effects).filter(k => k.startsWith("resize"));
+    const batch: EffectOperation = {}
+
+    for (const key of resizeKeys) {
+        batch[key] = effects[key];
+    }
+
+    const { opts } = getOperationDefinition(batch)
+    const typed: Record<string, number | string | boolean> = {}
+
+    for (const opt in opts) {
+        switch (opt) {
+            case "width":
+            case "height":
+                typed[opt] = Number(opts[opt])
+                break;
+            case "fit":
+            case "position":
+            case "background":
+            case "kernel":
+                typed[opt] = opts[opt].toString()
+                break;
+            case "withoutEnlargement":
+            case "withoutReduction":
+            case "fastShrinkOnLoad":
+                typed[opt] = opts[opt] != "false"
+                break;
+            default:
+                continue;
+        }
+    }
+
+    return typed;
+}
+
 export const convertFile = (from: string, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
 
     let code = 200, mime = ImageMimeType.ANY;
 
     const converter = sharp();
-    
+
     const effectsResult = applyImageEffects(converter, effects, allowedEffects);
 
     if (effectsResult.err)
@@ -29,7 +66,9 @@ export const convertFile = (from: string, [width, height]: ImageSize, ext: Image
         code = 201;
         console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
 
-        converter.resize(width, height)
+        const opts = getResizeOptions(effects);
+        converter.resize(width, height, opts);
+
     }
 
     const candidateExtension = getAllowedExtension(
@@ -40,7 +79,7 @@ export const convertFile = (from: string, [width, height]: ImageSize, ext: Image
     );
 
     if (candidateExtension.err)
-         return candidateExtension;
+        return candidateExtension;
 
     if (ext && candidateExtension.val !== ext) {
 
