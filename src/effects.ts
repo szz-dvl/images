@@ -38,30 +38,30 @@ export const getOperationDefinition = (effects: EffectOperation): OperationDefin
     return definition
 }
 
-const applyRotationEffect = (sharp: Sharp, rotationEffects: EffectOperation): Result<void, Error> => {
+const applyRotationEffect = (sharp: Sharp, rotationEffects: EffectOperation): Result<number, Error> => {
 
     const { param: rotation, opts } = getOperationDefinition(rotationEffects)
 
     sharp.rotate(Number(rotation), opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyFlipEffect = (sharp: Sharp, _flipEffects: EffectOperation): Result<void, Error> => {
+const applyFlipEffect = (sharp: Sharp, _flipEffects: EffectOperation): Result<number, Error> => {
 
     sharp.flip();
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyFlopEffect = (sharp: Sharp, _flopEffects: EffectOperation): Result<void, Error> => {
+const applyFlopEffect = (sharp: Sharp, _flopEffects: EffectOperation): Result<number, Error> => {
 
     sharp.flop();
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyAffineEffect = (sharp: Sharp, affineEffects: EffectOperation): Result<void, Error> => {
+const applyAffineEffect = (sharp: Sharp, affineEffects: EffectOperation): Result<number, Error> => {
 
     const { param, opts } = getOperationDefinition(affineEffects)
 
@@ -69,10 +69,10 @@ const applyAffineEffect = (sharp: Sharp, affineEffects: EffectOperation): Result
 
     sharp.affine(affineMatrix as [number, number, number, number], opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applySharpenEffect = (sharp: Sharp, sharpenEffects: EffectOperation): Result<void, Error> => {
+const applySharpenEffect = (sharp: Sharp, sharpenEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(sharpenEffects)
 
@@ -82,58 +82,58 @@ const applySharpenEffect = (sharp: Sharp, sharpenEffects: EffectOperation): Resu
 
     sharp.sharpen(opts as unknown as SharpenOptions);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyMedianEffect = (sharp: Sharp, medianEffects: EffectOperation): Result<void, Error> => {
+const applyMedianEffect = (sharp: Sharp, medianEffects: EffectOperation): Result<number, Error> => {
 
     const { param: median } = getOperationDefinition(medianEffects)
 
     sharp.median(Number(median));
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyBlurEffect = (sharp: Sharp, medianEffects: EffectOperation): Result<void, Error> => {
+const applyBlurEffect = (sharp: Sharp, medianEffects: EffectOperation): Result<number, Error> => {
 
     const { param: sigma } = getOperationDefinition(medianEffects)
 
     sharp.blur(Number(sigma));
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyFlattenEffect = (sharp: Sharp, flattenEffects: EffectOperation): Result<void, Error> => {
+const applyFlattenEffect = (sharp: Sharp, flattenEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(flattenEffects)
 
     sharp.flatten(opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyUnflattenEffect = (sharp: Sharp, _unflattenEffects: EffectOperation): Result<void, Error> => {
+const applyUnflattenEffect = (sharp: Sharp, _unflattenEffects: EffectOperation): Result<number, Error> => {
 
     sharp.unflatten();
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyGammaEffect = (sharp: Sharp, gammaEffects: EffectOperation): Result<void, Error> => {
+const applyGammaEffect = (sharp: Sharp, gammaEffects: EffectOperation): Result<number, Error> => {
 
     const { param: gamma } = getOperationDefinition(gammaEffects);
 
     if (Array.isArray(gamma)) {
         sharp.gamma(...gamma.map(g => Number(g)))
-        return Ok.EMPTY;
+        return Ok(201);
     }
 
     sharp.gamma(Number(gamma))
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyNegateEffect = (sharp: Sharp, negateEffects: EffectOperation): Result<void, Error> => {
+const applyNegateEffect = (sharp: Sharp, negateEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(negateEffects)
 
@@ -143,10 +143,10 @@ const applyNegateEffect = (sharp: Sharp, negateEffects: EffectOperation): Result
 
     sharp.negate(opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyNormaliseEffect = (sharp: Sharp, normaliseEffects: EffectOperation): Result<void, Error> => {
+const applyNormaliseEffect = (sharp: Sharp, normaliseEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(normaliseEffects)
 
@@ -156,10 +156,10 @@ const applyNormaliseEffect = (sharp: Sharp, normaliseEffects: EffectOperation): 
 
     sharp.normalise(opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyClaheEffect = (sharp: Sharp, claheEffects: EffectOperation): Result<void, Error> => {
+const applyClaheEffect = (sharp: Sharp, claheEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(claheEffects)
 
@@ -169,10 +169,10 @@ const applyClaheEffect = (sharp: Sharp, claheEffects: EffectOperation): Result<v
 
     sharp.clahe(opts as unknown as ClaheOptions);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyConvolveEffect = (sharp: Sharp, convolveEffects: EffectOperation): Result<void, Error> => {
+const applyConvolveEffect = (sharp: Sharp, convolveEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(convolveEffects);
     const typed: Record<string, number | Array<number>> = {}
@@ -188,10 +188,10 @@ const applyConvolveEffect = (sharp: Sharp, convolveEffects: EffectOperation): Re
 
     sharp.convolve(typed as unknown as Kernel)
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyThresholdEffect = (sharp: Sharp, thresholdEffects: EffectOperation): Result<void, Error> => {
+const applyThresholdEffect = (sharp: Sharp, thresholdEffects: EffectOperation): Result<number, Error> => {
 
     const { param: threshold, opts } = getOperationDefinition(thresholdEffects)
 
@@ -201,19 +201,19 @@ const applyThresholdEffect = (sharp: Sharp, thresholdEffects: EffectOperation): 
 
     sharp.threshold(Number(threshold), opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyBooleanEffect = (sharp: Sharp, booleanEffects: EffectOperation): Result<void, Error> => {
+const applyBooleanEffect = (sharp: Sharp, booleanEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(booleanEffects)
 
     sharp.boolean(opts.operand as string, opts.operator as keyof BoolEnum);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyLinearEffect = (sharp: Sharp, linearEffects: EffectOperation): Result<void, Error> => {
+const applyLinearEffect = (sharp: Sharp, linearEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(linearEffects);
     const typed: Record<string, number | Array<number>> = {}
@@ -229,10 +229,10 @@ const applyLinearEffect = (sharp: Sharp, linearEffects: EffectOperation): Result
 
     sharp.linear(typed.a, typed.b)
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyRecombEffect = (sharp: Sharp, recombEffects: EffectOperation): Result<void, Error> => {
+const applyRecombEffect = (sharp: Sharp, recombEffects: EffectOperation): Result<number, Error> => {
 
     /** Queries must look like: ?recomb.0=1&recomb.0=1 ... &recomb.2=2 */
 
@@ -250,10 +250,10 @@ const applyRecombEffect = (sharp: Sharp, recombEffects: EffectOperation): Result
 
     sharp.recomb(recombMatrix)
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyModulateEffect = (sharp: Sharp, modulateEffects: EffectOperation): Result<void, Error> => {
+const applyModulateEffect = (sharp: Sharp, modulateEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(modulateEffects)
 
@@ -263,16 +263,16 @@ const applyModulateEffect = (sharp: Sharp, modulateEffects: EffectOperation): Re
 
     sharp.modulate(opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyExtendEffect = (sharp: Sharp, extendEffects: EffectOperation): Result<void, Error> => {
+const applyExtendEffect = (sharp: Sharp, extendEffects: EffectOperation): Result<number, Error> => {
 
     const { param: extend, opts } = getOperationDefinition(extendEffects)
 
     if (extend) {
         sharp.extend(Number(extend));
-        return Ok.EMPTY;
+        return Ok(201);
     }
 
     for (const opt in opts) {
@@ -290,10 +290,10 @@ const applyExtendEffect = (sharp: Sharp, extendEffects: EffectOperation): Result
 
     sharp.extend(opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyExtractEffect = (sharp: Sharp, extractEffects: EffectOperation): Result<void, Error> => {
+const applyExtractEffect = (sharp: Sharp, extractEffects: EffectOperation): Result<number, Error> => {
 
     /** A limitation if the package: extract will always happens before resizing  */
 
@@ -305,10 +305,10 @@ const applyExtractEffect = (sharp: Sharp, extractEffects: EffectOperation): Resu
 
     sharp.extract(opts as unknown as Region);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-const applyTrimEffect = (sharp: Sharp, trimEffects: EffectOperation): Result<void, Error> => {
+const applyTrimEffect = (sharp: Sharp, trimEffects: EffectOperation): Result<number, Error> => {
 
     const { opts } = getOperationDefinition(trimEffects)
 
@@ -325,11 +325,12 @@ const applyTrimEffect = (sharp: Sharp, trimEffects: EffectOperation): Result<voi
 
     sharp.trim(opts);
 
-    return Ok.EMPTY;
+    return Ok(201);
 }
 
-export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>): Result<void, Error> => {
+export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>): Result<number, Error> => {
 
+    let code = 200;
     const state: EffectState = cloneDeep(allowedEffects);
     const effectsKeys = Object.keys(effects)
 
@@ -346,12 +347,13 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
         } while (effect && effect.startsWith(effectKey));
 
-        let result: Result<void, Error> = Ok.EMPTY;
+        let result: Result<number, Error> = Ok(code);
 
         switch (effectKey) {
             case "rotate": {
                 if (isAllowedEffect(ImageEffect.ROTATE, state))
                     result = applyRotationEffect(sharp, batch);
+                
             }
                 break;
             case "flip": {
@@ -468,8 +470,10 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
         if (result.err)
             return result;
+
+        code = result.val > code ? result.val : code;
     }
 
-    return Ok.EMPTY;
+    return Ok(code);
 
 }

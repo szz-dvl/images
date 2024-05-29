@@ -61,6 +61,8 @@ export const convertFile = (from: string, [width, height]: ImageSize, ext: Image
     if (effectsResult.err)
         return effectsResult;
 
+    code = effectsResult.val;
+
     if (width !== null || height != null) {
 
         code = 201;
