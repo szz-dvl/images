@@ -1,7 +1,7 @@
 import { cwd } from "node:process";
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
-import { allowedSize, getFormatMimeType, globExtension } from "./utils";
+import { allowedSize, globExtension } from "./utils";
 import { join } from "node:path";
 import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile } from "./convert";
@@ -31,7 +31,8 @@ export default class Images {
 
 	public async middleware(req: Request, res: Response, next: NextFunction) {
 
-		const requestUrl = req.url;
+		const effects = req.query;
+		const requestUrl = req.url.split("?")[0]!;
 		const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
 		if (urlInfo.err)
@@ -48,7 +49,7 @@ export default class Images {
 		if (ext && !urlInfo.val.ext)
 			return next(); /** Format not allowed ¿404? */
 
-		const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size);
+		const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size, effects);
 
 		if (cachedFile.ok)
 			return res.status(204).sendFile(cachedFile.val)
@@ -67,7 +68,7 @@ export default class Images {
 		if (!candidate)
 			return res.status(404).send()
 		
-		const converter = convertFile(candidate, urlInfo.val.size, urlInfo.val.ext, this.opts)
+		const converter = convertFile(candidate, urlInfo.val.size, urlInfo.val.ext, this.opts, effects)
 
 		if (converter.err)
 			return next(converter.val)
@@ -75,7 +76,7 @@ export default class Images {
 		if (converter.val.code === 200)
 			return res.status(converter.val.code).sendFile(candidate) /** No change */
 
-		const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size)
+		const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size, effects)
 
 		if (writer.err)
 			return next(writer.val)

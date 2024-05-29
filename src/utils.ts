@@ -1,8 +1,9 @@
 import { forIn } from 'lodash';
 import { ImageSize, ImagesOpts } from './types';
 import { ImageFormat, ImageKnownExtensions, ImageMimeType } from "./constants";
-import { extname, join } from "node:path";
+import { basename, dirname, extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
+import { ParsedQs } from "qs"
 
 export const isKnownExtension = (ext: string, current: ImageFormat) => {
 	return ImageKnownExtensions[current].includes(ext)
@@ -68,6 +69,18 @@ export const allowedSize = ([targetWidth, targetHeight]: ImageSize, { limits: { 
 	return allowedSizes.has([targetWidth, targetHeight]);
 }
 
+export const buildEffectsSuffix = (effects: ParsedQs) => {
+
+	let suffix = ":";
+
+	for (const effect in effects) {
+		const effectValue = effects[effect];
+		suffix += `${effect}-${effectValue}_`;
+	}
+
+	return suffix.substring(0, suffix.length - 1)
+}
+
 export const buildSizeDirectory = ([width, height]: ImageSize): string => {
 
 	if (!width && !height)
@@ -81,10 +94,16 @@ export const buildSizeDirectory = ([width, height]: ImageSize): string => {
 	return dir;
 }
 
-export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize): string => {
+export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize, effects: ParsedQs): string => {
 	const sizeDir = buildSizeDirectory(size)
+	const effectsSuffix = buildEffectsSuffix(effects)
 
-	return join(dir, ".cache", sizeDir, path);
+	const ext = extname(path);
+	const file = basename(path);
+	const filename = file.replace(ext, '')
+	const pathDir = dirname(path)
+	
+	return join(dir, ".cache", sizeDir, pathDir, filename + effectsSuffix + ext);
 }
 
 export const getFormatMimeType = (ext: ImageFormat | null): ImageMimeType => {

@@ -5,7 +5,7 @@ import { Err, Ok, Result } from "ts-results";
 import { ImageSize, ImagesOpts } from "./types";
 import { getCachePath } from "./utils";
 import { createWriteStream } from "node:fs";
-
+import { ParsedQs } from "qs"
 import { Transform } from "node:stream";
 
 export const createDirIfNotExists = async (path: string): Promise<Result<void, Error>> => {
@@ -58,9 +58,9 @@ export const checkFile = async (path: string): Promise<Result<string, Error>> =>
 	}
 }
 
-export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<string, Error>> => {
+export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize, effects: ParsedQs): Promise<Result<string, Error>> => {
 
-	const cachePath = getCachePath(path, opts, size);
+	const cachePath = getCachePath(path, opts, size, effects);
 	const effectivePath = resolve(cachePath);
 
 	console.log(`Checking for cached file: ${effectivePath}`);
@@ -81,9 +81,9 @@ export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize
 	}
 }
 
-export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize): Promise<Result<Transform, Error>> => {
+export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize, effects: ParsedQs): Promise<Result<Transform, Error>> => {
 
-	const cachePath = getCachePath(path, opts, size);
+	const cachePath = getCachePath(path, opts, size, effects);
 	const cacheDir = dirname(cachePath);
 	
 	const result = await createDirIfNotExists(cacheDir);

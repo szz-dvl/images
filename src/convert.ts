@@ -4,6 +4,8 @@ import sharp, { Sharp } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
+import { applyImageEffects } from "./effects";
+import { ParsedQs } from "qs";
 
 export type ConvertResult = {
     sharp: Sharp,
@@ -11,11 +13,16 @@ export type ConvertResult = {
     mime: ImageMimeType
 }
 
-export const convertFile = (from: string, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts }: ImagesOpts): Result<ConvertResult, Error> => {
+export const convertFile = (from: string, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
 
     let code = 200, mime = ImageMimeType.ANY;
 
     const converter = sharp()
+
+    const effectsResult = applyImageEffects(converter, effects)
+
+    if (effectsResult.err)
+        return effectsResult;
 
     if (width !== null || height != null) {
 
