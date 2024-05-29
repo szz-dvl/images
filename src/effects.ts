@@ -1,4 +1,4 @@
-import { BoolEnum, ClaheOptions, Kernel, Matrix3x3, Region, Sharp, SharpenOptions } from "sharp";
+import { Sharp } from "sharp";
 import { Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
 import { ImageEffect } from "./constants";
