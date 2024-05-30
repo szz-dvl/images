@@ -93,12 +93,17 @@ export default class Images {
 			if (ext && !urlInfo.val.ext)
 				return next(); /** Format not allowed ¿400? */
 
-			const cachePathState = initCachePathState(urlInfo.val.path, this.opts, urlInfo.val.size)
+			const cachePathState = initCachePathState(urlInfo.val.path, this.opts, urlInfo.val.size, urlInfo.val.ext)
 			const sharpOptions = getSharpOptions(effects, cachePathState);
 
 			let candidate: string | void;
 
 			if (isGeneratedImage(sharpOptions)) {
+
+				if (!urlInfo.val.ext) {
+					/** We forcedly need an extension for generated files, raw files are not suported by now */
+					return res.status(400).send("An extension is mandatory for generated files.")
+				}
 
 				if (!this.opts.allowGenerated)
 					return next(); /** Generated images not allowed ¿400? */

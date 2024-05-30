@@ -88,7 +88,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { rotate: "90" }, opts.allowedEffects, cachePath)
 
@@ -99,7 +99,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { rotate: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -110,7 +110,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { flip: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
@@ -121,7 +121,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { flop: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
@@ -132,7 +132,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { affine: [ ".1",".2",".1",".7" ] }, opts.allowedEffects, cachePath)
 
@@ -143,7 +143,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { affine: ["2"] }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -154,7 +154,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath)
 
@@ -165,7 +165,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -176,7 +176,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { median: "3" }, opts.allowedEffects, cachePath)
 
@@ -187,7 +187,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { median: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -198,7 +198,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "blur": "3" }, opts.allowedEffects, cachePath)
 
@@ -209,7 +209,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { blur: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -220,7 +220,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "flatten.background": "#00FF00" }, opts.allowedEffects, cachePath)
 
@@ -231,7 +231,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "flatten.background": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -242,7 +242,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { unflatten: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
@@ -253,7 +253,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { gamma: [ "1", "2" ] }, opts.allowedEffects, cachePath)
 
@@ -264,7 +264,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { gamma: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -275,7 +275,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "negate.alpha": "false" }, opts.allowedEffects, cachePath)
 
@@ -286,7 +286,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "normalize.upper": "99", "normalize.lower": "1" }, opts.allowedEffects, cachePath)
 
@@ -297,7 +297,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "normalize.upper": "BAD_VALUE", "normalize.lower": "1" }, opts.allowedEffects, cachePath) as Err<Error>;
 
@@ -308,7 +308,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "clahe.width": "100", "clahe.height": "100" }, opts.allowedEffects, cachePath)
 
@@ -319,7 +319,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "clahe.width": "BAD_VALUE", "clahe.height": "100" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -330,7 +330,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": [ "-1", "0", "1", "-2", "0" ,"2", "-1", "0", "1" ] }, opts.allowedEffects, cachePath)
 
@@ -341,7 +341,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -352,7 +352,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "threshold": "128" }, opts.allowedEffects, cachePath)
 
@@ -363,7 +363,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "threshold": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -374,7 +374,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "boolean.operand": "/test/another.jpg", "boolean.operator": "and" }, opts.allowedEffects, cachePath)
 
@@ -385,7 +385,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "boolean.operand": "/test/another.jpg", "boolean.operator": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -396,7 +396,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "linear.a": ".5", "linear.b": "2" }, opts.allowedEffects, cachePath)
 
@@ -407,7 +407,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "linear.a": "BAD_VALUE", "linear.b": "2" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -418,7 +418,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "recomb.0": ["1", "1", "1"], "recomb.1": ["1", "1", "1"], "recomb.2": ["1", "1", "1"], }, opts.allowedEffects, cachePath)
 
@@ -429,7 +429,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "recomb.0": "BAD_VALUE", "recomb.1": ["1", "1", "1"], "recomb.2": ["1", "1", "1"], }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -440,7 +440,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "modulate.hue": "80" }, opts.allowedEffects, cachePath)
 
@@ -451,7 +451,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "modulate.hue": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -462,7 +462,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "extend": "8" }, opts.allowedEffects, cachePath)
 
@@ -473,7 +473,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "extend": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -484,7 +484,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "extract.top": "0", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath)
 
@@ -495,7 +495,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "extract.top": "BAD_VALUE", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath) as Err<Error>;
 
@@ -506,7 +506,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "trim": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
@@ -517,7 +517,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "tint": "#00FF00" }, opts.allowedEffects, cachePath)
 
@@ -528,7 +528,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "tint": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
 
@@ -539,7 +539,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "grayscale": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
@@ -550,7 +550,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "pipelineColorspace": "rgb16" }, opts.allowedEffects, cachePath)
 
@@ -564,7 +564,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "pipelineColorspace": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
         
@@ -575,7 +575,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "toColorspace": "rgb16" }, opts.allowedEffects, cachePath)
 
@@ -589,7 +589,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "toColorspace": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
         
@@ -600,7 +600,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "removeAlpha": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
@@ -611,7 +611,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "ensureAlpha": ".5" }, opts.allowedEffects, cachePath)
 
@@ -622,7 +622,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "ensureAlpha": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>;
 
@@ -633,7 +633,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "extractChannel": "red" }, opts.allowedEffects, cachePath)
 
@@ -644,7 +644,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "extractChannel": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>;
 
@@ -655,7 +655,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "joinChannel": "/test/other.png" }, opts.allowedEffects, cachePath)
 
@@ -666,7 +666,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         applyImageEffects(sharp(), { "bandbool": "and" }, opts.allowedEffects, cachePath)
 
@@ -677,7 +677,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         const res = applyImageEffects(sharp(), { "bandbool": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>;
 

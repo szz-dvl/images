@@ -69,7 +69,7 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [100, 100];
 
-        const cachePath = initCachePathState(path, opts, size)
+        const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
         convertFile(path, sharpOpts, size, ImageFormat.PNG, opts, {}, cachePath)
 
@@ -84,10 +84,10 @@ describe("converter", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
-        const cachePath = initCachePathState(cacheFile, opts, size)
+        const cachePath = initCachePathState(cacheFile, opts, size, ImageFormat.JPEG)
 
         convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, {}, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image.jpg`)
+        expect(cachePath()).toBe(`/test/images/.cache/image.jpeg`)
     })
 })

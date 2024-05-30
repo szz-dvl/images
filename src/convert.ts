@@ -249,6 +249,20 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
         } else {
 
+            if (!ext) {
+
+                /**
+                 * If we reach here without an extension, a particular format was not requested, we need to compute the extension of the candidate 
+                 * to update the one that will be used for cached files.
+                 */
+
+                if (candidateExtension.val === null) {
+                    return Err(new Error("Missing extension for cached file", { cause: candidateExtension }));
+                }
+
+                cachePath(undefined, candidateExtension.val)
+            }
+
             /** Only meaningful when 201 code, when resize and no conversion */
 
             mime = getFormatMimeType(candidateExtension.val);

@@ -144,21 +144,24 @@ export const isGeneratedImage = ({text, create}: SharpOptions) => {
 	return !!text || !!create
 }
 
-export type CachePathState = (piece?: Record<string, any>) => string;
+export type CachePathState = (piece?: Record<string, any>, updatExt?: ImageFormat) => string;
 
-export const initCachePathState = (path: string, { dir }: ImagesOpts, size: ImageSize): CachePathState => {
+export const initCachePathState = (path: string, { dir }: ImagesOpts, size: ImageSize, ext: ImageFormat | null): CachePathState => {
 
 	const sizeDir = buildSizeDirectory(size);
-	const ext = extname(path);
+	const requestedExt = extname(path);
 	const file = basename(path);
-	const filename = file.replace(ext, '');
+	const filename = file.replace(requestedExt, '');
 	const pathDir = dirname(path);
 	
 	let consumed = false;
 	let cachePath = join(dir, ".cache", sizeDir, pathDir, filename + ":");
 
-	return (piece?: Record<string, any>): string => {
+	return (piece?: Record<string, any>, updateExt?: ImageFormat): string => {
 
+		if (updateExt) 
+			ext = updateExt;
+		
 		if (piece) {
 
 			for (const effect in piece) {
@@ -166,7 +169,7 @@ export const initCachePathState = (path: string, { dir }: ImagesOpts, size: Imag
 				cachePath += `${effect}=${effectValue || "null"}-`.replaceAll("\/", "|");
 			}
 			 
-			return cachePath.substring(0, cachePath.length - 1) + ext;	
+			return cachePath.substring(0, cachePath.length - 1) + `.${ext}`;	
 		}
 
 		if (!consumed) {
@@ -174,6 +177,6 @@ export const initCachePathState = (path: string, { dir }: ImagesOpts, size: Imag
 			consumed = true;
 		}
 
-		return cachePath + ext;
+		return cachePath + `.${ext}`;
 	}
 }
