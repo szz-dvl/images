@@ -1,10 +1,11 @@
-import { beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
 import * as http from "http";
 import { setupExpressServer } from './utils/server';
 import Images from "../src/images"
 import { rmSync } from 'fs';
 import { createDirIfNotExists } from '../src/fs';
 import { cp } from 'fs/promises';
+import sharp from 'sharp';
 
 describe("middleware", () => {
     jest.setTimeout(10000)
@@ -33,21 +34,44 @@ describe("middleware", () => {
         });
     })
 
+    afterAll(() => {
+        server.close()
+    })
+
     it("must succeed", () => {
         expect(true).toBe(true);
     })
 
-    it("must fetch an image", async () => {
+    it("must create a cool image", async () => {
 
-        //http://localhost:3000/0x1080/giraffe.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&_rotate=90&flip
-        //http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000
-        //http://localhost:3000/800x300/test.webp?text.text=<span foreground="red" size="xx-small">szz</span><span background="cyan" size="xx-small">la parte</span>&text.height=150&text.width=150&text.rgba=true&tint=%2300FF00&resize.fit=fill
+        const result = await fetch('http://localhost:3000/0x1080/giraffe.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&flip')
         
-        const result = await fetch('http://localhost:3000/800x300/test.webp?text.text=<span foreground="red" size="xx-small">szz</span><span background="cyan" size="xx-small">la parte</span>&text.height=150&text.width=150&text.rgba=true&tint=%2300FF00&resize.fit=fill')
-        const image = await result.blob();
-
-        console.log(image, result.status);
+        expect(result.status).toBe(201);
 
     })
 
+    it("must recover an image from the cache", async () => {
+
+        await fetch('http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000')
+        const result = await fetch('http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000')
+        
+        expect(result.status).toBe(204);
+
+    })
+
+    it("must return the original image", async () => {
+
+        const result = await fetch('http://localhost:3000/0x0/giraffe.png')
+        
+        expect(result.status).toBe(200);
+
+    })
+
+    it("must generate an image from text", async () => {
+
+        const result = await fetch('http://localhost:3000/850x350/test.webp?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00&resize.fit=fill')
+        
+        expect(result.status).toBe(201);
+
+    })
 })

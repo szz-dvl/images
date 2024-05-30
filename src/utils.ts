@@ -57,7 +57,7 @@ export const globExtension = (path: string): GlobExtension => {
 }
 
 export const allowedSize = ([targetWidth, targetHeight]: ImageSize, { limits: { width, height }, allowedSizes }: ImagesOpts): boolean => {
-
+	
 	if (targetWidth && targetWidth > width)
 		return false;
 

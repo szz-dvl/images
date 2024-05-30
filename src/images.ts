@@ -15,7 +15,7 @@ export default class Images {
 
 	constructor(opts: Partial<ImagesOpts>) {
 		this.opts = {
-			dir: `${cwd()}/images`,
+			dir: `${__dirname}/images`,
 			url: {
 				prefix: "/image",
 				pattern: "/:dir/:size/:file.:ext",
@@ -93,7 +93,7 @@ export default class Images {
 			if (ext && !urlInfo.val.ext)
 				return next(); /** Format not allowed ¿400? */
 
-			const cachePathState = initCachePathState(urlInfo.val.path,this.opts, urlInfo.val.size)
+			const cachePathState = initCachePathState(urlInfo.val.path, this.opts, urlInfo.val.size)
 			const sharpOptions = getSharpOptions(effects, cachePathState);
 
 			let candidate: string | void;

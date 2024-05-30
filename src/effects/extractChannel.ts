@@ -14,5 +14,6 @@ export const applyExtractChannelEffect = (sharp: Sharp, extractChannelEffects: E
     }
 
     sharp.extractChannel(typed as 0 | 1 | 2 | 3);
+    
     return Ok(201);
 }

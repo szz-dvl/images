@@ -65,7 +65,7 @@ const getTextOptions = (effects: ParsedQs, cachePath: CachePathState): Result<Re
     }
 
     cachePath(batch);
-    
+
     const { opts } = getOperationDefinition(batch)
     const typed: Record<string, number | string | boolean> = {}
 
@@ -111,7 +111,7 @@ const getCreateOptions = (effects: ParsedQs, cachePath: CachePathState): Result<
     }
 
     cachePath(batch);
-    
+
     const { opts } = getOperationDefinition(batch);
     const typed: Record<string, any> = {
         noise: {}
@@ -159,8 +159,8 @@ export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState): S
     const createOptions = getCreateOptions(effects, cachePath);
 
     if (textOptions.err && createOptions.err)
-       return options;
-    
+        return options;
+
     if (textOptions.ok)
         options.text = textOptions.val as unknown as CreateText;
 
@@ -171,87 +171,92 @@ export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState): S
 }
 export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
 
-    let code = 200, mime = ImageMimeType.ANY;
+    try {
+        let code = 200, mime = ImageMimeType.ANY;
 
-    const converter = sharp(options).keepMetadata();
+        const converter = sharp(options).keepMetadata();
 
-    const effectsResult = applyImageEffects(converter, effects, allowedEffects, cachePath);
+        const effectsResult = applyImageEffects(converter, effects, allowedEffects, cachePath);
 
-    if (effectsResult.err)
-        return effectsResult;
+        if (effectsResult.err)
+            return effectsResult;
 
-    code = effectsResult.val;
+        code = effectsResult.val;
 
-    if (width !== null || height != null) {
+        if (width !== null || height != null) {
 
-        code = 201;
-        console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
+            code = 201;
+            console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
 
-        const opts = getResizeOptions(effects);
-        converter.resize(width, height, opts);
+            const opts = getResizeOptions(effects);
+            converter.resize(width, height, opts);
 
-    }
-
-    const candidateExtension = from ? getAllowedExtension(
-        pruneExtension(
-            extname(from)
-        ),
-        "*" /** Force all known extensions here, in case the configuration changed over time */
-    ) : Ok(null);
-
-    if (candidateExtension.err)
-        return candidateExtension;
-
-    if (ext && candidateExtension.val !== ext) {
-
-        if (ext === ImageFormat.SVG)
-            return Err(new Error("Bad target format", { cause: ext }));
-
-        code = 201;
-        mime = getFormatMimeType(ext);
-        console.log(`Converting file ${from} to ${ext}`);
-
-        switch (ext) {
-            case ImageFormat.PNG: {
-                converter.png(formatOpts?.png)
-            }
-                break;
-            case ImageFormat.AVIF: {
-                converter.avif(formatOpts?.avif)
-            }
-                break;
-            case ImageFormat.WEBP: {
-                converter.webp(formatOpts?.webp)
-            }
-                break;
-            case ImageFormat.JPEG: {
-                converter.jpeg(formatOpts?.jpeg)
-            }
-                break;
-            case ImageFormat.GIF: {
-                converter.gif(formatOpts?.gif)
-            }
-                break;
-            case ImageFormat.TIFF: {
-                converter.tiff(formatOpts?.tiff)
-            }
-                break;
-            case ImageFormat.JP2: {
-                converter.jp2(formatOpts?.jp2)
-            }
-                break;
-            case ImageFormat.HEIF: {
-                converter.heif(formatOpts?.heif)
-            }
-                break;
         }
 
-    } else {
+        const candidateExtension = from ? getAllowedExtension(
+            pruneExtension(
+                extname(from)
+            ),
+            "*" /** Force all known extensions here, in case the configuration changed over time */
+        ) : Ok(null);
 
-        /** Only meaningful when 201 code, when resize and no conversion */
+        if (candidateExtension.err)
+            return candidateExtension;
 
-        mime = getFormatMimeType(candidateExtension.val);
+        if (ext && candidateExtension.val !== ext) {
+
+            if (ext === ImageFormat.SVG)
+                return Err(new Error("Bad target format", { cause: ext }));
+
+            code = 201;
+            mime = getFormatMimeType(ext);
+            console.log(`Converting file ${from} to ${ext}`);
+
+            switch (ext) {
+                case ImageFormat.PNG: {
+                    converter.png(formatOpts?.png)
+                }
+                    break;
+                case ImageFormat.AVIF: {
+                    converter.avif(formatOpts?.avif)
+                }
+                    break;
+                case ImageFormat.WEBP: {
+                    converter.webp(formatOpts?.webp)
+                }
+                    break;
+                case ImageFormat.JPEG: {
+                    converter.jpeg(formatOpts?.jpeg)
+                }
+                    break;
+                case ImageFormat.GIF: {
+                    converter.gif(formatOpts?.gif)
+                }
+                    break;
+                case ImageFormat.TIFF: {
+                    converter.tiff(formatOpts?.tiff)
+                }
+                    break;
+                case ImageFormat.JP2: {
+                    converter.jp2(formatOpts?.jp2)
+                }
+                    break;
+                case ImageFormat.HEIF: {
+                    converter.heif(formatOpts?.heif)
+                }
+                    break;
+            }
+
+        } else {
+
+            /** Only meaningful when 201 code, when resize and no conversion */
+
+            mime = getFormatMimeType(candidateExtension.val);
+        }
+
+        return Ok({ sharp: converter, code, mime });
+
+    } catch (err) {
+        return Err(err as Error)
     }
-
-    return Ok({ sharp: converter, code, mime });
 }
