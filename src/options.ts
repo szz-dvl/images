@@ -4,6 +4,7 @@ import { Err, Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
 import { CachePathState } from "./utils";
 import { Create, CreateText, SharpOptions } from "sharp";
+import { ImagesOpts } from "./types";
 
 const getTextOptions = (effects: ParsedQs, cachePath: CachePathState): Result<Record<string, number | string | boolean>, Error> => {
 
@@ -143,22 +144,9 @@ export const getResizeOptions = (effects: ParsedQs, cachePath: CachePathState): 
     return typed;
 }
 
-export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState): SharpOptions => {
+export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState, { sharp }: ImagesOpts): SharpOptions => {
 
-    const options: SharpOptions = {
-        failOn: "warning",
-        pages: -1, /** Consider all the pages for multi-page images */
-        limitInputPixels: 268402689,
-        unlimited: false,
-        sequentialRead: true,
-        density: 72,
-        ignoreIcc: false,
-        page: 0,
-        subifd: -1,
-        level: 0,
-        animated: true, /** Same as above */
-    }
-
+    const options: SharpOptions = sharp;
     const textOptions = getTextOptions(effects, cachePath);
     const createOptions = getCreateOptions(effects, cachePath);
 

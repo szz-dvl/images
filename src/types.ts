@@ -5,6 +5,7 @@ import {
     Jp2Options, 
     JpegOptions, 
     PngOptions, 
+    SharpOptions, 
     TiffOptions, 
     TileOptions, 
     WebpOptions 
@@ -43,5 +44,6 @@ export type ImagesOpts = {
     allowedEffects: Record<ImageEffect, number>,
     allowGenerated: boolean,
     limits: ImageLimits,
-    formatOpts?: FormatsOpts
+    formatOpts?: FormatsOpts,
+    sharp: Omit<SharpOptions, "create" | "text" | "raw">,
 }

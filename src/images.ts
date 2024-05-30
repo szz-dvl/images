@@ -64,6 +64,19 @@ export default class Images {
 				[ImageEffect.BANDBOOL]: 1,
 			},
 			allowGenerated: true,
+			sharp: {
+				failOn: "warning",
+				pages: -1, /** Consider all the pages for multi-page images */
+				limitInputPixels: 268402689,
+				unlimited: false,
+				sequentialRead: true,
+				density: 72,
+				ignoreIcc: false,
+				page: 0,
+				subifd: -1,
+				level: 0,
+				animated: true, /** Same as above */
+			},
 			limits: {
 				width: 1920,
 				height: 1080,
@@ -95,7 +108,7 @@ export default class Images {
 				return next(); /** Format not allowed ¿400? */
 
 			const cachePathState = initCachePathState(urlInfo.val.path, this.opts, urlInfo.val.size, urlInfo.val.ext)
-			const sharpOptions = getSharpOptions(effects, cachePathState);
+			const sharpOptions = getSharpOptions(effects, cachePathState, this.opts);
 
 			let candidate: string | void;
 
