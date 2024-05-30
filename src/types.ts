@@ -41,6 +41,7 @@ export type ImagesOpts = {
     allowedSizes: Set<ImageSize> | "*",
     allowedFormats: Set<ImageFormat> | "*",
     allowedEffects: Record<ImageEffect, number>,
+    allowGenerated: boolean,
     limits: ImageLimits,
     formatOpts?: FormatsOpts
 }

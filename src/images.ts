@@ -62,6 +62,7 @@ export default class Images {
 				[ImageEffect.JOINCHANNEL]: 1,
 				[ImageEffect.BANDBOOL]: 1,
 			},
+			allowGenerated: true,
 			limits: {
 				width: 1920,
 				height: 1080,
@@ -98,6 +99,9 @@ export default class Images {
 			let candidate: string | void;
 
 			if (isGeneratedImage(sharpOptions)) {
+
+				if (!this.opts.allowGenerated)
+					return next(); /** Generated images not allowed ¿400? */
 
 				candidate = void 0;
 
