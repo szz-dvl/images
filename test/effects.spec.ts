@@ -114,7 +114,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { flip: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:flip=weNeedToStandardizeThat.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:flip=true.png`);
     })
 
     it("must append a flop effect", () => {
@@ -125,7 +125,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { flop: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:flop=weNeedToStandardizeThat.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:flop=true.png`);
     })
 
     it("must append an affine effect", () => {
@@ -200,7 +200,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "blur": "3" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { blur: "3" }, opts.allowedEffects, cachePath)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:blur=3.png`);
     })
@@ -246,7 +246,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { unflatten: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:unflatten=weNeedToStandardizeThat.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:unflatten=true.png`);
     })
 
     it("must append a gamma effect", () => {
@@ -510,7 +510,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "trim": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:trim=weNeedToStandardizeThat.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:trim=true.png`);
     })
 
     it("must append a tint effect", () => {
@@ -543,7 +543,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "grayscale": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:grayscale=weNeedToStandardizeThat.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:grayscale=true.png`);
     })
 
     it("must append a pipelineColorspace effect", () => {
@@ -604,7 +604,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "removeAlpha": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:removeAlpha=weNeedToStandardizeThat.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:removeAlpha=true.png`);
     })
 
     it("must append an ensureAlpha effect", () => {

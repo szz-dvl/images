@@ -44,7 +44,7 @@ describe("middleware", () => {
 
     it("must create a cool image", async () => {
 
-        const result = await fetch('http://localhost:3000/0x1080/giraffe.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&flip')
+        const result = await fetch('http://localhost:3000/0x1080/giraffe.avif?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&flip')
         
         expect(result.status).toBe(201);
 

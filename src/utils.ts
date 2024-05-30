@@ -1,6 +1,6 @@
 import { forIn } from 'lodash';
 import { ImageSize, ImagesOpts } from './types';
-import { ImageFormat, ImageKnownExtensions, ImageMimeType } from "./constants";
+import { ImageEffect, ImageFormat, ImageKnownExtensions, ImageMimeType, SharpBooleanKeys, SharpDuplicatedNaming } from "./constants";
 import { basename, dirname, extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
 import { ParsedQs } from "qs"
@@ -57,7 +57,7 @@ export const globExtension = (path: string): GlobExtension => {
 }
 
 export const allowedSize = ([targetWidth, targetHeight]: ImageSize, { limits: { width, height }, allowedSizes }: ImagesOpts): boolean => {
-	
+
 	if (targetWidth && targetWidth > width)
 		return false;
 
@@ -103,45 +103,65 @@ export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize,
 	const file = basename(path);
 	const filename = file.replace(ext, '')
 	const pathDir = dirname(path)
-	
+
 	return join(dir, ".cache", sizeDir, pathDir, filename + effectsSuffix + ext);
 }
 
 export const getFormatMimeType = (ext: ImageFormat | null): ImageMimeType => {
 
-	switch(ext) {
-        case ImageFormat.PNG: {
-            return ImageMimeType.PNG;
-        }
-        case ImageFormat.AVIF: {
-            return ImageMimeType.AVIF;
-        };
-        case ImageFormat.WEBP: {
-            return ImageMimeType.WEBP;
-        }
-        case ImageFormat.JPEG: {
-            return ImageMimeType.JPEG;
-        }
-        case ImageFormat.GIF: {
+	switch (ext) {
+		case ImageFormat.PNG: {
+			return ImageMimeType.PNG;
+		}
+		case ImageFormat.AVIF: {
+			return ImageMimeType.AVIF;
+		};
+		case ImageFormat.WEBP: {
+			return ImageMimeType.WEBP;
+		}
+		case ImageFormat.JPEG: {
+			return ImageMimeType.JPEG;
+		}
+		case ImageFormat.GIF: {
 			return ImageMimeType.GIF;
-        }
-        case ImageFormat.TIFF: {
+		}
+		case ImageFormat.TIFF: {
 			return ImageMimeType.TIFF;
-        }
-        case ImageFormat.JP2: {
+		}
+		case ImageFormat.JP2: {
 			return ImageMimeType.JP2;
-        }
-        case ImageFormat.HEIF: {
-            return ImageMimeType.HEIF;
-        }
-    }
+		}
+		case ImageFormat.HEIF: {
+			return ImageMimeType.HEIF;
+		}
+	}
 
 	return ImageMimeType.ANY;
 
 }
 
-export const isGeneratedImage = ({text, create}: SharpOptions) => {
+export const isGeneratedImage = ({ text, create }: SharpOptions) => {
 	return !!text || !!create
+}
+
+export const serializeEffect = (effectKey: string, effectValue: string): string => {
+
+	let effectiveKey = effectKey,
+		effectiveValue = effectValue;
+
+	for (const duplicated in SharpDuplicatedNaming) {
+
+		if ((<Record<string, string[]>>SharpDuplicatedNaming)[duplicated].includes(effectiveKey)) {
+			effectiveKey = duplicated
+		}
+
+		if (SharpBooleanKeys.includes(effectiveKey)) {
+			effectiveValue = effectiveValue === "false" ? effectiveValue : "true";
+		}
+	}
+
+	return `${effectiveKey}=${effectiveValue}-`.replaceAll("\/", "|")
+
 }
 
 export type CachePathState = (piece?: Record<string, any>, updatExt?: ImageFormat) => string;
@@ -153,23 +173,30 @@ export const initCachePathState = (path: string, { dir }: ImagesOpts, size: Imag
 	const file = basename(path);
 	const filename = file.replace(requestedExt, '');
 	const pathDir = dirname(path);
-	
+
 	let consumed = false;
 	let cachePath = join(dir, ".cache", sizeDir, pathDir, filename + ":");
 
 	return (piece?: Record<string, any>, updateExt?: ImageFormat): string => {
 
-		if (updateExt) 
+		if (updateExt) {
+
 			ext = updateExt;
-		
+
+			return cachePath.substring(0, cachePath.length - 1) + `.${ext}`;
+		}
+
+
 		if (piece) {
 
 			for (const effect in piece) {
 				const effectValue = piece[effect];
-				cachePath += `${effect}=${effectValue || "null"}-`.replaceAll("\/", "|");
+				cachePath += serializeEffect(effect, effectValue);
 			}
-			 
-			return cachePath.substring(0, cachePath.length - 1) + `.${ext}`;	
+
+			consumed = false;
+
+			return cachePath.substring(0, cachePath.length - 1) + `.${ext}`;
 		}
 
 		if (!consumed) {

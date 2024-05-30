@@ -81,3 +81,41 @@ export enum ImageEffect {
     JOINCHANNEL = "joinChannel",
     BANDBOOL = "bandbool"
 }
+
+export const SharpDuplicatedNaming = {
+    [ImageEffect.PIPELINECOLORSPACE]: [
+        "pipelineColorspace",
+        "pipelineColourspace"
+    ],
+    [ImageEffect.TOCOLORSPACE]: [
+        "toColorspace",
+        "toColourspace"
+    ],
+    [ImageEffect.NORMALISE]: [
+        "normalise",
+        "normalize"
+    ],
+    [ImageEffect.GRAYSCALE]: [
+        "grayscale",
+        "greyscale"
+    ],
+}
+
+export const SharpBooleanKeys = [
+    "flip",
+    "flop",
+    "unflatten",
+    "removeAlpha",
+    "negate",
+    "negate.alpha",
+    "trim",
+    "grayscale",
+    "text.justify",
+    "text.rgba",
+    "resize.withoutEnlargement",
+    "resize.fastShrinkOnLoad",
+    "resize.withoutReduction",
+    "threshold.grayscale",
+    "threshold.greyscale",
+];
+
