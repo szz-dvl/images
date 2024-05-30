@@ -152,7 +152,17 @@ const getCreateOptions = (effects: ParsedQs, cachePath: CachePathState): Result<
 export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState): SharpOptions => {
 
     const options: SharpOptions = {
-        pages: -1 /** Consider all the pages for multi-page images */
+        failOn: "warning",
+        pages: -1, /** Consider all the pages for multi-page images */
+        limitInputPixels: 268402689,
+        unlimited: false,
+        sequentialRead: true,
+        density: 72,
+        ignoreIcc: false,
+        page: 0,
+        subifd: -1,
+        level: 0,
+        animated: true, /** Same as above */
     }
 
     const textOptions = getTextOptions(effects, cachePath);
@@ -253,7 +263,7 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
                 /**
                  * If we reach here without an extension, a particular format was not requested, we need to compute the extension of the candidate 
-                 * to update the one that will be used for cached files.
+                 * to update the one that will be used for cached files. This case must never happens.
                  */
 
                 if (candidateExtension.val === null) {
