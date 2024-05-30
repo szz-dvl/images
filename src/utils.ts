@@ -4,6 +4,7 @@ import { ImageFormat, ImageKnownExtensions, ImageMimeType } from "./constants";
 import { basename, dirname, extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
 import { ParsedQs } from "qs"
+import { SharpOptions } from 'sharp';
 
 export const isKnownExtension = (ext: string, current: ImageFormat) => {
 	return ImageKnownExtensions[current].includes(ext)
@@ -96,7 +97,7 @@ export const buildSizeDirectory = ([width, height]: ImageSize): string => {
 
 export const getCachePath = (path: string, { dir }: ImagesOpts, size: ImageSize, effects: ParsedQs): string => {
 	const sizeDir = buildSizeDirectory(size)
-	const effectsSuffix = buildEffectsSuffix(effects)
+	const effectsSuffix = buildEffectsSuffix(effects).replaceAll("\/", "|")
 
 	const ext = extname(path);
 	const file = basename(path);
@@ -137,4 +138,8 @@ export const getFormatMimeType = (ext: ImageFormat | null): ImageMimeType => {
 
 	return ImageMimeType.ANY;
 
+}
+
+export const isGeneratedImage = ({text, create}: SharpOptions) => {
+	return !!text || !!create
 }

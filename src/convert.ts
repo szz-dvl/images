@@ -1,13 +1,13 @@
 import { ImageSize, ImagesOpts } from "./types";
-import { ImageFormat, ImageMimeType } from "./constants";
-import sharp, { Sharp } from "sharp";
+import { ImageEffect, ImageFormat, ImageMimeType } from "./constants";
+import sharp, { Create, CreateText, Sharp, SharpOptions } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
 import { EffectOperation, applyImageEffects, getOperationDefinition } from "./effects";
 import { ParsedQs } from "qs";
 
-export type ConvertResult = {
+type ConvertResult = {
     sharp: Sharp,
     code: number,
     mime: ImageMimeType
@@ -35,7 +35,7 @@ const getResizeOptions = (effects: ParsedQs): Record<string, number | string | b
             case "position":
             case "background":
             case "kernel":
-                typed[opt] = opts[opt].toString()
+                typed[opt] = opts[opt] as string
                 break;
             case "withoutEnlargement":
             case "withoutReduction":
@@ -50,11 +50,126 @@ const getResizeOptions = (effects: ParsedQs): Record<string, number | string | b
     return typed;
 }
 
-export const convertFile = (from: string, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
+const getTextOptions = (effects: ParsedQs): Result<Record<string, number | string | boolean>, Error> => {
+
+    const textKeys = Object.keys(effects).filter(k => k.startsWith("text"));
+
+    if (textKeys.length === 0) {
+        return Err(new Error("No text options", { cause: effects }));
+    }
+
+    const batch: EffectOperation = {}
+
+    for (const key of textKeys) {
+        batch[key] = effects[key];
+    }
+
+    const { opts } = getOperationDefinition(batch)
+    const typed: Record<string, number | string | boolean> = {}
+
+    for (const opt in opts) {
+        switch (opt) {
+            case "width":
+            case "height":
+            case "dpi":
+            case "spacing":
+                typed[opt] = Number(opts[opt])
+                break;
+            case "text":
+            case "font":
+            case "fontfile":
+            case "align":
+            case "wrap":
+                typed[opt] = opts[opt] as string
+                break;
+            case "justify":
+            case "rgba":
+                typed[opt] = opts[opt] !== "false"
+                break;
+            default:
+                continue;
+        }
+    }
+
+    return Ok(typed);
+}
+
+const getCreateOptions = (effects: ParsedQs): Result<Record<string, number | string | boolean>, Error> => {
+
+    const createKeys = Object.keys(effects).filter(k => k.startsWith("create"));
+
+    if (createKeys.length === 0) {
+        return Err(new Error("No create options", { cause: effects }));
+    }
+
+    const batch: EffectOperation = {}
+
+    for (const key of createKeys) {
+        batch[key] = effects[key];
+    }
+
+    const { opts } = getOperationDefinition(batch)
+    const typed: Record<string, any> = {
+        noise: {}
+    }
+
+    for (const opt in opts) {
+
+        if (opt.includes("noise")) {
+            const noiseKey = opt.split(".").pop();
+
+            switch (noiseKey) {
+                case "type":
+                    typed.noise[noiseKey] = opts[opt] as string
+                case "mean":
+                case "sigma":
+                    typed[opt] = Number(opts[opt])
+                    break;
+            }
+        }
+
+        switch (opt) {
+            case "width":
+            case "height":
+            case "channels":
+                typed[opt] = Number(opts[opt])
+                break;
+            case "background":
+                typed[opt] = opts[opt] as string
+                break;
+            default:
+                continue;
+        }
+    }
+
+    return Ok(typed);
+}
+
+export const getSharpOptions = (effects: ParsedQs): SharpOptions => {
+
+    const options: SharpOptions = {
+        pages: -1 /** Consider all the pages for multi-page images */
+    }
+
+    const textOptions = getTextOptions(effects);
+    const createOptions = getCreateOptions(effects);
+
+    if (textOptions.err && createOptions.err)
+       return options;
+    
+    if (textOptions.ok)
+        options.text = textOptions.val as unknown as CreateText;
+
+    if (createOptions.ok)
+        options.create = createOptions.val as unknown as Create;
+
+    return options;
+}
+export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects, allowedFormats }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
 
     let code = 200, mime = ImageMimeType.ANY;
 
-    const converter = sharp();
+    const converter = sharp(options).keepMetadata();
 
     const effectsResult = applyImageEffects(converter, effects, allowedEffects);
 
@@ -73,12 +188,12 @@ export const convertFile = (from: string, [width, height]: ImageSize, ext: Image
 
     }
 
-    const candidateExtension = getAllowedExtension(
+    const candidateExtension = from ? getAllowedExtension(
         pruneExtension(
             extname(from)
         ),
         "*" /** Force all known extensions here, in case the configuration changed over time */
-    );
+    ) : Ok(null);
 
     if (candidateExtension.err)
         return candidateExtension;

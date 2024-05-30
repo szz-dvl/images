@@ -95,7 +95,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
         let effect = effectsKeys[i];
         const batch: EffectOperation = {}
-        const effectKey = effect.split(".")[0].replace("_", "") /** Several operations of the same kind must be prefixed with as many undescores (_) as times the operation was previously requested */
+        const effectKey = effect.split(".")[0].replaceAll("_", "") /** Several operations of the same kind must be prefixed with as many undescores (_) as times the operation was previously requested */
 
         do {
 
@@ -266,6 +266,8 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                     result = applyBandboolEffect(sharp, batch);
             }
                 break;
+            case "text":
+            case "create": 
             case "resize":
                 continue; /** Treated later on in converter */
             default:

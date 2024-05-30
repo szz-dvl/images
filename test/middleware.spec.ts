@@ -40,8 +40,9 @@ describe("middleware", () => {
 
         //http://localhost:3000/0x1080/giraffe.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&_rotate=90&flip
         //http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000
-
-        const result = await fetch("http://localhost:3000/0x1080/giraffe.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&_rotate=90&flip")
+        //http://localhost:3000/0x1080/test.webp?text.text=<span foreground="red">Red!</span><span background="cyan">blue</span>&text.width=300&text.height=100&text.rgba=true&tint=%2300FF00
+        
+        const result = await fetch('http://localhost:3000/0x1080/test.webp?text.text=<span foreground="red">Red!</span><span background="cyan">blue</span>&text.width=300&text.height=100&text.rgba=true&tint=%2300FF00')
         const image = await result.blob();
 
         console.log(image, result.status);

@@ -1,10 +1,10 @@
 import { cwd } from "node:process";
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
-import { allowedSize, globExtension } from "./utils";
+import { allowedSize, globExtension, isGeneratedImage } from "./utils";
 import { join } from "node:path";
 import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
-import { convertFile } from "./convert";
+import { convertFile, getSharpOptions } from "./convert";
 import { createReadStream } from "node:fs";
 import { Response, Request, NextFunction } from "express";
 import { ImageEffect } from "./constants";
@@ -85,39 +85,49 @@ export default class Images {
 			const allowed = allowedSize(urlInfo.val.size, this.opts);
 
 			if (!allowed)
-				return next(); /** Size not allowed ¿404? */
+				return next(); /** Size not allowed ¿400? */
 
 			const { glob, ext } = globExtension(absolutePath)
 
 			if (ext && !urlInfo.val.ext)
-				return next(); /** Format not allowed ¿404? */
+				return next(); /** Format not allowed ¿400? */
 
 			const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size, effects);
 
 			if (cachedFile.ok)
 				return res.status(204).sendFile(cachedFile.val)
 
-			const exactMatch = await checkFile(absolutePath);
+			const sharpOptions = getSharpOptions(effects);
 
 			let candidate: string | void;
-			if (exactMatch.ok)
-				candidate = exactMatch.val;
-			else {
-				const files = findFiles(glob)
-				const first = await files.iterate().next()
-				candidate = first.value
+
+			if (isGeneratedImage(sharpOptions)) {
+
+				candidate = void 0;
+
+			} else {
+
+				const exactMatch = await checkFile(absolutePath);
+
+				if (exactMatch.ok)
+					candidate = exactMatch.val;
+				else {
+					const files = findFiles(glob)
+					const first = await files.iterate().next()
+					candidate = first.value
+				}
+
+				if (!candidate)
+					return res.status(404).send() /** Not found */
 			}
 
-			if (!candidate)
-				return res.status(404).send()
-
-			const converter = convertFile(candidate, urlInfo.val.size, urlInfo.val.ext, this.opts, effects)
+			const converter = convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects)
 
 			if (converter.err)
 				return next(converter.val)
 
 			if (converter.val.code === 200)
-				return res.status(converter.val.code).sendFile(candidate) /** No change */
+				return res.status(converter.val.code).sendFile(candidate!) /** No change */
 
 			const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size, effects)
 
@@ -126,13 +136,25 @@ export default class Images {
 
 			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime)
 
-			createReadStream(candidate)
-				.pipe(converter.val.sharp)
-				.pipe(writer.val)
-				.pipe(res)
+			if (candidate) {
+
+				return createReadStream(candidate)
+					.pipe(converter.val.sharp)
+					.pipe(writer.val)
+					.pipe(res)
+
+			} else {
+
+				/** Generated images */
+
+				return converter.val.sharp
+					.pipe(writer.val)
+					.pipe(res)
+
+			}
 
 		} catch (err) {
-			return next(err)
+			return next(err); /** ¿400? */
 		}
 	}
 }
