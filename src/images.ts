@@ -4,10 +4,11 @@ import { extractUrlInfo } from "./regex";
 import { allowedSize, globExtension, initCachePathState, isGeneratedImage } from "./utils";
 import { join } from "node:path";
 import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
-import { convertFile, getSharpOptions } from "./convert";
+import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
 import { Response, Request, NextFunction } from "express";
 import { ImageEffect } from "./constants";
+import { getSharpOptions } from "./options";
 
 export default class Images {
 

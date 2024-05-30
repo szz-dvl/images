@@ -1,11 +1,12 @@
 import { ImageSize, ImagesOpts } from "./types";
-import { ImageEffect, ImageFormat, ImageMimeType } from "./constants";
+import { ImageFormat, ImageMimeType } from "./constants";
 import sharp, { Create, CreateText, Sharp, SharpOptions } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { CachePathState, getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
-import { EffectOperation, applyImageEffects, getOperationDefinition } from "./effects";
+import { applyImageEffects } from "./effects";
 import { ParsedQs } from "qs";
+import { getResizeOptions } from "./options";
 
 type ConvertResult = {
     sharp: Sharp,
@@ -13,172 +14,6 @@ type ConvertResult = {
     mime: ImageMimeType
 }
 
-const getResizeOptions = (effects: ParsedQs): Record<string, number | string | boolean> => {
-
-    const resizeKeys = Object.keys(effects).filter(k => k.startsWith("resize"));
-    const batch: EffectOperation = {}
-
-    for (const key of resizeKeys) {
-        batch[key] = effects[key];
-    }
-
-    const { opts } = getOperationDefinition(batch)
-    const typed: Record<string, number | string | boolean> = {}
-
-    for (const opt in opts) {
-        switch (opt) {
-            case "width":
-            case "height":
-                typed[opt] = Number(opts[opt])
-                break;
-            case "fit":
-            case "position":
-            case "background":
-            case "kernel":
-                typed[opt] = opts[opt] as string
-                break;
-            case "withoutEnlargement":
-            case "withoutReduction":
-            case "fastShrinkOnLoad":
-                typed[opt] = opts[opt] !== "false"
-                break;
-            default:
-                continue;
-        }
-    }
-
-    return typed;
-}
-
-const getTextOptions = (effects: ParsedQs, cachePath: CachePathState): Result<Record<string, number | string | boolean>, Error> => {
-
-    const textKeys = Object.keys(effects).filter(k => k.startsWith("text"));
-
-    if (textKeys.length === 0) {
-        return Err(new Error("No text options", { cause: effects }));
-    }
-
-    const batch: EffectOperation = {}
-
-    for (const key of textKeys) {
-        batch[key] = effects[key];
-    }
-
-    cachePath(batch);
-
-    const { opts } = getOperationDefinition(batch)
-    const typed: Record<string, number | string | boolean> = {}
-
-    for (const opt in opts) {
-        switch (opt) {
-            case "width":
-            case "height":
-            case "dpi":
-            case "spacing":
-                typed[opt] = Number(opts[opt])
-                break;
-            case "text":
-            case "font":
-            case "fontfile":
-            case "align":
-            case "wrap":
-                typed[opt] = opts[opt] as string
-                break;
-            case "justify":
-            case "rgba":
-                typed[opt] = opts[opt] !== "false"
-                break;
-            default:
-                continue;
-        }
-    }
-
-    return Ok(typed);
-}
-
-const getCreateOptions = (effects: ParsedQs, cachePath: CachePathState): Result<Record<string, number | string | boolean>, Error> => {
-
-    const createKeys = Object.keys(effects).filter(k => k.startsWith("create"));
-
-    if (createKeys.length === 0) {
-        return Err(new Error("No create options", { cause: effects }));
-    }
-
-    const batch: EffectOperation = {}
-
-    for (const key of createKeys) {
-        batch[key] = effects[key];
-    }
-
-    cachePath(batch);
-
-    const { opts } = getOperationDefinition(batch);
-    const typed: Record<string, any> = {
-        noise: {}
-    }
-
-    for (const opt in opts) {
-
-        if (opt.includes("noise")) {
-            const noiseKey = opt.split(".").pop();
-
-            switch (noiseKey) {
-                case "type":
-                    typed.noise[noiseKey] = opts[opt] as string
-                case "mean":
-                case "sigma":
-                    typed[opt] = Number(opts[opt])
-                    break;
-            }
-        }
-
-        switch (opt) {
-            case "width":
-            case "height":
-            case "channels":
-                typed[opt] = Number(opts[opt])
-                break;
-            case "background":
-                typed[opt] = opts[opt] as string
-                break;
-            default:
-                continue;
-        }
-    }
-
-    return Ok(typed);
-}
-
-export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState): SharpOptions => {
-
-    const options: SharpOptions = {
-        failOn: "warning",
-        pages: -1, /** Consider all the pages for multi-page images */
-        limitInputPixels: 268402689,
-        unlimited: false,
-        sequentialRead: true,
-        density: 72,
-        ignoreIcc: false,
-        page: 0,
-        subifd: -1,
-        level: 0,
-        animated: true, /** Same as above */
-    }
-
-    const textOptions = getTextOptions(effects, cachePath);
-    const createOptions = getCreateOptions(effects, cachePath);
-
-    if (textOptions.err && createOptions.err)
-        return options;
-
-    if (textOptions.ok)
-        options.text = textOptions.val as unknown as CreateText;
-
-    if (createOptions.ok)
-        options.create = createOptions.val as unknown as Create;
-
-    return options;
-}
 export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
 
     try {
@@ -198,7 +33,7 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
             code = 201;
             console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
 
-            const opts = getResizeOptions(effects);
+            const opts = getResizeOptions(effects, cachePath);
             converter.resize(width, height, opts);
 
         }
@@ -263,10 +98,13 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
                 /**
                  * If we reach here without an extension, a particular format was not requested, we need to compute the extension of the candidate 
-                 * to update the one that will be used for cached files. This case must never happens.
+                 * to update the one that will be used for cached files.
                  */
 
                 if (candidateExtension.val === null) {
+
+                    /* This case must never happens. */
+
                     return Err(new Error("Missing extension for cached file", { cause: candidateExtension }));
                 }
 
