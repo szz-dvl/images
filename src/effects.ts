@@ -34,6 +34,7 @@ import { applyEnsureAlphaEffect } from "./effects/ensureAlpha";
 import { applyExtractChannelEffect } from "./effects/extractChannel";
 import { applyJoinChannelEffect } from "./effects/joinChannel";
 import { applyBandboolEffect } from "./effects/bandbool";
+import { CachePathState } from "./utils";
 
 export type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
 type EffectState = Record<ImageEffect, number>
@@ -86,7 +87,7 @@ export const getOperationDefinition = (effects: EffectOperation): OperationDefin
     return definition
 }
 
-export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>): Result<number, Error> => {
+export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState): Result<number, Error> => {
 
     const state = initEffectsState(cloneDeep(allowedEffects));
     const effectsKeys = Object.keys(effects)
@@ -279,6 +280,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
         if (result.val === 201) {
             console.log(`Applying effect: ${effectKey}`);
+            cachePath(batch)
         }
     }
 

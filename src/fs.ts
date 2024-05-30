@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path"
 import { Glob } from "glob";
 import { Err, Ok, Result } from "ts-results";
 import { ImageSize, ImagesOpts } from "./types";
-import { getCachePath } from "./utils";
+import { CachePathState, getCachePath } from "./utils";
 import { createWriteStream } from "node:fs";
 import { ParsedQs } from "qs"
 import { Transform } from "node:stream";
@@ -58,40 +58,25 @@ export const checkFile = async (path: string): Promise<Result<string, Error>> =>
 	}
 }
 
-export const checkCache = async (path: string, opts: ImagesOpts, size: ImageSize, effects: ParsedQs): Promise<Result<string, Error>> => {
+export const checkCache = async (cachePath: CachePathState): Promise<Result<string, Error>> => {
 
-	const cachePath = getCachePath(path, opts, size, effects);
-	const effectivePath = resolve(cachePath);
+	const effectivePath = resolve(cachePath());
 
-	console.log(`Checking for cached file: ${effectivePath}`);
-
-	try {
-
-		const statResult = await stat(effectivePath);
-
-		if (!statResult.isFile())
-			return Err(new Error("Not a file", { cause: statResult }))
-
-		return Ok(effectivePath)
-
-	} catch (err) {
-
-		return Err(new Error("File not found", { cause: err }))
-
-	}
+	return checkFile(effectivePath)
+	
 }
 
-export const getCacheWriter = async (path: string, opts: ImagesOpts, size: ImageSize, effects: ParsedQs): Promise<Result<Transform, Error>> => {
+export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<Transform, Error>> => {
 
-	const cachePath = getCachePath(path, opts, size, effects);
-	const cacheDir = dirname(cachePath);
+	const effectivePath = resolve(cachePath())
+	const cacheDir = dirname(effectivePath);
 	
 	const result = await createDirIfNotExists(cacheDir);
 
 	if (result.err)
 		return result;
 
-	const writeable = createWriteStream(cachePath);
+	const writeable = createWriteStream(effectivePath);
 
 	const cacheWriter = new Transform({
 		transform(chunk, encoding, callback) {

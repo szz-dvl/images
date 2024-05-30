@@ -143,3 +143,37 @@ export const getFormatMimeType = (ext: ImageFormat | null): ImageMimeType => {
 export const isGeneratedImage = ({text, create}: SharpOptions) => {
 	return !!text || !!create
 }
+
+export type CachePathState = (piece?: Record<string, any>) => string;
+
+export const initCachePathState = (path: string, { dir }: ImagesOpts, size: ImageSize): CachePathState => {
+
+	const sizeDir = buildSizeDirectory(size);
+	const ext = extname(path);
+	const file = basename(path);
+	const filename = file.replace(ext, '');
+	const pathDir = dirname(path);
+	
+	let consumed = false;
+	let cachePath = join(dir, ".cache", sizeDir, pathDir, filename + ":");
+
+	return (piece?: Record<string, any>): string => {
+
+		if (piece) {
+
+			for (const effect in piece) {
+				const effectValue = piece[effect];
+				cachePath += `${effect}=${effectValue || "null"}-`.replaceAll("\/", "|");
+			}
+			 
+			return cachePath.substring(0, cachePath.length - 1) + ext;	
+		}
+
+		if (!consumed) {
+			cachePath = cachePath.substring(0, cachePath.length - 1);
+			consumed = true;
+		}
+
+		return cachePath + ext;
+	}
+}

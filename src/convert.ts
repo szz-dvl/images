@@ -2,7 +2,7 @@ import { ImageSize, ImagesOpts } from "./types";
 import { ImageEffect, ImageFormat, ImageMimeType } from "./constants";
 import sharp, { Create, CreateText, Sharp, SharpOptions } from "sharp";
 import { Err, Ok, Result } from "ts-results";
-import { getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
+import { CachePathState, getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
 import { EffectOperation, applyImageEffects, getOperationDefinition } from "./effects";
 import { ParsedQs } from "qs";
@@ -50,7 +50,7 @@ const getResizeOptions = (effects: ParsedQs): Record<string, number | string | b
     return typed;
 }
 
-const getTextOptions = (effects: ParsedQs): Result<Record<string, number | string | boolean>, Error> => {
+const getTextOptions = (effects: ParsedQs, cachePath: CachePathState): Result<Record<string, number | string | boolean>, Error> => {
 
     const textKeys = Object.keys(effects).filter(k => k.startsWith("text"));
 
@@ -64,6 +64,8 @@ const getTextOptions = (effects: ParsedQs): Result<Record<string, number | strin
         batch[key] = effects[key];
     }
 
+    cachePath(batch);
+    
     const { opts } = getOperationDefinition(batch)
     const typed: Record<string, number | string | boolean> = {}
 
@@ -94,7 +96,7 @@ const getTextOptions = (effects: ParsedQs): Result<Record<string, number | strin
     return Ok(typed);
 }
 
-const getCreateOptions = (effects: ParsedQs): Result<Record<string, number | string | boolean>, Error> => {
+const getCreateOptions = (effects: ParsedQs, cachePath: CachePathState): Result<Record<string, number | string | boolean>, Error> => {
 
     const createKeys = Object.keys(effects).filter(k => k.startsWith("create"));
 
@@ -108,7 +110,9 @@ const getCreateOptions = (effects: ParsedQs): Result<Record<string, number | str
         batch[key] = effects[key];
     }
 
-    const { opts } = getOperationDefinition(batch)
+    cachePath(batch);
+    
+    const { opts } = getOperationDefinition(batch);
     const typed: Record<string, any> = {
         noise: {}
     }
@@ -145,14 +149,14 @@ const getCreateOptions = (effects: ParsedQs): Result<Record<string, number | str
     return Ok(typed);
 }
 
-export const getSharpOptions = (effects: ParsedQs): SharpOptions => {
+export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState): SharpOptions => {
 
     const options: SharpOptions = {
         pages: -1 /** Consider all the pages for multi-page images */
     }
 
-    const textOptions = getTextOptions(effects);
-    const createOptions = getCreateOptions(effects);
+    const textOptions = getTextOptions(effects, cachePath);
+    const createOptions = getCreateOptions(effects, cachePath);
 
     if (textOptions.err && createOptions.err)
        return options;
@@ -165,13 +169,13 @@ export const getSharpOptions = (effects: ParsedQs): SharpOptions => {
 
     return options;
 }
-export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects, allowedFormats }: ImagesOpts, effects: ParsedQs): Result<ConvertResult, Error> => {
+export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
 
     let code = 200, mime = ImageMimeType.ANY;
 
     const converter = sharp(options).keepMetadata();
 
-    const effectsResult = applyImageEffects(converter, effects, allowedEffects);
+    const effectsResult = applyImageEffects(converter, effects, allowedEffects, cachePath);
 
     if (effectsResult.err)
         return effectsResult;

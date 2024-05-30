@@ -1,7 +1,7 @@
 import { cwd } from "node:process";
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
-import { allowedSize, globExtension, isGeneratedImage } from "./utils";
+import { allowedSize, globExtension, initCachePathState, isGeneratedImage } from "./utils";
 import { join } from "node:path";
 import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile, getSharpOptions } from "./convert";
@@ -92,12 +92,8 @@ export default class Images {
 			if (ext && !urlInfo.val.ext)
 				return next(); /** Format not allowed ¿400? */
 
-			const cachedFile = await checkCache(urlInfo.val.path, this.opts, urlInfo.val.size, effects);
-
-			if (cachedFile.ok)
-				return res.status(204).sendFile(cachedFile.val)
-
-			const sharpOptions = getSharpOptions(effects);
+			const cachePathState = initCachePathState(urlInfo.val.path,this.opts, urlInfo.val.size)
+			const sharpOptions = getSharpOptions(effects, cachePathState);
 
 			let candidate: string | void;
 
@@ -121,15 +117,19 @@ export default class Images {
 					return res.status(404).send() /** Not found */
 			}
 
-			const converter = convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects)
+			const converter = convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects, cachePathState)
 
 			if (converter.err)
 				return next(converter.val)
 
-			if (converter.val.code === 200)
-				return res.status(converter.val.code).sendFile(candidate!) /** No change */
+			const cachedFile = await checkCache(cachePathState);
+			if (cachedFile.ok)
+				return res.status(204).sendFile(cachedFile.val)
 
-			const writer = await getCacheWriter(urlInfo.val.path, this.opts, urlInfo.val.size, effects)
+			if (candidate && converter.val.code === 200)
+				return res.status(converter.val.code).sendFile(candidate) /** No change */
+
+			const writer = await getCacheWriter(cachePathState)
 
 			if (writer.err)
 				return next(writer.val)
