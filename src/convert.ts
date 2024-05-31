@@ -24,6 +24,8 @@ const applyExtractAfterEffect = (converter: Sharp, effects: ParsedQs, state: Eff
         if (extractAfter.err)
             break;
 
+        console.log(`Applying effect: extractAfter`);
+
         applyExtractEffect(converter, extractAfter.val);
         state[ImageEffect.EXTRACT] -= 1;
     }
