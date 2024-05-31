@@ -69,6 +69,7 @@ const getCreateOptions = (effects: ParsedQs, cachePath: CachePathState): Result<
     cachePath(batch);
 
     const { opts } = getOperationDefinition(batch);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const typed: Record<string, any> = {}
 
     for (const opt in opts) {

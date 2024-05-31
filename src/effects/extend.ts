@@ -18,9 +18,13 @@ export const applyExtendEffect = (sharp: Sharp, extendEffects: EffectOperation):
             case "bottom":
             case "right":
                 opts[opt] = Number(opts[opt])
+                break;
             case "extendWith":
             case "background":
                 opts[opt] = opts[opt].toString()
+                break;
+            default: 
+                continue;
         }
     }
 

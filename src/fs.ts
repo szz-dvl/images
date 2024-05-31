@@ -18,6 +18,7 @@ export const createDirIfNotExists = async (path: string): Promise<Result<void, E
 
 	} catch (e) {
 
+		/* eslint-disable @typescript-eslint/no-explicit-any */
 		const err = e as any;
 
 		if (err.code !== "ENOENT")
@@ -30,7 +31,7 @@ export const createDirIfNotExists = async (path: string): Promise<Result<void, E
 	return Ok.EMPTY
 }
 
-export const findFiles = (glob: string): Glob<{}> => {
+export const findFiles = (glob: string): Glob<Record<string, never>> => {
 	return new Glob(glob, {})
 }
 

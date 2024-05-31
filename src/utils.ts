@@ -148,6 +148,7 @@ const getEffectsSuffix = (parts: Array<string>, hashCacheNames: boolean): string
 
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type CachePathState = (piece?: Record<string, any>, updatExt?: ImageFormat) => string;
 
 export const initCachePathState = (path: string, { dir, hashCacheNames }: ImagesOpts, size: ImageSize, ext: ImageFormat | null): CachePathState => {
@@ -159,7 +160,7 @@ export const initCachePathState = (path: string, { dir, hashCacheNames }: Images
 	const pathDir = dirname(path);
 	const parts: Array<string> = [];
 
-	let cachePath = join(dir, ".cache", sizeDir, pathDir, filename);
+	const cachePath = join(dir, ".cache", sizeDir, pathDir, filename);
 
 	return (piece?: Record<string, any>, updateExt?: ImageFormat): string => {
 

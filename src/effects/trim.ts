@@ -10,10 +10,13 @@ export const applyTrimEffect = (sharp: Sharp, trimEffects: EffectOperation): Res
         switch (opt) {
             case "threshold":
                 opts[opt] = Number(opts[opt])
+                break;
             case "lineArt":
                 opts[opt] !== "false"
+                break;
             case "background":
                 opts[opt] = opts[opt].toString()
+                break;
         }
     }
 
