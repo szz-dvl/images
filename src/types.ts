@@ -7,7 +7,6 @@ import {
     PngOptions, 
     SharpOptions, 
     TiffOptions, 
-    TileOptions, 
     WebpOptions 
 } from "sharp"
 import { ImageEffect, ImageFormat } from "./constants"
