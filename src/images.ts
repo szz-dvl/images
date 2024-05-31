@@ -178,7 +178,6 @@ export class Images {
       let candidate: string | void;
 
       if (isGeneratedImage(sharpOptions)) {
-        
         if (!urlInfo.val.ext) {
           /** We forcedly need an extension for generated files, raw files are not suported by now */
           return next(

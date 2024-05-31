@@ -181,7 +181,7 @@ export const getSharpOptions = (
   cachePath: CachePathState,
   { sharp }: ImagesOpts,
 ): SharpOptions => {
-  const options: SharpOptions = {...sharp};
+  const options: SharpOptions = { ...sharp };
   const textOptions = getTextOptions(effects, cachePath);
   const createOptions = getCreateOptions(effects, cachePath);
 
