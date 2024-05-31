@@ -2,11 +2,13 @@ import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-export const applyBlurEffect = (sharp: Sharp, blurEffects: EffectOperation): Result<number, Error> => {
+export const applyBlurEffect = (
+  sharp: Sharp,
+  blurEffects: EffectOperation,
+): Result<number, Error> => {
+  const { param: sigma } = getOperationDefinition(blurEffects);
 
-    const { param: sigma } = getOperationDefinition(blurEffects)
+  sharp.blur(Number(sigma));
 
-    sharp.blur(Number(sigma));
-
-    return Ok(201);
-}
+  return Ok(201);
+};

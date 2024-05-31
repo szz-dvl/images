@@ -2,15 +2,17 @@ import { Sharp, SharpenOptions } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-export const applySharpenEffect = (sharp: Sharp, sharpenEffects: EffectOperation): Result<number, Error> => {
+export const applySharpenEffect = (
+  sharp: Sharp,
+  sharpenEffects: EffectOperation,
+): Result<number, Error> => {
+  const { opts } = getOperationDefinition(sharpenEffects);
 
-    const { opts } = getOperationDefinition(sharpenEffects)
+  for (const opt in opts) {
+    opts[opt] = Number(opts[opt]);
+  }
 
-    for (const opt in opts) {
-        opts[opt] = Number(opts[opt])
-    }
+  sharp.sharpen(opts as unknown as SharpenOptions);
 
-    sharp.sharpen(opts as unknown as SharpenOptions);
-
-    return Ok(201);
-}
+  return Ok(201);
+};

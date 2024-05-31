@@ -33,28 +33,32 @@ export { applyJoinChannelEffect } from "./joinChannel";
 export { applyBandboolEffect } from "./bandbool";
 
 type OperationDefinition = {
-    param?: string | number | Array<string>,
-    opts: Record<string, string | number | boolean | Array<string>>
-}
+  param?: string | number | Array<string>;
+  opts: Record<string, string | number | boolean | Array<string>>;
+};
 
-export type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
+export type EffectOperation = Record<
+  string,
+  undefined | string | string[] | ParsedQs | ParsedQs[]
+>;
 
-export const getOperationDefinition = (effects: EffectOperation): OperationDefinition => {
+export const getOperationDefinition = (
+  effects: EffectOperation,
+): OperationDefinition => {
+  const definition: OperationDefinition = {
+    param: undefined,
+    opts: {},
+  };
 
-    const definition: OperationDefinition = {
-        param: undefined,
-        opts: {}
+  for (const effect in effects) {
+    if (effect.includes(".")) {
+      const optKey = effect.split(".").slice(1).join(".");
+      definition.opts[optKey] = effects[effect]! as string | number;
+      continue;
     }
 
-    for (const effect in effects) {
-        if (effect.includes(".")) {
-            const optKey = effect.split(".").slice(1).join(".");
-            definition.opts[optKey] = effects[effect]! as string | number
-            continue;
-        }
+    definition.param = effects[effect] as string | number | Array<string>;
+  }
 
-        definition.param = effects[effect] as string | number | Array<string>
-    }
-
-    return definition
-}
+  return definition;
+};

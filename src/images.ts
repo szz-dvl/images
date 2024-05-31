@@ -1,8 +1,20 @@
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
-import { CachePathState, allowedSize, globExtension, initCachePathState, isGeneratedImage } from "./utils";
+import {
+  CachePathState,
+  allowedSize,
+  globExtension,
+  initCachePathState,
+  isGeneratedImage,
+} from "./utils";
 import { join } from "node:path";
-import { CacheWriter, checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
+import {
+  CacheWriter,
+  checkCache,
+  checkFile,
+  findFiles,
+  getCacheWriter,
+} from "./fs";
 import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
 import { unlink } from "node:fs/promises";
@@ -12,210 +24,222 @@ import { getSharpOptions } from "./options";
 import { Sharp } from "sharp";
 
 export class Images {
+  private opts: ImagesOpts;
 
-	private opts: ImagesOpts;
+  constructor(opts: Partial<ImagesOpts>) {
+    this.opts = {
+      dir: `${__dirname}/images`,
+      url: {
+        prefix: "/image",
+        pattern: "/:dir/:size/:file.:ext",
+      },
+      allowedSizes: "*",
+      allowedFormats: "*",
+      allowedEffects: {
+        /** Resize */
+        [ImageEffect.EXTEND]: 1,
+        [ImageEffect.EXTRACT]: 1,
+        [ImageEffect.TRIM]: 1,
 
-	constructor(opts: Partial<ImagesOpts>) {
-		this.opts = {
-			dir: `${__dirname}/images`,
-			url: {
-				prefix: "/image",
-				pattern: "/:dir/:size/:file.:ext",
-			},
-			allowedSizes: "*",
-			allowedFormats: "*",
-			allowedEffects: {
-				/** Resize */
-				[ImageEffect.EXTEND]: 1,
-				[ImageEffect.EXTRACT]: 1,
-				[ImageEffect.TRIM]: 1,
+        /** Operations */
+        [ImageEffect.ROTATE]: 1,
+        [ImageEffect.FLIP]: 1,
+        [ImageEffect.FLOP]: 1,
+        [ImageEffect.AFFINE]: 1,
+        [ImageEffect.SHARPEN]: 1,
+        [ImageEffect.MEDIAN]: 1,
+        [ImageEffect.BLUR]: 1,
+        [ImageEffect.FLATTEN]: 1,
+        [ImageEffect.UNFLATTEN]: 1,
+        [ImageEffect.GAMMA]: 1,
+        [ImageEffect.NEGATE]: 1,
+        [ImageEffect.NORMALISE]: 1,
+        [ImageEffect.CLAHE]: 1,
+        [ImageEffect.CONVOLVE]: 1,
+        [ImageEffect.THRESHOLD]: 1,
+        [ImageEffect.BOOLEAN]: 1,
+        [ImageEffect.LINEAR]: 1,
+        [ImageEffect.RECOMB]: 1,
+        [ImageEffect.MODULATE]: 1,
 
-				/** Operations */
-				[ImageEffect.ROTATE]: 1,
-				[ImageEffect.FLIP]: 1,
-				[ImageEffect.FLOP]: 1,
-				[ImageEffect.AFFINE]: 1,
-				[ImageEffect.SHARPEN]: 1,
-				[ImageEffect.MEDIAN]: 1,
-				[ImageEffect.BLUR]: 1,
-				[ImageEffect.FLATTEN]: 1,
-				[ImageEffect.UNFLATTEN]: 1,
-				[ImageEffect.GAMMA]: 1,
-				[ImageEffect.NEGATE]: 1,
-				[ImageEffect.NORMALISE]: 1,
-				[ImageEffect.CLAHE]: 1,
-				[ImageEffect.CONVOLVE]: 1,
-				[ImageEffect.THRESHOLD]: 1,
-				[ImageEffect.BOOLEAN]: 1,
-				[ImageEffect.LINEAR]: 1,
-				[ImageEffect.RECOMB]: 1,
-				[ImageEffect.MODULATE]: 1,
+        /** Color */
+        [ImageEffect.TINT]: 1,
+        [ImageEffect.GRAYSCALE]: 1,
+        [ImageEffect.PIPELINECOLORSPACE]: 1,
+        [ImageEffect.TOCOLORSPACE]: 1,
 
-				/** Color */
-				[ImageEffect.TINT]: 1,
-				[ImageEffect.GRAYSCALE]: 1,
-				[ImageEffect.PIPELINECOLORSPACE]: 1,
-				[ImageEffect.TOCOLORSPACE]: 1,
+        /** Channel */
+        [ImageEffect.REMOVEALPHA]: 1,
+        [ImageEffect.ENSUREALPHA]: 1,
+        [ImageEffect.EXTRACTCHANNEL]: 1,
+        [ImageEffect.JOINCHANNEL]: 1,
+        [ImageEffect.BANDBOOL]: 1,
+      },
+      allowGenerated: true,
+      sharp: {
+        failOn: "warning",
+        pages: -1 /** Consider all the pages for multi-page images */,
+        limitInputPixels: 268402689,
+        unlimited: false,
+        sequentialRead: true,
+        density: 72,
+        ignoreIcc: false,
+        page: 0,
+        subifd: -1,
+        level: 0,
+        animated: true /** Same as above */,
+      },
+      hashCacheNames: true,
+      logs: false,
+      limits: {
+        width: 1920,
+        height: 1080,
+      },
+      timeout: 5000,
+      ...opts,
+    };
+  }
 
-				/** Channel */
-				[ImageEffect.REMOVEALPHA]: 1,
-				[ImageEffect.ENSUREALPHA]: 1,
-				[ImageEffect.EXTRACTCHANNEL]: 1,
-				[ImageEffect.JOINCHANNEL]: 1,
-				[ImageEffect.BANDBOOL]: 1,
-			},
-			allowGenerated: true,
-			sharp: {
-				failOn: "warning",
-				pages: -1, /** Consider all the pages for multi-page images */
-				limitInputPixels: 268402689,
-				unlimited: false,
-				sequentialRead: true,
-				density: 72,
-				ignoreIcc: false,
-				page: 0,
-				subifd: -1,
-				level: 0,
-				animated: true, /** Same as above */
-			},
-			hashCacheNames: true,
-			logs: false,
-			limits: {
-				width: 1920,
-				height: 1080,
-			},
-			timeout: 5000,
-			...opts
-		};
-	}
+  private async abortStream(
+    err: Error,
+    controller: AbortController,
+    cachePath: CachePathState,
+    next: NextFunction,
+  ) {
+    controller.abort();
+    await unlink(cachePath());
+    return next(err);
+  }
 
-	private async abortStream(err: Error, controller: AbortController, cachePath: CachePathState, next: NextFunction) {
-		controller.abort()
-		await unlink(cachePath())
-		return next(err);
-	}
+  private streamImage(
+    candidate: string | void,
+    converter: Sharp,
+    writer: CacheWriter,
+    cachePath: CachePathState,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const toId: NodeJS.Timeout = setTimeout(async () => {
+      return this.abortStream(
+        new Error("Timed out", { cause: toId }),
+        writer.controller,
+        cachePath,
+        next,
+      );
+    }, this.opts.timeout);
 
-	private streamImage(candidate: string | void, converter: Sharp, writer: CacheWriter, cachePath: CachePathState, res: Response, next: NextFunction) {
+    converter.on("error", async (err) => {
+      clearTimeout(toId);
+      return this.abortStream(err, writer.controller, cachePath, next);
+    });
 
-		const toId: NodeJS.Timeout = setTimeout(async () => {
-			return this.abortStream(
-				new Error("Timed out", { cause: toId }), 
-				writer.controller, 
-				cachePath, 
-				next
-			);
-		}, this.opts.timeout);
+    writer.writer.on("close", () => {
+      clearTimeout(toId);
+    });
 
-		converter.on("error", async (err) => {
-			clearTimeout(toId);
-			return this.abortStream(
-				err, 
-				writer.controller, 
-				cachePath, 
-				next
-			);
-		});
+    if (candidate) {
+      return createReadStream(candidate)
+        .pipe(converter)
+        .pipe(writer.writer)
+        .pipe(res);
+    } else {
+      /** Generated images */
 
-		writer.writer.on("close", () => {
-			clearTimeout(toId);
-		})
+      return converter.pipe(writer.writer).pipe(res);
+    }
+  }
 
-		if (candidate) {
+  public async middleware(req: Request, res: Response, next: NextFunction) {
+    try {
+      const effects = req.query;
+      const requestUrl = req.url.split("?")[0];
+      const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
-			return createReadStream(candidate)
-				.pipe(converter)
-				.pipe(writer.writer)
-				.pipe(res);
+      if (urlInfo.err) return next();
 
-		} else {
+      const absolutePath = join(this.opts.dir, urlInfo.val.path);
+      const allowed = allowedSize(urlInfo.val.size, this.opts);
 
-			/** Generated images */
+      if (!allowed) return next(); /** Size not allowed ¿400? */
 
-			return converter
-				.pipe(writer.writer)
-				.pipe(res);
+      const { glob, ext } = globExtension(absolutePath);
 
-		}
-	}
+      if (ext && !urlInfo.val.ext)
+        return next(); /** Format not allowed ¿400? */
 
-	public async middleware(req: Request, res: Response, next: NextFunction) {
+      const cachePathState = initCachePathState(
+        urlInfo.val.path,
+        this.opts,
+        urlInfo.val.size,
+        urlInfo.val.ext,
+      );
+      const sharpOptions = getSharpOptions(effects, cachePathState, this.opts);
 
-		try {
+      let candidate: string | void;
 
-			const effects = req.query;
-			const requestUrl = req.url.split("?")[0];
-			const urlInfo = extractUrlInfo(requestUrl, this.opts);
+      if (isGeneratedImage(sharpOptions)) {
+        if (!urlInfo.val.ext) {
+          /** We forcedly need an extension for generated files, raw files are not suported by now */
+          return res
+            .status(400)
+            .send("An extension is mandatory for generated files.");
+        }
 
-			if (urlInfo.err)
-				return next();
+        if (!this.opts.allowGenerated)
+          return next(); /** Generated images not allowed ¿400? */
 
-			const absolutePath = join(this.opts.dir, urlInfo.val.path)
-			const allowed = allowedSize(urlInfo.val.size, this.opts);
+        candidate = void 0;
+      } else {
+        const exactMatch = await checkFile(absolutePath, this.opts.logs);
 
-			if (!allowed)
-				return next(); /** Size not allowed ¿400? */
+        if (exactMatch.ok) candidate = exactMatch.val;
+        else {
+          const files = findFiles(glob);
+          const first = await files.iterate().next();
+          candidate = first.value;
+        }
 
-			const { glob, ext } = globExtension(absolutePath)
+        if (!candidate) return res.status(404).send(); /** Not found */
+      }
 
-			if (ext && !urlInfo.val.ext)
-				return next(); /** Format not allowed ¿400? */
+      const converter = await convertFile(
+        candidate,
+        sharpOptions,
+        urlInfo.val.size,
+        urlInfo.val.ext,
+        this.opts,
+        effects,
+        cachePathState,
+      );
 
-			const cachePathState = initCachePathState(urlInfo.val.path, this.opts, urlInfo.val.size, urlInfo.val.ext)
-			const sharpOptions = getSharpOptions(effects, cachePathState, this.opts);
+      if (converter.err) return next(converter.val);
 
-			let candidate: string | void;
+      const cachedFile = await checkCache(cachePathState, this.opts.logs);
+      if (cachedFile.ok) return res.status(202).sendFile(cachedFile.val);
 
-			if (isGeneratedImage(sharpOptions)) {
+      if (candidate && converter.val.code === 200)
+        return res
+          .status(converter.val.code)
+          .sendFile(candidate); /** No change */
 
-				if (!urlInfo.val.ext) {
-					/** We forcedly need an extension for generated files, raw files are not suported by now */
-					return res.status(400).send("An extension is mandatory for generated files.")
-				}
+      const writer = await getCacheWriter(cachePathState);
 
-				if (!this.opts.allowGenerated)
-					return next(); /** Generated images not allowed ¿400? */
+      if (writer.err) return next(writer.val);
 
-				candidate = void 0;
+      res
+        .status(converter.val.code)
+        .setHeader("Content-Type", converter.val.mime);
 
-			} else {
-
-				const exactMatch = await checkFile(absolutePath, this.opts.logs);
-
-				if (exactMatch.ok)
-					candidate = exactMatch.val;
-				else {
-					const files = findFiles(glob)
-					const first = await files.iterate().next()
-					candidate = first.value
-				}
-
-				if (!candidate)
-					return res.status(404).send() /** Not found */
-			}
-
-			const converter = await convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects, cachePathState)
-
-			if (converter.err)
-				return next(converter.val);
-
-			const cachedFile = await checkCache(cachePathState, this.opts.logs);
-			if (cachedFile.ok)
-				return res.status(202).sendFile(cachedFile.val);
-
-			if (candidate && converter.val.code === 200)
-				return res.status(converter.val.code).sendFile(candidate); /** No change */
-
-			const writer = await getCacheWriter(cachePathState);
-
-			if (writer.err)
-				return next(writer.val);
-
-			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime);
-
-			this.streamImage(candidate, converter.val.sharp, writer.val, cachePathState, res, next)
-
-		} catch (err) {
-			return next(err); /** ¿400? */
-		}
-	}
+      this.streamImage(
+        candidate,
+        converter.val.sharp,
+        writer.val,
+        cachePathState,
+        res,
+        next,
+      );
+    } catch (err) {
+      return next(err); /** ¿400? */
+    }
+  }
 }

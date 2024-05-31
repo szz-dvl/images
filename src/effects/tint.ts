@@ -2,11 +2,13 @@ import { Color, Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-export const applyTintEffect = (sharp: Sharp, tintEffects: EffectOperation): Result<number, Error> => {
+export const applyTintEffect = (
+  sharp: Sharp,
+  tintEffects: EffectOperation,
+): Result<number, Error> => {
+  const { param: tint } = getOperationDefinition(tintEffects);
 
-    const { param: tint } = getOperationDefinition(tintEffects)
+  sharp.tint(tint as Color);
 
-    sharp.tint(tint as Color);
-
-    return Ok(201);
-}
+  return Ok(201);
+};

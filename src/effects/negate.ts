@@ -2,15 +2,17 @@ import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-export const applyNegateEffect = (sharp: Sharp, negateEffects: EffectOperation): Result<number, Error> => {
+export const applyNegateEffect = (
+  sharp: Sharp,
+  negateEffects: EffectOperation,
+): Result<number, Error> => {
+  const { opts } = getOperationDefinition(negateEffects);
 
-    const { opts } = getOperationDefinition(negateEffects)
+  for (const opt in opts) {
+    opts[opt] = opts[opt] !== "false";
+  }
 
-    for (const opt in opts) {
-        opts[opt] = opts[opt] !== "false";
-    }
+  sharp.negate(opts);
 
-    sharp.negate(opts);
-
-    return Ok(201);
-}
+  return Ok(201);
+};

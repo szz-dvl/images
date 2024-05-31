@@ -1,22 +1,20 @@
-import { describe, expect, it } from '@jest/globals';
-import { getAllowedExtension } from '../src/utils';
+import { describe, expect, it } from "@jest/globals";
+import { getAllowedExtension } from "../src/utils";
 
 describe("getAllowedExtension", () => {
+  it("must succeed", () => {
+    expect(true).toBe(true);
+  });
 
-	it("must succeed", () => {
-		expect(true).toBe(true);
-	})
+  it("Must return a valid extension if a valid string is provided", () => {
+    const result = getAllowedExtension("png", "*");
 
-	it("Must return a valid extension if a valid string is provided", () => {
-		const result = getAllowedExtension("png", '*')
+    expect(result.val).toBe("png");
+  });
 
-        expect(result.val).toBe("png")
-	})
+  it("Must accept JPG as JPEG", () => {
+    const result = getAllowedExtension("jpg", "*");
 
-    it("Must accept JPG as JPEG", () => {
-		const result = getAllowedExtension("jpg", '*')
-
-        expect(result.val).toBe("jpeg")
-	})
-
-})
+    expect(result.val).toBe("jpeg");
+  });
+});

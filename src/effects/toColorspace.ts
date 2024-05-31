@@ -2,11 +2,13 @@ import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-export const applyToColorspaceEffect = (sharp: Sharp, toColorspaceEffects: EffectOperation): Result<number, Error> => {
+export const applyToColorspaceEffect = (
+  sharp: Sharp,
+  toColorspaceEffects: EffectOperation,
+): Result<number, Error> => {
+  const { param: toColorspace } = getOperationDefinition(toColorspaceEffects);
 
-    const { param: toColorspace } = getOperationDefinition(toColorspaceEffects)
+  sharp.pipelineColorspace(toColorspace as string);
 
-    sharp.pipelineColorspace(toColorspace as string);
-
-    return Ok(201);
-}
+  return Ok(201);
+};

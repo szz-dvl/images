@@ -4,7 +4,10 @@
   "description": "NPM package to expose sharp functionalities trough express middleware.",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx jest",
+    "lint": "npx eslint --config eslint.config.mjs src",
+    "build": "rm -rf dist && npx tsc",
+    "prettier": "npx prettier . --write"
   },
   "repository": {
     "type": "git",

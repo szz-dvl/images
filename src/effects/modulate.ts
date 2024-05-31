@@ -2,15 +2,17 @@ import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-export const applyModulateEffect = (sharp: Sharp, modulateEffects: EffectOperation): Result<number, Error> => {
+export const applyModulateEffect = (
+  sharp: Sharp,
+  modulateEffects: EffectOperation,
+): Result<number, Error> => {
+  const { opts } = getOperationDefinition(modulateEffects);
 
-    const { opts } = getOperationDefinition(modulateEffects)
+  for (const opt in opts) {
+    opts[opt] = Number(opts[opt]);
+  }
 
-    for (const opt in opts) {
-        opts[opt] = Number(opts[opt])
-    }
+  sharp.modulate(opts);
 
-    sharp.modulate(opts);
-
-    return Ok(201);
-}
+  return Ok(201);
+};

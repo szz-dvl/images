@@ -1,101 +1,96 @@
-import { stat, mkdir } from "node:fs/promises"
-import { dirname, resolve } from "node:path"
+import { stat, mkdir } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { Glob } from "glob";
 import { Err, Ok, Result } from "ts-results";
 import { CachePathState } from "./utils";
 import { createWriteStream } from "node:fs";
 import { Transform, addAbortSignal } from "node:stream";
 
-export const createDirIfNotExists = async (path: string): Promise<Result<void, Error>> => {
-	const effectivePath = resolve(path);
+export const createDirIfNotExists = async (
+  path: string,
+): Promise<Result<void, Error>> => {
+  const effectivePath = resolve(path);
 
-	try {
+  try {
+    const statResult = await stat(effectivePath);
 
-		const statResult = await stat(effectivePath);
+    if (!statResult.isDirectory())
+      return Err(new Error("Not a directory", { cause: statResult }));
+  } catch (e) {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const err = e as any;
 
-		if (!statResult.isDirectory())
-			return Err(new Error("Not a directory", { cause: statResult }));
+    if (err.code !== "ENOENT") return Err(err);
 
-	} catch (e) {
+    await mkdir(effectivePath, { recursive: true });
+  }
 
-		/* eslint-disable @typescript-eslint/no-explicit-any */
-		const err = e as any;
-
-		if (err.code !== "ENOENT")
-			return Err(err);
-
-		await mkdir(effectivePath, { recursive: true });
-
-	}
-
-	return Ok.EMPTY
-}
+  return Ok.EMPTY;
+};
 
 export const findFiles = (glob: string): Glob<Record<string, never>> => {
-	return new Glob(glob, {})
-}
+  return new Glob(glob, {});
+};
 
-export const checkFile = async (path: string, logs: boolean): Promise<Result<string, Error>> => {
+export const checkFile = async (
+  path: string,
+  logs: boolean,
+): Promise<Result<string, Error>> => {
+  const effectivePath = resolve(path);
 
-	const effectivePath = resolve(path);
+  if (logs) console.log(`Checking for file: ${effectivePath}`);
 
-	if (logs)
-		console.log(`Checking for file: ${effectivePath}`);
+  try {
+    const statResult = await stat(effectivePath);
 
-	try {
+    if (!statResult.isFile())
+      return Err(new Error("Not a file", { cause: statResult }));
 
-		const statResult = await stat(effectivePath);
+    return Ok(effectivePath);
+  } catch (err) {
+    return Err(new Error("File not found", { cause: err }));
+  }
+};
 
-		if (!statResult.isFile())
-			return Err(new Error("Not a file", { cause: statResult }));
+export const checkCache = async (
+  cachePath: CachePathState,
+  logs: boolean,
+): Promise<Result<string, Error>> => {
+  const effectivePath = resolve(cachePath());
 
-		return Ok(effectivePath);
-
-	} catch (err) {
-
-		return Err(new Error("File not found", { cause: err }));
-
-	}
-}
-
-export const checkCache = async (cachePath: CachePathState, logs: boolean): Promise<Result<string, Error>> => {
-
-	const effectivePath = resolve(cachePath());
-
-	return checkFile(effectivePath, logs);
-
-}
+  return checkFile(effectivePath, logs);
+};
 
 export type CacheWriter = {
-	writer: Transform,
-	controller: AbortController
-}
+  writer: Transform;
+  controller: AbortController;
+};
 
-export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<CacheWriter, Error>> => {
+export const getCacheWriter = async (
+  cachePath: CachePathState,
+): Promise<Result<CacheWriter, Error>> => {
+  const effectivePath = resolve(cachePath());
+  const cacheDir = dirname(effectivePath);
 
-	const effectivePath = resolve(cachePath())
-	const cacheDir = dirname(effectivePath);
+  const result = await createDirIfNotExists(cacheDir);
 
-	const result = await createDirIfNotExists(cacheDir);
+  if (result.err) return result;
 
-	if (result.err)
-		return result;
+  const writeable = createWriteStream(effectivePath);
+  const controller = new AbortController();
 
-	const writeable = createWriteStream(effectivePath);
-	const controller = new AbortController();
+  addAbortSignal(controller.signal, writeable);
 
-	addAbortSignal(controller.signal, writeable)
+  const cacheWriter = new Transform({
+    transform(chunk, encoding, callback) {
+      writeable.write(chunk);
+      callback(null, chunk);
+    },
+    final(callback) {
+      writeable.close(callback);
+    },
+    signal: controller.signal,
+  });
 
-	const cacheWriter = new Transform({
-		transform(chunk, encoding, callback) {
-			writeable.write(chunk)
-			callback(null, chunk);
-		},
-		final(callback) {
-			writeable.close(callback)
-		},
-		signal: controller.signal
-	});
-
-	return Ok({ writer: cacheWriter, controller });
-}
+  return Ok({ writer: cacheWriter, controller });
+};
