@@ -130,7 +130,7 @@ export class Images {
 
     converter.on("error", async (err) => {
       clearTimeout(toId);
-      return this.abortStream(err, writer.controller, cachePath, next);
+      return await this.abortStream(err, writer.controller, cachePath, next);
     });
 
     writer.writer.on("close", () => {
@@ -230,7 +230,7 @@ export class Images {
         .status(converter.val.code)
         .setHeader("Content-Type", converter.val.mime);
 
-      this.streamImage(
+      return this.streamImage(
         candidate,
         converter.val.sharp,
         writer.val,
