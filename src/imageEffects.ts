@@ -3,38 +3,38 @@ import { Err, Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
 import { ImageEffect } from "./constants";
 import { cloneDeep } from "lodash";
-import { 
-    applyRotationEffect, 
-    applyFlipEffect, 
-    applyFlopEffect, 
-    applyAffineEffect, 
-    applySharpenEffect, 
-    applyMedianEffect, 
-    applyBlurEffect, 
-    applyFlattenEffect, 
-    applyUnflattenEffect, 
-    applyGammaEffect, 
-    applyNegateEffect, 
-    applyNormaliseEffect, 
-    applyClaheEffect, 
-    applyConvolveEffect, 
-    applyThresholdEffect, 
-    applyBooleanEffect, 
-    applyLinearEffect, 
-    applyRecombEffect, 
-    applyModulateEffect, 
-    applyExtendEffect, 
-    applyExtractEffect, 
-    applyTrimEffect, 
-    applyTintEffect, 
-    applyGrayscaleEffect, 
-    applyPipelineColorspaceEffect, 
-    applyToColorspaceEffect, 
-    applyRemoveAlphaEffect, 
-    applyEnsureAlphaEffect, 
-    applyExtractChannelEffect, 
-    applyJoinChannelEffect, 
-    applyBandboolEffect, 
+import {
+    applyRotationEffect,
+    applyFlipEffect,
+    applyFlopEffect,
+    applyAffineEffect,
+    applySharpenEffect,
+    applyMedianEffect,
+    applyBlurEffect,
+    applyFlattenEffect,
+    applyUnflattenEffect,
+    applyGammaEffect,
+    applyNegateEffect,
+    applyNormaliseEffect,
+    applyClaheEffect,
+    applyConvolveEffect,
+    applyThresholdEffect,
+    applyBooleanEffect,
+    applyLinearEffect,
+    applyRecombEffect,
+    applyModulateEffect,
+    applyExtendEffect,
+    applyExtractEffect,
+    applyTrimEffect,
+    applyTintEffect,
+    applyGrayscaleEffect,
+    applyPipelineColorspaceEffect,
+    applyToColorspaceEffect,
+    applyRemoveAlphaEffect,
+    applyEnsureAlphaEffect,
+    applyExtractChannelEffect,
+    applyJoinChannelEffect,
+    applyBandboolEffect,
     EffectOperation
 } from "./effects";
 import { CachePathState } from "./utils";
@@ -64,7 +64,7 @@ const initEffectsState = (state: EffectState) => {
     }
 }
 
-export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState, logs: boolean): Result<EffectsState, Error> => {
+export const applyImageEffects = async (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, dir: string, cachePath: CachePathState, logs: boolean): Promise<Result<EffectsState, Error>> => {
 
     try {
         const state = initEffectsState(cloneDeep(allowedEffects));
@@ -237,7 +237,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                     break;
                 case "joinChannel": {
                     if (state(ImageEffect.JOINCHANNEL))
-                        result = applyJoinChannelEffect(sharp, batch);
+                        result = await applyJoinChannelEffect(sharp, batch, dir);
                 }
                     break;
                 case "bandbool": {
@@ -245,6 +245,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                         result = applyBandboolEffect(sharp, batch);
                 }
                     break;
+                case "extractAfter":
                 case "text":
                 case "create":
                 case "resize":
@@ -252,12 +253,12 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                 default:
                     console.log(`Ignoring unrecognized effect: ${effectKey}`);
             }
-            
+
             if (result.err)
                 return result;
 
             if (result.val === 201) {
-                
+
                 if (logs)
                     console.log(`Applying effect: ${effectKey}`);
 
@@ -266,7 +267,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
         }
 
         return Ok(state() as EffectsState);
-    
+
     } catch (err) {
         return Err(err as Error);
     }

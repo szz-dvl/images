@@ -80,18 +80,18 @@ const sharpOpts = {
 }
 
 describe("converter", () => {
-    it("must append a resize operation", () => {
+    it("must append a resize operation", async () => {
         const path = "image.png";
         const size: ImageSize = [100, 100];
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        convertFile(path, sharpOpts, size, ImageFormat.PNG, opts, {}, cachePath)
+        await convertFile(path, sharpOpts, size, ImageFormat.PNG, opts, {}, cachePath)
 
         expect(cachePath()).toBe(`/test/images/.cache/100x100/image.png`)
     })
 
-    it("must convert a file to a new format", () => {
+    it("must convert a file to a new format", async () => {
         /** What we are requested for */
         const cacheFile = "image.jpg"
 
@@ -101,12 +101,12 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(cacheFile, opts, size, ImageFormat.JPEG)
 
-        convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, {}, cachePath)
+        await convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, {}, cachePath)
 
         expect(cachePath()).toBe(`/test/images/.cache/image.jpeg`)
     })
 
-    it("must apply an extract effect after a resize operation", () => {
+    it("must apply an extract effect after a resize operation", async () => {
         /** What we are requested for */
         const cacheFile = "image.jpg"
 
@@ -116,12 +116,12 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(cacheFile, opts, size, ImageFormat.JPEG)
 
-        convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, { "extractAfter.top": "0", "extractAfter.left": "0", "extractAfter.width": "100", "extractAfter.height": "100" }, cachePath)
+        await convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, { "extractAfter.top": "0", "extractAfter.left": "0", "extractAfter.width": "100", "extractAfter.height": "100" }, cachePath)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:extractAfter.height=100-extractAfter.left=0-extractAfter.top=0-extractAfter.width=100.jpeg`)
     })
 
-    it("must fail to apply an extract effect after a resize operation", () => {
+    it("must fail to apply an extract effect after a resize operation", async () => {
         /** What we are requested for */
         const cacheFile = "image.jpg"
 
@@ -131,7 +131,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(cacheFile, opts, size, ImageFormat.JPEG)
 
-        const res = convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, { "extractAfter.top": "BAD_VALUE", "extractAfter.left": "0", "extractAfter.width": "100", "extractAfter.height": "100" }, cachePath) as Err<Error>
+        const res = await convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, { "extractAfter.top": "BAD_VALUE", "extractAfter.left": "0", "extractAfter.width": "100", "extractAfter.height": "100" }, cachePath) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer for top but received NaN of type number"`)
     })

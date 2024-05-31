@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
+import { unlink } from "node:fs/promises";
 import { Response, Request, NextFunction } from "express";
 import { ImageEffect } from "./constants";
 import { getSharpOptions } from "./options";
@@ -141,7 +142,7 @@ export class Images {
 					return res.status(404).send() /** Not found */
 			}
 
-			const converter = convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects, cachePathState)
+			const converter = await convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects, cachePathState)
 
 			if (converter.err)
 				return next(converter.val);
@@ -160,11 +161,17 @@ export class Images {
 
 			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime);
 
+			converter.val.sharp.on("error", async (err) => {
+				writer.val.controller.abort()
+				await unlink(cachePathState())
+				return next(err);
+			});
+
 			if (candidate) {
 
 				return createReadStream(candidate)
 					.pipe(converter.val.sharp)
-					.pipe(writer.val)
+					.pipe(writer.val.writer)
 					.pipe(res);
 
 			} else {
@@ -172,7 +179,7 @@ export class Images {
 				/** Generated images */
 
 				return converter.val.sharp
-					.pipe(writer.val)
+					.pipe(writer.val.writer)
 					.pipe(res);
 
 			}

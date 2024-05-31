@@ -4,7 +4,7 @@ import { Glob } from "glob";
 import { Err, Ok, Result } from "ts-results";
 import { CachePathState } from "./utils";
 import { createWriteStream } from "node:fs";
-import { Transform } from "node:stream";
+import { Transform, addAbortSignal } from "node:stream";
 
 export const createDirIfNotExists = async (path: string): Promise<Result<void, Error>> => {
 	const effectivePath = resolve(path);
@@ -62,20 +62,28 @@ export const checkCache = async (cachePath: CachePathState, logs: boolean): Prom
 	const effectivePath = resolve(cachePath());
 
 	return checkFile(effectivePath, logs);
-	
+
 }
 
-export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<Transform, Error>> => {
+type CacheWritter = {
+	writer: Transform,
+	controller: AbortController
+}
+
+export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<CacheWritter, Error>> => {
 
 	const effectivePath = resolve(cachePath())
 	const cacheDir = dirname(effectivePath);
-	
+
 	const result = await createDirIfNotExists(cacheDir);
 
 	if (result.err)
 		return result;
 
-	const writeable = createWriteStream(effectivePath);
+	const writeable = createWriteStream(effectivePath, { emitClose: false });
+	const controller = new AbortController();
+
+	addAbortSignal(controller.signal, writeable)
 
 	const cacheWriter = new Transform({
 		transform(chunk, encoding, callback) {
@@ -83,9 +91,13 @@ export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<
 			callback(null, chunk);
 		},
 		final(callback) {
-			writeable.close(callback)
+			if (controller.signal.aborted) {
+				writeable.destroy();
+			} else
+				writeable.close(callback)
 		},
-	}); 
+		signal: controller.signal
+	});
 
-	return Ok(cacheWriter);
+	return Ok({ writer: cacheWriter, controller });
 }

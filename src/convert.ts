@@ -32,14 +32,14 @@ const applyExtractAfterEffect = (converter: Sharp, effects: ParsedQs, state: Eff
     }
 }
 
-export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects, logs }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
+export const convertFile = async (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects, logs, dir }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Promise<Result<ConvertResult, Error>> => {
 
     try {
         let code = 200, mime = ImageMimeType.ANY;
 
         const converter = sharp(options).keepMetadata();
 
-        const effectsResult = applyImageEffects(converter, effects, allowedEffects, cachePath, logs);
+        const effectsResult = await applyImageEffects(converter, effects, allowedEffects, dir, cachePath, logs);
 
         if (effectsResult.err)
             return effectsResult;
