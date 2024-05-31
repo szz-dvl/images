@@ -114,15 +114,15 @@ export class Images {
   private streamImage(
     candidate: string | void,
     converter: Sharp,
-    writer: CacheWriter,
+    cache: CacheWriter,
     cachePath: CachePathState,
     res: Response,
     next: NextFunction,
   ) {
     const toId: NodeJS.Timeout = setTimeout(async () => {
-      return this.abortStream(
+      return await this.abortStream(
         new Error("Timed out", { cause: toId }),
-        writer.controller,
+        cache.controller,
         cachePath,
         next,
       );
@@ -130,22 +130,22 @@ export class Images {
 
     converter.on("error", async (err) => {
       clearTimeout(toId);
-      return await this.abortStream(err, writer.controller, cachePath, next);
+      return await this.abortStream(err, cache.controller, cachePath, next);
     });
 
-    writer.writer.on("close", () => {
+    cache.writer.on("close", () => {
       clearTimeout(toId);
     });
 
     if (candidate) {
       return createReadStream(candidate)
         .pipe(converter)
-        .pipe(writer.writer)
+        .pipe(cache.writer)
         .pipe(res);
     } else {
       /** Generated images */
 
-      return converter.pipe(writer.writer).pipe(res);
+      return converter.pipe(cache.writer).pipe(res);
     }
   }
 
@@ -178,15 +178,24 @@ export class Images {
       let candidate: string | void;
 
       if (isGeneratedImage(sharpOptions)) {
+        
         if (!urlInfo.val.ext) {
           /** We forcedly need an extension for generated files, raw files are not suported by now */
-          return next(new Error("An extension is mandatory for generated files.", { cause: urlInfo.val }));
+          return next(
+            new Error("An extension is mandatory for generated files.", {
+              cause: urlInfo.val,
+            }),
+          );
         }
 
         const first = await findFirst(glob);
         if (first.value)
-          return next(new Error("Existing file generating image.", { cause: first.value }))    
-      
+          return next(
+            new Error("Existing file generating image.", {
+              cause: first.value,
+            }),
+          );
+
         if (!this.opts.allowGenerated)
           return next(); /** Generated images not allowed ¿400? */
 
@@ -212,7 +221,10 @@ export class Images {
         cachePathState,
       );
 
-      if (converter.err) return next(new Error("Error converting file.", { cause: converter.val }));
+      if (converter.err)
+        return next(
+          new Error("Error converting file.", { cause: converter.val }),
+        );
 
       const cachedFile = await checkCache(cachePathState, this.opts.logs);
       if (cachedFile.ok) return res.status(202).sendFile(cachedFile.val);
@@ -224,7 +236,12 @@ export class Images {
 
       const writer = await getCacheWriter(cachePathState);
 
-      if (writer.err) return next(new Error("Unable to cache the resulting image.", { cause: writer.val }));
+      if (writer.err)
+        return next(
+          new Error("Unable to cache the resulting image.", {
+            cause: writer.val,
+          }),
+        );
 
       res
         .status(converter.val.code)

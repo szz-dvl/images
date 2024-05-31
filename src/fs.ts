@@ -28,7 +28,9 @@ export const createDirIfNotExists = async (
   return Ok.EMPTY;
 };
 
-export const findFirst = async (glob: string): Promise<IteratorResult<string, void>> => {
+export const findFirst = async (
+  glob: string,
+): Promise<IteratorResult<string, void>> => {
   return await new Glob(glob, {}).iterate().next();
 };
 
