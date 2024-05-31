@@ -4,6 +4,7 @@ import { ImageFormat, ImageKnownExtensions, ImageMimeType, SharpBooleanKeys, Sha
 import { basename, dirname, extname, join } from "node:path";
 import { Err, Ok, Result } from 'ts-results';
 import { SharpOptions } from 'sharp';
+import md5 from "md5";
 
 export const isKnownExtension = (ext: string, current: ImageFormat) => {
 	return ImageKnownExtensions[current].includes(ext)
@@ -119,7 +120,7 @@ export const isGeneratedImage = ({ text, create }: SharpOptions) => {
 	return !!text || !!create
 }
 
-export const serializeEffect = (effectKey: string, effectValue: string): string => {
+export const serializeEffect = (effectKey: string, effectValue: string, hashCacheNames: boolean): string => {
 
 	let effectiveKey = effectKey,
 		effectiveValue = effectValue;
@@ -135,22 +136,30 @@ export const serializeEffect = (effectKey: string, effectValue: string): string 
 		}
 	}
 
-	return `${effectiveKey}=${effectiveValue}-`.replaceAll("\/", "|")
+	return hashCacheNames ? `${effectiveKey}=${effectiveValue}` : `${effectiveKey}=${effectiveValue}`.replaceAll("\/", "|")
+
+}
+
+const getEffectsSuffix = (parts: Array<string>, hashCacheNames: boolean): string => {
+
+	parts.sort();
+
+	return parts.length ? ":" + (hashCacheNames ? md5(parts.join("-")) : parts.join("-")) : '';
 
 }
 
 export type CachePathState = (piece?: Record<string, any>, updatExt?: ImageFormat) => string;
 
-export const initCachePathState = (path: string, { dir }: ImagesOpts, size: ImageSize, ext: ImageFormat | null): CachePathState => {
+export const initCachePathState = (path: string, { dir, hashCacheNames }: ImagesOpts, size: ImageSize, ext: ImageFormat | null): CachePathState => {
 
 	const sizeDir = buildSizeDirectory(size);
 	const requestedExt = extname(path);
 	const file = basename(path);
 	const filename = file.replace(requestedExt, '');
 	const pathDir = dirname(path);
+	const parts: Array<string> = [];
 
-	let consumed = false;
-	let cachePath = join(dir, ".cache", sizeDir, pathDir, filename + ":");
+	let cachePath = join(dir, ".cache", sizeDir, pathDir, filename);
 
 	return (piece?: Record<string, any>, updateExt?: ImageFormat): string => {
 
@@ -158,7 +167,7 @@ export const initCachePathState = (path: string, { dir }: ImagesOpts, size: Imag
 
 			ext = updateExt;
 
-			return cachePath.substring(0, cachePath.length - 1) + `.${ext}`;
+			return cachePath + `.${ext}`;
 		}
 
 
@@ -166,19 +175,12 @@ export const initCachePathState = (path: string, { dir }: ImagesOpts, size: Imag
 
 			for (const effect in piece) {
 				const effectValue = piece[effect];
-				cachePath += serializeEffect(effect, effectValue);
+				parts.push(serializeEffect(effect, effectValue, hashCacheNames));
 			}
 
-			consumed = false;
-
-			return cachePath.substring(0, cachePath.length - 1) + `.${ext}`;
+			return cachePath + `.${ext}`;
 		}
 
-		if (!consumed) {
-			cachePath = cachePath.substring(0, cachePath.length - 1);
-			consumed = true;
-		}
-
-		return cachePath + `.${ext}`;
+		return cachePath + getEffectsSuffix(parts, hashCacheNames) + `.${ext}`;
 	}
 }

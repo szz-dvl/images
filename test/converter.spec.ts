@@ -69,7 +69,8 @@ const opts: ImagesOpts = {
         subifd: -1,
         level: 0,
         animated: true, /** Same as above */
-    }
+    },
+    hashCacheNames: true
 }
 
 const sharpOpts = {

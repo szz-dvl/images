@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
 import * as http from "http";
 import { setupExpressServer } from './utils/server';
-import Images from "../src/images"
+import { Images } from "../src/images"
 import { rmSync } from 'fs';
 import { createDirIfNotExists } from '../src/fs';
 import { cp } from 'fs/promises';

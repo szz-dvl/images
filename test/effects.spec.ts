@@ -71,7 +71,8 @@ const opts: ImagesOpts = {
         subifd: -1,
         level: 0,
         animated: true, /** Same as above */
-    }
+    },
+    hashCacheNames: false
 }
 
 const sharpOpts = {
@@ -170,7 +171,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:sharpen.sigma=.7-sharpen.m1=1-sharpen.m2=2.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:sharpen.m1=1-sharpen.m2=2-sharpen.sigma=.7.png`);
     })
 
     it("must fail to append a sharpen effect", () => {
@@ -302,7 +303,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "normalize.upper": "99", "normalize.lower": "1" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:normalize.upper=99-normalize.lower=1.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:normalize.lower=1-normalize.upper=99.png`);
     })
 
     it("must fail to append a normalize effect", () => {
@@ -324,7 +325,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "clahe.width": "100", "clahe.height": "100" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:clahe.width=100-clahe.height=100.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:clahe.height=100-clahe.width=100.png`);
     })
 
     it("must fail to append a clahe effect", () => {
@@ -346,7 +347,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": [ "-1", "0", "1", "-2", "0" ,"2", "-1", "0", "1" ] }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:convolve.width=3-convolve.height=3-convolve.kernel=-1,0,1,-2,0,2,-1,0,1.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:convolve.height=3-convolve.kernel=-1,0,1,-2,0,2,-1,0,1-convolve.width=3.png`);
     })
 
     it("must fail to append a convolve effect", () => {
@@ -500,7 +501,7 @@ describe("converter", () => {
 
         applyImageEffects(sharp(), { "extract.top": "0", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath)
 
-        expect(cachePath()).toBe(`/test/images/.cache/image:extract.top=0-extract.left=0-extract.width=100-extract.height=100.png`);
+        expect(cachePath()).toBe(`/test/images/.cache/image:extract.height=100-extract.left=0-extract.top=0-extract.width=100.png`);
     })
 
     it("must fail to append an extract effect", () => {

@@ -76,6 +76,7 @@ export class Images {
 				level: 0,
 				animated: true, /** Same as above */
 			},
+			hashCacheNames: true,
 			limits: {
 				width: 1920,
 				height: 1080,
