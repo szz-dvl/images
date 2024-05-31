@@ -44,5 +44,6 @@ export type ImagesOpts = {
     limits: ImageLimits,
     formatOpts?: FormatsOpts,
     hashCacheNames: boolean,
+    logs: boolean,
     sharp: Omit<SharpOptions, "create" | "text" | "raw">,
 }

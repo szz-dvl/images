@@ -71,7 +71,8 @@ const opts: ImagesOpts = {
         level: 0,
         animated: true, /** Same as above */
     },
-    hashCacheNames: false
+    hashCacheNames: false,
+    logs: true,
 }
 
 const sharpOpts = {

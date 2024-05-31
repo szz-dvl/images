@@ -77,6 +77,7 @@ export class Images {
 				animated: true, /** Same as above */
 			},
 			hashCacheNames: true,
+			logs: false,
 			limits: {
 				width: 1920,
 				height: 1080,
@@ -126,7 +127,7 @@ export class Images {
 
 			} else {
 
-				const exactMatch = await checkFile(absolutePath);
+				const exactMatch = await checkFile(absolutePath, this.opts.logs);
 
 				if (exactMatch.ok)
 					candidate = exactMatch.val;
@@ -145,9 +146,9 @@ export class Images {
 			if (converter.err)
 				return next(converter.val);
 
-			const cachedFile = await checkCache(cachePathState);
+			const cachedFile = await checkCache(cachePathState, this.opts.logs);
 			if (cachedFile.ok)
-				return res.status(204).sendFile(cachedFile.val);
+				return res.status(202).sendFile(cachedFile.val);
 
 			if (candidate && converter.val.code === 200)
 				return res.status(converter.val.code).sendFile(candidate); /** No change */

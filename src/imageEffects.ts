@@ -64,7 +64,7 @@ const initEffectsState = (state: EffectState) => {
     }
 }
 
-export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState): Result<EffectsState, Error> => {
+export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState, logs: boolean): Result<EffectsState, Error> => {
 
     try {
         const state = initEffectsState(cloneDeep(allowedEffects));
@@ -257,7 +257,10 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                 return result;
 
             if (result.val === 201) {
-                console.log(`Applying effect: ${effectKey}`);
+                
+                if (logs)
+                    console.log(`Applying effect: ${effectKey}`);
+
                 cachePath(batch);
             }
         }

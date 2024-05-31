@@ -54,7 +54,7 @@ describe("middleware", () => {
         await fetch('http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000')
         const result = await fetch('http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000')
         
-        expect(result.status).toBe(204);
+        expect(result.status).toBe(202);
 
     })
 

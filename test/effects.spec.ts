@@ -72,7 +72,8 @@ const opts: ImagesOpts = {
         level: 0,
         animated: true, /** Same as above */
     },
-    hashCacheNames: false
+    hashCacheNames: false,
+    logs: true
 }
 
 const sharpOpts = {
@@ -81,29 +82,13 @@ const sharpOpts = {
 
 describe("converter", () => {
 
-    /** 
-     * If a paramter is invalid sharp will complain aborting the operation, thus never writting files to cache.
-     * We need however, to take into account values provided for "boolean" like operations like:
-     * 
-     *  - flip
-     *  - flop
-     *  - unflatten
-     *  - negate
-     *  - removeAlpha
-     * 
-     * Same applies for operations with two supported names like normalize/normalise or toColorSpace/toColourSppace.
-     * 
-     * We need to ensure that each file is produced once in the cache, trying to avoid DDOS attacks. At the same time, different background colors 
-     * or legit params may produce valid files, so CORS seems to be mandatory for this middleware to be useful.
-     */
-
     it("must append a rotation effect", () => {
         const path = "image.png";
         const size: ImageSize = [null, null];
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { rotate: "90" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { rotate: "90" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:rotate=90.png`);
     })
@@ -114,7 +99,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { rotate: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { rotate: "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected numeric for angle but received NaN of type number"`);
     })
@@ -125,7 +110,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { flip: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { flip: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:flip=true.png`);
     })
@@ -136,7 +121,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { flop: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { flop: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:flop=true.png`);
     })
@@ -147,7 +132,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { affine: [ ".1",".2",".1",".7" ] }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { affine: [ ".1",".2",".1",".7" ] }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:affine=.1,.2,.1,.7.png`);
     })
@@ -158,7 +143,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { affine: ["2"] }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { affine: ["2"] }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected 1x4 or 2x2 array for matrix but received 2 of type object"`);
     })
@@ -169,7 +154,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:sharpen.m1=1-sharpen.m2=2-sharpen.sigma=.7.png`);
     })
@@ -180,7 +165,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 0.000001 and 10 for options.sigma but received NaN of type number"`);
     })
@@ -191,7 +176,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { median: "3" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { median: "3" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:median=3.png`);
     })
@@ -202,7 +187,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { median: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { median: "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer between 1 and 1000 for size but received NaN of type number"`);
     })
@@ -213,7 +198,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { blur: "3" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { blur: "3" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:blur=3.png`);
     })
@@ -224,7 +209,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { blur: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { blur: "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 0.3 and 1000 for sigma but received NaN of type number"`);
     })
@@ -235,7 +220,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "flatten.background": "#00FF00" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "flatten.background": "#00FF00" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:flatten.background=#00FF00.png`);
     })
@@ -246,7 +231,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "flatten.background": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "flatten.background": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Unable to parse color from string: BAD_VALUE"`);
     })
@@ -257,7 +242,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { unflatten: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { unflatten: "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:unflatten=true.png`);
     })
@@ -268,7 +253,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { gamma: [ "1", "2" ] }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { gamma: [ "1", "2" ] }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:gamma=1,2.png`);
     })
@@ -279,7 +264,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { gamma: "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { gamma: "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 1.0 and 3.0 for gamma but received NaN of type number"`);
     })
@@ -290,7 +275,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "negate.alpha": "false" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "negate.alpha": "false" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:negate.alpha=false.png`);
     })
@@ -301,7 +286,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "normalize.upper": "99", "normalize.lower": "1" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "normalize.upper": "99", "normalize.lower": "1" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:normalize.lower=1-normalize.upper=99.png`);
     })
@@ -312,7 +297,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "normalize.upper": "BAD_VALUE", "normalize.lower": "1" }, opts.allowedEffects, cachePath) as Err<Error>;
+        const res = applyImageEffects(sharp(), { "normalize.upper": "BAD_VALUE", "normalize.lower": "1" }, opts.allowedEffects, cachePath, true) as Err<Error>;
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 1 and 100 for upper but received NaN of type number"`);
     })
@@ -323,7 +308,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "clahe.width": "100", "clahe.height": "100" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "clahe.width": "100", "clahe.height": "100" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:clahe.height=100-clahe.width=100.png`);
     })
@@ -334,7 +319,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "clahe.width": "BAD_VALUE", "clahe.height": "100" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "clahe.width": "BAD_VALUE", "clahe.height": "100" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer greater than zero for width but received NaN of type number"`);
     })
@@ -345,7 +330,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": [ "-1", "0", "1", "-2", "0" ,"2", "-1", "0", "1" ] }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": [ "-1", "0", "1", "-2", "0" ,"2", "-1", "0", "1" ] }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:convolve.height=3-convolve.kernel=-1,0,1,-2,0,2,-1,0,1-convolve.width=3.png`);
     })
@@ -356,7 +341,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "convolve.width": "3", "convolve.height": "3", "convolve.kernel": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Invalid convolution kernel"`);
     })
@@ -367,7 +352,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "threshold": "128" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "threshold": "128" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:threshold=128.png`);
     })
@@ -378,7 +363,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "threshold": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "threshold": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer between 0 and 255 for threshold but received NaN of type number"`);
     })
@@ -389,7 +374,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "boolean.operand": "/test/another.jpg", "boolean.operator": "and" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "boolean.operand": "/test/another.jpg", "boolean.operator": "and" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:boolean.operand=|test|another.jpg-boolean.operator=and.png`);
     })
@@ -400,7 +385,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "boolean.operand": "/test/another.jpg", "boolean.operator": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "boolean.operand": "/test/another.jpg", "boolean.operator": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected one of: and, or, eor for operator but received BAD_VALUE of type string"`);
     })
@@ -411,7 +396,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "linear.a": ".5", "linear.b": "2" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "linear.a": ".5", "linear.b": "2" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:linear.a=.5-linear.b=2.png`);
     })
@@ -422,7 +407,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "linear.a": "BAD_VALUE", "linear.b": "2" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "linear.a": "BAD_VALUE", "linear.b": "2" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number or array of numbers for a but received NaN of type number"`);
     })
@@ -433,7 +418,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "recomb.0": ["1", "1", "1"], "recomb.1": ["1", "1", "1"], "recomb.2": ["1", "1", "1"], }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "recomb.0": ["1", "1", "1"], "recomb.1": ["1", "1", "1"], "recomb.2": ["1", "1", "1"], }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:recomb.0=1,1,1-recomb.1=1,1,1-recomb.2=1,1,1.png`);
     })
@@ -444,7 +429,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "recomb.0": "BAD_VALUE", "recomb.1": ["1", "1", "1"], "recomb.2": ["1", "1", "1"], }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "recomb.0": "BAD_VALUE", "recomb.1": ["1", "1", "1"], "recomb.2": ["1", "1", "1"], }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Cannot read properties of undefined (reading 'length')"`);
     })
@@ -455,7 +440,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "modulate.hue": "80" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "modulate.hue": "80" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:modulate.hue=80.png`);
     })
@@ -466,7 +451,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "modulate.hue": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "modulate.hue": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number for hue but received NaN of type number"`);
     })
@@ -477,7 +462,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "extend": "8" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "extend": "8" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:extend=8.png`);
     })
@@ -488,7 +473,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "extend": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "extend": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer or object for extend but received NaN of type number"`);
     })
@@ -499,7 +484,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "extract.top": "0", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "extract.top": "0", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:extract.height=100-extract.left=0-extract.top=0-extract.width=100.png`);
     })
@@ -510,7 +495,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "extract.top": "BAD_VALUE", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath) as Err<Error>;
+        const res = applyImageEffects(sharp(), { "extract.top": "BAD_VALUE", "extract.left": "0", "extract.width": "100", "extract.height": "100" }, opts.allowedEffects, cachePath, true) as Err<Error>;
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer for top but received NaN of type number"`);
     })
@@ -521,7 +506,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "trim": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "trim": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:trim=true.png`);
     })
@@ -532,7 +517,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "tint": "#00FF00" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "tint": "#00FF00" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:tint=#00FF00.png`);
     })
@@ -543,7 +528,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "tint": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "tint": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
 
         expect(res.val.message).toMatchInlineSnapshot(`"Unable to parse color from string: BAD_VALUE"`);
     })
@@ -554,7 +539,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "grayscale": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "grayscale": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:grayscale=true.png`);
     })
@@ -565,7 +550,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "pipelineColorspace": "rgb16" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "pipelineColorspace": "rgb16" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:pipelineColorspace=rgb16.png`);
     })
@@ -579,7 +564,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "pipelineColorspace": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "pipelineColorspace": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
         
         expect(res.val.message).toMatchInlineSnapshot(`undefined`);
     })
@@ -590,7 +575,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "toColorspace": "rgb16" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "toColorspace": "rgb16" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:toColorspace=rgb16.png`);
     })
@@ -604,7 +589,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "toColorspace": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>
+        const res = applyImageEffects(sharp(), { "toColorspace": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>
         
         expect(res.val.message).toMatchInlineSnapshot(`undefined`);
     })
@@ -615,7 +600,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "removeAlpha": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "removeAlpha": "weNeedToStandardizeThat" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:removeAlpha=true.png`);
     })
@@ -626,7 +611,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "ensureAlpha": ".5" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "ensureAlpha": ".5" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:ensureAlpha=.5.png`);
     })
@@ -637,7 +622,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "ensureAlpha": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>;
+        const res = applyImageEffects(sharp(), { "ensureAlpha": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>;
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 0 and 1 for alpha but received NaN of type number"`);
     })
@@ -648,7 +633,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "extractChannel": "red" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "extractChannel": "red" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:extractChannel=red.png`);
     })
@@ -659,7 +644,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "extractChannel": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>;
+        const res = applyImageEffects(sharp(), { "extractChannel": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>;
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected integer or one of: red, green, blue, alpha for channel but received BAD_VALUE of type string"`);
     })
@@ -670,7 +655,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "joinChannel": "/test/other.png" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "joinChannel": "/test/other.png" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:joinChannel=|test|other.png.png`);
     })
@@ -681,7 +666,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        applyImageEffects(sharp(), { "bandbool": "and" }, opts.allowedEffects, cachePath)
+        applyImageEffects(sharp(), { "bandbool": "and" }, opts.allowedEffects, cachePath, true)
 
         expect(cachePath()).toBe(`/test/images/.cache/image:bandbool=and.png`);
     })
@@ -692,7 +677,7 @@ describe("converter", () => {
 
         const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG)
 
-        const res = applyImageEffects(sharp(), { "bandbool": "BAD_VALUE" }, opts.allowedEffects, cachePath) as Err<Error>;
+        const res = applyImageEffects(sharp(), { "bandbool": "BAD_VALUE" }, opts.allowedEffects, cachePath, true) as Err<Error>;
 
         expect(res.val.message).toMatchInlineSnapshot(`"Expected one of: and, or, eor for boolOp but received BAD_VALUE of type string"`);
     })

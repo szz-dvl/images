@@ -15,7 +15,7 @@ type ConvertResult = {
     mime: ImageMimeType
 }
 
-const applyExtractAfterEffect = (converter: Sharp, effects: ParsedQs, state: EffectState, cachePath: CachePathState): void => {
+const applyExtractAfterEffect = (converter: Sharp, effects: ParsedQs, state: EffectState, cachePath: CachePathState, logs: boolean): void => {
 
     let idx = 0;
     while (state[ImageEffect.EXTRACT] > 0) {
@@ -24,21 +24,22 @@ const applyExtractAfterEffect = (converter: Sharp, effects: ParsedQs, state: Eff
         if (extractAfter.err)
             break;
 
-        console.log(`Applying effect: extractAfter`);
+        if (logs)
+            console.log(`Applying effect: extractAfter`);
 
         applyExtractEffect(converter, extractAfter.val);
         state[ImageEffect.EXTRACT] -= 1;
     }
 }
 
-export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
+export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects, logs }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
 
     try {
         let code = 200, mime = ImageMimeType.ANY;
 
         const converter = sharp(options).keepMetadata();
 
-        const effectsResult = applyImageEffects(converter, effects, allowedEffects, cachePath);
+        const effectsResult = applyImageEffects(converter, effects, allowedEffects, cachePath, logs);
 
         if (effectsResult.err)
             return effectsResult;
@@ -48,14 +49,16 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
         if (width !== null || height !== null) {
 
             code = 201;
-            console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
+
+            if (logs)
+                console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
 
             const opts = getResizeOptions(effects, cachePath);
             converter.resize(width, height, opts);
 
         }
 
-        applyExtractAfterEffect(converter, effects, effectsResult.val.state, cachePath);
+        applyExtractAfterEffect(converter, effects, effectsResult.val.state, cachePath, logs);
 
         const candidateExtension = from ? getAllowedExtension(
             pruneExtension(
@@ -74,7 +77,9 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
             code = 201;
             mime = getFormatMimeType(ext);
-            console.log(`Converting file ${from} to ${ext}`);
+
+            if (logs)
+                console.log(`Converting file ${from} to ${ext}`);
 
             switch (ext) {
                 case ImageFormat.PNG: {

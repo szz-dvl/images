@@ -34,33 +34,34 @@ export const findFiles = (glob: string): Glob<{}> => {
 	return new Glob(glob, {})
 }
 
-export const checkFile = async (path: string): Promise<Result<string, Error>> => {
+export const checkFile = async (path: string, logs: boolean): Promise<Result<string, Error>> => {
 
 	const effectivePath = resolve(path);
 
-	console.log(`Checking for file: ${effectivePath}`);
+	if (logs)
+		console.log(`Checking for file: ${effectivePath}`);
 
 	try {
 
 		const statResult = await stat(effectivePath);
 
 		if (!statResult.isFile())
-			return Err(new Error("Not a file", { cause: statResult }))
+			return Err(new Error("Not a file", { cause: statResult }));
 
-		return Ok(effectivePath)
+		return Ok(effectivePath);
 
 	} catch (err) {
 
-		return Err(new Error("File not found", { cause: err }))
+		return Err(new Error("File not found", { cause: err }));
 
 	}
 }
 
-export const checkCache = async (cachePath: CachePathState): Promise<Result<string, Error>> => {
+export const checkCache = async (cachePath: CachePathState, logs: boolean): Promise<Result<string, Error>> => {
 
 	const effectivePath = resolve(cachePath());
 
-	return checkFile(effectivePath)
+	return checkFile(effectivePath, logs);
 	
 }
 
