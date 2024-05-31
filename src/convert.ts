@@ -6,7 +6,8 @@ import { CachePathState, getAllowedExtension, getFormatMimeType, pruneExtension 
 import { extname } from "path";
 import { applyImageEffects } from "./imageEffects";
 import { ParsedQs } from "qs";
-import { getResizeOptions } from "./options";
+import { getExtractAfterOptions, getResizeOptions } from "./options";
+import { applyExtractEffect } from "./effects";
 
 type ConvertResult = {
     sharp: Sharp,
@@ -38,6 +39,11 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
         }
 
+        const extractAfter = getExtractAfterOptions(effects, cachePath);
+        if (extractAfter.ok) {
+            applyExtractEffect(converter, extractAfter.val)
+        }
+        
         const candidateExtension = from ? getAllowedExtension(
             pruneExtension(
                 extname(from)

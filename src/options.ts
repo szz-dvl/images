@@ -144,6 +144,25 @@ export const getResizeOptions = (effects: ParsedQs, cachePath: CachePathState): 
     return typed;
 }
 
+export const getExtractAfterOptions = (effects: ParsedQs, cachePath: CachePathState): Result<EffectOperation, void> => {
+
+    const extractAfterKeys = Object.keys(effects).filter(k => k.startsWith("extractAfter"));
+
+    if (extractAfterKeys.length === 0) {
+        return Err.EMPTY;
+    }
+    
+    const batch: EffectOperation = {}
+
+    for (const key of extractAfterKeys) {
+        batch[key] = effects[key];
+    }
+
+    cachePath(batch)
+
+    return Ok(batch); 
+}
+
 export const getSharpOptions = (effects: ParsedQs, cachePath: CachePathState, { sharp }: ImagesOpts): SharpOptions => {
 
     const options: SharpOptions = sharp;

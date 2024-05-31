@@ -3,6 +3,7 @@ import { convertFile } from "../src/convert";
 import { ImageEffect, ImageFormat } from "../src/constants";
 import { initCachePathState } from "../src/utils";
 import { ImageSize, ImagesOpts } from "../src/types";
+import { Err } from "ts-results";
 
 const opts: ImagesOpts = {
     dir: `/test/images`,
@@ -70,7 +71,7 @@ const opts: ImagesOpts = {
         level: 0,
         animated: true, /** Same as above */
     },
-    hashCacheNames: true
+    hashCacheNames: false
 }
 
 const sharpOpts = {
@@ -102,5 +103,35 @@ describe("converter", () => {
         convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, {}, cachePath)
 
         expect(cachePath()).toBe(`/test/images/.cache/image.jpeg`)
+    })
+
+    it("must apply an extract effect after a resize operation", () => {
+        /** What we are requested for */
+        const cacheFile = "image.jpg"
+
+        /** What we got in disk */
+        const path = "image.png";
+        const size: ImageSize = [null, null];
+
+        const cachePath = initCachePathState(cacheFile, opts, size, ImageFormat.JPEG)
+
+        convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, { "extractAfter.top": "0", "extractAfter.left": "0", "extractAfter.width": "100", "extractAfter.height": "100" }, cachePath)
+
+        expect(cachePath()).toBe(`/test/images/.cache/image:extractAfter.height=100-extractAfter.left=0-extractAfter.top=0-extractAfter.width=100.jpeg`)
+    })
+
+    it("must fail to apply an extract effect after a resize operation", () => {
+        /** What we are requested for */
+        const cacheFile = "image.jpg"
+
+        /** What we got in disk */
+        const path = "image.png";
+        const size: ImageSize = [null, null];
+
+        const cachePath = initCachePathState(cacheFile, opts, size, ImageFormat.JPEG)
+
+        const res = convertFile(path, sharpOpts, size, ImageFormat.JPEG, opts, { "extractAfter.top": "BAD_VALUE", "extractAfter.left": "0", "extractAfter.width": "100", "extractAfter.height": "100" }, cachePath) as Err<Error>
+
+        expect(res.val.message).toMatchInlineSnapshot(`"Expected integer for top but received NaN of type number"`)
     })
 })
