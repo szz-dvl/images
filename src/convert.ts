@@ -28,7 +28,7 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
         code = effectsResult.val;
 
-        if (width !== null || height != null) {
+        if (width !== null || height !== null) {
 
             code = 201;
             console.log(`Resizing file ${from} to ${width || 0}x${height || 0}`);
@@ -111,7 +111,7 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
                 cachePath(undefined, candidateExtension.val)
             }
 
-            /** Only meaningful when 201 code, when resize and no conversion */
+            /** Only meaningful when 201 code, when resize/effect and no conversion */
 
             mime = getFormatMimeType(candidateExtension.val);
         }

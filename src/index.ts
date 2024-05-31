@@ -1,4 +1,4 @@
-export * as Images from "./images"
+export { Images } from "./images"
 export {
     ImageSize,
     FormatsOpts,
@@ -7,4 +7,4 @@ export {
     ImagesOpts
 } from "./types"
 
-export { ImageFormat } from "./constants";
+export { ImageFormat, ImageEffect } from "./constants";

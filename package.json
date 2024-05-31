@@ -2,7 +2,7 @@
   "name": "images",
   "version": "1.0.0",
   "description": "NPM package to expose sharp functionalities trough express middleware.",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -9,7 +9,7 @@ import { Response, Request, NextFunction } from "express";
 import { ImageEffect } from "./constants";
 import { getSharpOptions } from "./options";
 
-export default class Images {
+export class Images {
 
 	private opts: ImagesOpts;
 
