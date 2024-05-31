@@ -1,10 +1,10 @@
 import { ImageSize, ImagesOpts } from "./types";
-import { ImageFormat, ImageMimeType } from "./constants";
+import { ImageEffect, ImageFormat, ImageMimeType } from "./constants";
 import sharp, { Sharp, SharpOptions } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { CachePathState, getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
-import { applyImageEffects } from "./imageEffects";
+import { EffectState, applyImageEffects } from "./imageEffects";
 import { ParsedQs } from "qs";
 import { getExtractAfterOptions, getResizeOptions } from "./options";
 import { applyExtractEffect } from "./effects";
@@ -13,6 +13,20 @@ type ConvertResult = {
     sharp: Sharp,
     code: number,
     mime: ImageMimeType
+}
+
+const applyExtractAfterEffect = (converter: Sharp, effects: ParsedQs, state: EffectState, cachePath: CachePathState): void => {
+
+    let idx = 0;
+    while (state[ImageEffect.EXTRACT] > 0) {
+
+        const extractAfter = getExtractAfterOptions("_".repeat(idx++), effects, cachePath);
+        if (extractAfter.err)
+            break;
+
+        applyExtractEffect(converter, extractAfter.val);
+        state[ImageEffect.EXTRACT] -= 1;
+    }
 }
 
 export const convertFile = (from: string | void, options: SharpOptions, [width, height]: ImageSize, ext: ImageFormat | null, { formatOpts, allowedEffects }: ImagesOpts, effects: ParsedQs, cachePath: CachePathState): Result<ConvertResult, Error> => {
@@ -27,7 +41,7 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
         if (effectsResult.err)
             return effectsResult;
 
-        code = effectsResult.val;
+        code = effectsResult.val.code;
 
         if (width !== null || height !== null) {
 
@@ -39,11 +53,8 @@ export const convertFile = (from: string | void, options: SharpOptions, [width, 
 
         }
 
-        const extractAfter = getExtractAfterOptions(effects, cachePath);
-        if (extractAfter.ok) {
-            applyExtractEffect(converter, extractAfter.val)
-        }
-        
+        applyExtractAfterEffect(converter, effects, effectsResult.val.state, cachePath);
+
         const candidateExtension = from ? getAllowedExtension(
             pruneExtension(
                 extname(from)

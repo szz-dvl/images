@@ -39,7 +39,7 @@ import {
 } from "./effects";
 import { CachePathState } from "./utils";
 
-type EffectState = Record<ImageEffect, number>
+export type EffectState = Record<ImageEffect, number>
 
 type EffectsState = {
     state: EffectState;
@@ -64,7 +64,7 @@ const initEffectsState = (state: EffectState) => {
     }
 }
 
-export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState): Result<number, Error> => {
+export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState): Result<EffectsState, Error> => {
 
     try {
         const state = initEffectsState(cloneDeep(allowedEffects));
@@ -262,8 +262,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
             }
         }
 
-        const { code }: EffectsState = state() as EffectsState;
-        return Ok(code);
+        return Ok(state() as EffectsState);
     
     } catch (err) {
         return Err(err as Error);

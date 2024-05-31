@@ -144,9 +144,9 @@ export const getResizeOptions = (effects: ParsedQs, cachePath: CachePathState): 
     return typed;
 }
 
-export const getExtractAfterOptions = (effects: ParsedQs, cachePath: CachePathState): Result<EffectOperation, void> => {
+export const getExtractAfterOptions = (prefix: string, effects: ParsedQs, cachePath: CachePathState): Result<EffectOperation, void> => {
 
-    const extractAfterKeys = Object.keys(effects).filter(k => k.startsWith("extractAfter"));
+    const extractAfterKeys = Object.keys(effects).filter(k => k.startsWith(prefix + "extractAfter"));
 
     if (extractAfterKeys.length === 0) {
         return Err.EMPTY;
