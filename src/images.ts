@@ -12,7 +12,7 @@ import {
   CacheWriter,
   checkCache,
   checkFile,
-  findFiles,
+  findFirst,
   getCacheWriter,
 } from "./fs";
 import { convertFile } from "./convert";
@@ -180,22 +180,22 @@ export class Images {
       if (isGeneratedImage(sharpOptions)) {
         if (!urlInfo.val.ext) {
           /** We forcedly need an extension for generated files, raw files are not suported by now */
-          return res
-            .status(400)
-            .send("An extension is mandatory for generated files.");
+          return next(new Error("An extension is mandatory for generated files.", { cause: urlInfo.val }));
         }
 
+        const first = await findFirst(glob);
+        if (first.value)
+          return next(new Error("Existing file generating image.", { cause: first.value }))    
+      
         if (!this.opts.allowGenerated)
           return next(); /** Generated images not allowed ¿400? */
 
         candidate = void 0;
       } else {
         const exactMatch = await checkFile(absolutePath, this.opts.logs);
-
         if (exactMatch.ok) candidate = exactMatch.val;
         else {
-          const files = findFiles(glob);
-          const first = await files.iterate().next();
+          const first = await findFirst(glob);
           candidate = first.value;
         }
 
@@ -212,7 +212,7 @@ export class Images {
         cachePathState,
       );
 
-      if (converter.err) return next(converter.val);
+      if (converter.err) return next(new Error("Error converting file.", { cause: converter.val }));
 
       const cachedFile = await checkCache(cachePathState, this.opts.logs);
       if (cachedFile.ok) return res.status(202).sendFile(cachedFile.val);
@@ -224,7 +224,7 @@ export class Images {
 
       const writer = await getCacheWriter(cachePathState);
 
-      if (writer.err) return next(writer.val);
+      if (writer.err) return next(new Error("Unable to cache the resulting image.", { cause: writer.val }));
 
       res
         .status(converter.val.code)

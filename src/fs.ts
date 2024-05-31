@@ -28,8 +28,8 @@ export const createDirIfNotExists = async (
   return Ok.EMPTY;
 };
 
-export const findFiles = (glob: string): Glob<Record<string, never>> => {
-  return new Glob(glob, {});
+export const findFirst = async (glob: string): Promise<IteratorResult<string, void>> => {
+  return await new Glob(glob, {}).iterate().next();
 };
 
 export const checkFile = async (
