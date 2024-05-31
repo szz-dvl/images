@@ -22,7 +22,6 @@ export type FormatsOpts = {
     tiff?: TiffOptions,
     gif?: GifOptions,
     jp2?: Jp2Options,
-    dzi?: TileOptions,
     heif?: HeifOptions
 }
 
