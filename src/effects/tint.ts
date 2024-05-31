@@ -1,5 +1,5 @@
 import { Color, Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyTintEffect = (sharp: Sharp, tintEffects: EffectOperation): Result<number, Error> => {

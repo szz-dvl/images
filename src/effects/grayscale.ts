@@ -1,5 +1,5 @@
 import { Sharp } from "sharp";
-import { EffectOperation } from "../effects";
+import { EffectOperation } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyGrayscaleEffect = (sharp: Sharp, _grayscaleEffects: EffectOperation): Result<number, Error> => {

@@ -3,7 +3,6 @@ import { convertFile } from "../src/convert";
 import { ImageEffect, ImageFormat } from "../src/constants";
 import { initCachePathState } from "../src/utils";
 import { ImageSize, ImagesOpts } from "../src/types";
-import { Err } from "ts-results";
 
 const opts: ImagesOpts = {
     dir: `/test/images`,

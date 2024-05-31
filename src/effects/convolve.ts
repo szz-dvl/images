@@ -1,5 +1,5 @@
 import { Kernel, Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyConvolveEffect = (sharp: Sharp, convolveEffects: EffectOperation): Result<number, Error> => {

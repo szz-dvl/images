@@ -1,5 +1,5 @@
 import { Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyFlattenEffect = (sharp: Sharp, flattenEffects: EffectOperation): Result<number, Error> => {

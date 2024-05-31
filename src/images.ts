@@ -1,4 +1,3 @@
-import { cwd } from "node:process";
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
 import { allowedSize, globExtension, initCachePathState, isGeneratedImage } from "./utils";
@@ -90,7 +89,7 @@ export default class Images {
 		try {
 
 			const effects = req.query;
-			const requestUrl = req.url.split("?")[0]!;
+			const requestUrl = req.url.split("?")[0];
 			const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
 			if (urlInfo.err)
@@ -143,28 +142,28 @@ export default class Images {
 			const converter = convertFile(candidate, sharpOptions, urlInfo.val.size, urlInfo.val.ext, this.opts, effects, cachePathState)
 
 			if (converter.err)
-				return next(converter.val)
+				return next(converter.val);
 
 			const cachedFile = await checkCache(cachePathState);
 			if (cachedFile.ok)
-				return res.status(204).sendFile(cachedFile.val)
+				return res.status(204).sendFile(cachedFile.val);
 
 			if (candidate && converter.val.code === 200)
-				return res.status(converter.val.code).sendFile(candidate) /** No change */
+				return res.status(converter.val.code).sendFile(candidate); /** No change */
 
-			const writer = await getCacheWriter(cachePathState)
+			const writer = await getCacheWriter(cachePathState);
 
 			if (writer.err)
-				return next(writer.val)
+				return next(writer.val);
 
-			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime)
+			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime);
 
 			if (candidate) {
 
 				return createReadStream(candidate)
 					.pipe(converter.val.sharp)
 					.pipe(writer.val)
-					.pipe(res)
+					.pipe(res);
 
 			} else {
 
@@ -172,7 +171,7 @@ export default class Images {
 
 				return converter.val.sharp
 					.pipe(writer.val)
-					.pipe(res)
+					.pipe(res);
 
 			}
 

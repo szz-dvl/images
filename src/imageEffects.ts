@@ -3,40 +3,42 @@ import { Err, Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
 import { ImageEffect } from "./constants";
 import { cloneDeep } from "lodash";
-import { applyAffineEffect } from "./effects/affine";
-import { applyBlurEffect } from "./effects/blur";
-import { applyBooleanEffect } from "./effects/boolean";
-import { applyClaheEffect } from "./effects/clahe";
-import { applyConvolveEffect } from "./effects/convolve";
-import { applyExtendEffect } from "./effects/extend";
-import { applyExtractEffect } from "./effects/extract";
-import { applyFlattenEffect } from "./effects/flatten";
-import { applyFlipEffect } from "./effects/flip";
-import { applyFlopEffect } from "./effects/flop";
-import { applyGammaEffect } from "./effects/gamma";
-import { applyLinearEffect } from "./effects/linear";
-import { applyMedianEffect } from "./effects/median";
-import { applyModulateEffect } from "./effects/modulate";
-import { applyNegateEffect } from "./effects/negate";
-import { applyNormaliseEffect } from "./effects/normalise";
-import { applyRecombEffect } from "./effects/recomb";
-import { applyRotationEffect } from "./effects/rotate";
-import { applySharpenEffect } from "./effects/sharpen";
-import { applyThresholdEffect } from "./effects/threshold";
-import { applyTrimEffect } from "./effects/trim";
-import { applyUnflattenEffect } from "./effects/unflatten";
-import { applyTintEffect } from "./effects/tint";
-import { applyGrayscaleEffect } from "./effects/grayscale";
-import { applyToColorspaceEffect } from "./effects/toColorspace";
-import { applyPipelineColorspaceEffect } from "./effects/pipelineColorspace";
-import { applyRemoveAlphaEffect } from "./effects/removeAlpha";
-import { applyEnsureAlphaEffect } from "./effects/ensureAlpha";
-import { applyExtractChannelEffect } from "./effects/extractChannel";
-import { applyJoinChannelEffect } from "./effects/joinChannel";
-import { applyBandboolEffect } from "./effects/bandbool";
+import { 
+    applyRotationEffect, 
+    applyFlipEffect, 
+    applyFlopEffect, 
+    applyAffineEffect, 
+    applySharpenEffect, 
+    applyMedianEffect, 
+    applyBlurEffect, 
+    applyFlattenEffect, 
+    applyUnflattenEffect, 
+    applyGammaEffect, 
+    applyNegateEffect, 
+    applyNormaliseEffect, 
+    applyClaheEffect, 
+    applyConvolveEffect, 
+    applyThresholdEffect, 
+    applyBooleanEffect, 
+    applyLinearEffect, 
+    applyRecombEffect, 
+    applyModulateEffect, 
+    applyExtendEffect, 
+    applyExtractEffect, 
+    applyTrimEffect, 
+    applyTintEffect, 
+    applyGrayscaleEffect, 
+    applyPipelineColorspaceEffect, 
+    applyToColorspaceEffect, 
+    applyRemoveAlphaEffect, 
+    applyEnsureAlphaEffect, 
+    applyExtractChannelEffect, 
+    applyJoinChannelEffect, 
+    applyBandboolEffect, 
+    EffectOperation
+} from "./effects";
 import { CachePathState } from "./utils";
 
-export type EffectOperation = Record<string, undefined | string | string[] | ParsedQs | ParsedQs[]>
 type EffectState = Record<ImageEffect, number>
 
 type EffectsState = {
@@ -62,31 +64,6 @@ const initEffectsState = (state: EffectState) => {
     }
 }
 
-type OperationDefinition = {
-    param?: string | number | Array<string>,
-    opts: Record<string, string | number | boolean | Array<string>>
-}
-
-export const getOperationDefinition = (effects: EffectOperation): OperationDefinition => {
-
-    const definition: OperationDefinition = {
-        param: undefined,
-        opts: {}
-    }
-
-    for (const effect in effects) {
-        if (effect.includes(".")) {
-            const optKey = effect.split(".").pop()!
-            definition.opts[optKey] = effects[effect]! as string | number
-            continue;
-        }
-
-        definition.param = effects[effect] as string | number | Array<string>
-    }
-
-    return definition
-}
-
 export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffects: Record<ImageEffect, number>, cachePath: CachePathState): Result<number, Error> => {
 
     try {
@@ -104,7 +81,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
                 batch[effect] = effects[effect];
                 effect = effectsKeys[++i];
 
-            } while (effect && effect.startsWith(effectKey));
+            } while (effect && effect.replaceAll("_", "").startsWith(effectKey));
 
             let result: Result<number, Error> = Ok(200);
 
@@ -281,7 +258,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
 
             if (result.val === 201) {
                 console.log(`Applying effect: ${effectKey}`);
-                cachePath(batch)
+                cachePath(batch);
             }
         }
 
@@ -289,7 +266,7 @@ export const applyImageEffects = (sharp: Sharp, effects: ParsedQs, allowedEffect
         return Ok(code);
     
     } catch (err) {
-        return Err(err as Error)
+        return Err(err as Error);
     }
 
 }

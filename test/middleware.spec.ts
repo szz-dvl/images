@@ -5,7 +5,6 @@ import Images from "../src/images"
 import { rmSync } from 'fs';
 import { createDirIfNotExists } from '../src/fs';
 import { cp } from 'fs/promises';
-import sharp from 'sharp';
 
 describe("middleware", () => {
     jest.setTimeout(10000)

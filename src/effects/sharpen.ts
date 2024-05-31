@@ -1,5 +1,5 @@
 import { Sharp, SharpenOptions } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applySharpenEffect = (sharp: Sharp, sharpenEffects: EffectOperation): Result<number, Error> => {

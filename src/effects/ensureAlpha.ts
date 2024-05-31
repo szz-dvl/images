@@ -1,5 +1,5 @@
 import { Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyEnsureAlphaEffect = (sharp: Sharp, ensureAlphaEffects: EffectOperation): Result<number, Error> => {

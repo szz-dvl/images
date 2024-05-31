@@ -2,10 +2,8 @@ import { stat, mkdir } from "node:fs/promises"
 import { dirname, resolve } from "node:path"
 import { Glob } from "glob";
 import { Err, Ok, Result } from "ts-results";
-import { ImageSize, ImagesOpts } from "./types";
-import { CachePathState, getCachePath } from "./utils";
+import { CachePathState } from "./utils";
 import { createWriteStream } from "node:fs";
-import { ParsedQs } from "qs"
 import { Transform } from "node:stream";
 
 export const createDirIfNotExists = async (path: string): Promise<Result<void, Error>> => {

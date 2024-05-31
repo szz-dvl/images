@@ -1,5 +1,5 @@
 import { BoolEnum, Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyBooleanEffect = (sharp: Sharp, booleanEffects: EffectOperation): Result<number, Error> => {

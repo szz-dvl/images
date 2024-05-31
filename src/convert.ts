@@ -1,10 +1,10 @@
 import { ImageSize, ImagesOpts } from "./types";
 import { ImageFormat, ImageMimeType } from "./constants";
-import sharp, { Create, CreateText, Sharp, SharpOptions } from "sharp";
+import sharp, { Sharp, SharpOptions } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { CachePathState, getAllowedExtension, getFormatMimeType, pruneExtension } from "./utils";
 import { extname } from "path";
-import { applyImageEffects } from "./effects";
+import { applyImageEffects } from "./imageEffects";
 import { ParsedQs } from "qs";
 import { getResizeOptions } from "./options";
 

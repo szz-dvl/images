@@ -1,9 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
-import { convertFile } from "../src/convert";
 import { ImageEffect, ImageFormat } from "../src/constants";
 import { initCachePathState } from "../src/utils";
 import { ImageSize, ImagesOpts } from "../src/types";
-import { applyImageEffects } from "../src/effects";
+import { applyImageEffects } from "../src/imageEffects";
 import sharp from "sharp";
 import { Err } from "ts-results";
 

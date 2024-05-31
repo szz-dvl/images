@@ -1,5 +1,5 @@
-import { Color, Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "../effects";
+import { Sharp } from "sharp";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 export const applyToColorspaceEffect = (sharp: Sharp, toColorspaceEffects: EffectOperation): Result<number, Error> => {
