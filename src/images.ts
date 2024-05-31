@@ -1,14 +1,15 @@
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
-import { allowedSize, globExtension, initCachePathState, isGeneratedImage } from "./utils";
+import { CachePathState, allowedSize, globExtension, initCachePathState, isGeneratedImage } from "./utils";
 import { join } from "node:path";
-import { checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
+import { CacheWriter, checkCache, checkFile, findFiles, getCacheWriter } from "./fs";
 import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
 import { unlink } from "node:fs/promises";
 import { Response, Request, NextFunction } from "express";
 import { ImageEffect } from "./constants";
 import { getSharpOptions } from "./options";
+import { Sharp } from "sharp";
 
 export class Images {
 
@@ -83,8 +84,58 @@ export class Images {
 				width: 1920,
 				height: 1080,
 			},
+			timeout: 5000,
 			...opts
 		};
+	}
+
+	private async abortStream(err: Error, controller: AbortController, cachePath: CachePathState, next: NextFunction) {
+		controller.abort()
+		await unlink(cachePath())
+		return next(err);
+	}
+
+	private streamImage(candidate: string | void, converter: Sharp, writer: CacheWriter, cachePath: CachePathState, res: Response, next: NextFunction) {
+
+		const toId: NodeJS.Timeout = setTimeout(async () => {
+			return this.abortStream(
+				new Error("Timed out", { cause: toId }), 
+				writer.controller, 
+				cachePath, 
+				next
+			);
+		}, this.opts.timeout);
+
+		converter.on("error", async (err) => {
+			clearTimeout(toId);
+			return this.abortStream(
+				err, 
+				writer.controller, 
+				cachePath, 
+				next
+			);
+		});
+
+		writer.writer.on("close", () => {
+			clearTimeout(toId);
+		})
+
+		if (candidate) {
+
+			return createReadStream(candidate)
+				.pipe(converter)
+				.pipe(writer.writer)
+				.pipe(res);
+
+		} else {
+
+			/** Generated images */
+
+			return converter
+				.pipe(writer.writer)
+				.pipe(res);
+
+		}
 	}
 
 	public async middleware(req: Request, res: Response, next: NextFunction) {
@@ -161,28 +212,7 @@ export class Images {
 
 			res.status(converter.val.code).setHeader("Content-Type", converter.val.mime);
 
-			converter.val.sharp.on("error", async (err) => {
-				writer.val.controller.abort()
-				await unlink(cachePathState())
-				return next(err);
-			});
-
-			if (candidate) {
-
-				return createReadStream(candidate)
-					.pipe(converter.val.sharp)
-					.pipe(writer.val.writer)
-					.pipe(res);
-
-			} else {
-
-				/** Generated images */
-
-				return converter.val.sharp
-					.pipe(writer.val.writer)
-					.pipe(res);
-
-			}
+			this.streamImage(candidate, converter.val.sharp, writer.val, cachePathState, res, next)
 
 		} catch (err) {
 			return next(err); /** ¿400? */

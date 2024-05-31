@@ -46,4 +46,5 @@ export type ImagesOpts = {
     hashCacheNames: boolean,
     logs: boolean,
     sharp: Omit<SharpOptions, "create" | "text" | "raw">,
+    timeout: number
 }

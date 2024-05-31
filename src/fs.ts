@@ -65,12 +65,12 @@ export const checkCache = async (cachePath: CachePathState, logs: boolean): Prom
 
 }
 
-type CacheWritter = {
+export type CacheWriter = {
 	writer: Transform,
 	controller: AbortController
 }
 
-export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<CacheWritter, Error>> => {
+export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<CacheWriter, Error>> => {
 
 	const effectivePath = resolve(cachePath())
 	const cacheDir = dirname(effectivePath);
@@ -80,7 +80,7 @@ export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<
 	if (result.err)
 		return result;
 
-	const writeable = createWriteStream(effectivePath, { emitClose: false });
+	const writeable = createWriteStream(effectivePath);
 	const controller = new AbortController();
 
 	addAbortSignal(controller.signal, writeable)
@@ -91,10 +91,7 @@ export const getCacheWriter = async (cachePath: CachePathState): Promise<Result<
 			callback(null, chunk);
 		},
 		final(callback) {
-			if (controller.signal.aborted) {
-				writeable.destroy();
-			} else
-				writeable.close(callback)
+			writeable.close(callback)
 		},
 		signal: controller.signal
 	});

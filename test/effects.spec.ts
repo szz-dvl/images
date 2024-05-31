@@ -73,7 +73,8 @@ const opts: ImagesOpts = {
         animated: true, /** Same as above */
     },
     hashCacheNames: false,
-    logs: true
+    logs: true,
+    timeout: 5000
 }
 
 const sharpOpts = {
