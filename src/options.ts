@@ -69,22 +69,26 @@ const getCreateOptions = (effects: ParsedQs, cachePath: CachePathState): Result<
     cachePath(batch);
 
     const { opts } = getOperationDefinition(batch);
-    const typed: Record<string, any> = {
-        noise: {}
-    }
+    const typed: Record<string, any> = {}
 
     for (const opt in opts) {
-
         if (opt.includes("noise")) {
+            
+            if (!typed.noise)
+                typed.noise = {};
+
             const noiseKey = opt.split(".").pop();
 
             switch (noiseKey) {
                 case "type":
                     typed.noise[noiseKey] = opts[opt] as string
+                    break;
                 case "mean":
                 case "sigma":
-                    typed[opt] = Number(opts[opt])
+                    typed.noise[noiseKey] = Number(opts[opt])
                     break;
+                default:
+                    continue;
             }
         }
 

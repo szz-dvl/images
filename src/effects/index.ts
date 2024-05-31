@@ -48,7 +48,7 @@ export const getOperationDefinition = (effects: EffectOperation): OperationDefin
 
     for (const effect in effects) {
         if (effect.includes(".")) {
-            const optKey = effect.split(".").pop()!
+            const optKey = effect.split(".").slice(1).join(".");
             definition.opts[optKey] = effects[effect]! as string | number
             continue;
         }
