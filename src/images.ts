@@ -22,6 +22,7 @@ import { Response, Request, NextFunction } from "express";
 import { ImageEffect } from "./constants";
 import { getSharpOptions } from "./options";
 import { Sharp } from "sharp";
+import { addAbortSignal } from "node:stream";
 
 export class Images {
   private opts: ImagesOpts;
@@ -109,10 +110,13 @@ export class Images {
   ) {
     try {
       controller.abort();
-      await unlink(cachePath());
+
+      const exists = await checkCache(cachePath, false);
+      if (exists.ok) await unlink(exists.val);
+
       return next(err);
-    } catch (err) {
-      return next(err);
+    } catch (e) {
+      return next(e);
     }
   }
 
@@ -124,28 +128,40 @@ export class Images {
     res: Response,
     next: NextFunction,
   ) {
+    let aborted = false;
     const toId: NodeJS.Timeout = setTimeout(async () => {
-      return await this.abortStream(
-        new Error("Timed out", { cause: toId }),
-        cache.controller,
-        cachePath,
-        next,
-      );
+      if (!aborted) {
+        aborted = true;
+        return await this.abortStream(
+          new Error("Timed out", { cause: toId }),
+          cache.controller,
+          cachePath,
+          next,
+        );
+      }
     }, this.opts.timeout);
 
     converter.on("error", async (err) => {
-      clearTimeout(toId);
-      return await this.abortStream(err, cache.controller, cachePath, next);
+      if (!aborted) {
+        aborted = true;
+        clearTimeout(toId);
+        return await this.abortStream(err, cache.controller, cachePath, next);
+      }
     });
 
     cache.writer.on("error", async (err) => {
-      clearTimeout(toId);
-      return await this.abortStream(err, cache.controller, cachePath, next);
+      if (!aborted) {
+        aborted = true;
+        clearTimeout(toId);
+        return await this.abortStream(err, cache.controller, cachePath, next);
+      }
     });
 
     cache.writer.on("close", () => {
       clearTimeout(toId);
     });
+
+    addAbortSignal(cache.controller.signal, converter);
 
     if (candidate) {
       return createReadStream(candidate)
