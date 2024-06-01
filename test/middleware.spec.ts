@@ -17,33 +17,32 @@ describe("middleware", () => {
     createDirIfNotExists(`${__dirname}/images/`).then(() => {
       cp(
         `${__dirname}/original/giraffe.png`,
-        `${__dirname}/images/giraffe.png`
+        `${__dirname}/images/giraffe.png`,
       ).then(() => {
         cp(
           `${__dirname}/original/santa.png`,
-          `${__dirname}/images/santa.png`
+          `${__dirname}/images/santa.png`,
         ).then(() => {
-          cp(
-            `${__dirname}/original/wp.png`,
-            `${__dirname}/images/wp.png`
-          ).then(() => {
-            const images = new Images({
-              dir: `${__dirname}/images`,
-              allowGenerated: true,
-              limits: {
-                width: 5000,
-                height: 5000,
-              },
-              formatOpts: {
-                heif: {
-                  compression: "av1",
+          cp(`${__dirname}/original/wp.png`, `${__dirname}/images/wp.png`).then(
+            () => {
+              const images = new Images({
+                dir: `${__dirname}/images`,
+                allowGenerated: true,
+                limits: {
+                  width: 5000,
+                  height: 5000,
                 },
-              },
-              hashCacheNames: true
-            });
+                formatOpts: {
+                  heif: {
+                    compression: "av1",
+                  },
+                },
+                hashCacheNames: true,
+              });
 
-            server = setupExpressServer(images.middleware.bind(images), done);
-          });
+              server = setupExpressServer(images.middleware.bind(images), done);
+            },
+          );
         });
       });
     });
@@ -59,7 +58,7 @@ describe("middleware", () => {
 
   it("must create a cool image", async () => {
     const result = await fetch(
-      "http://localhost:3000/0x1080/giraffe.avif?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&flip"
+      "http://localhost:3000/0x1080/giraffe.avif?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%23FF0000&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%2300FF00&flip",
     );
 
     expect(result.status).toBe(201);
@@ -67,10 +66,10 @@ describe("middleware", () => {
 
   it("must recover an image from the cache", async () => {
     await fetch(
-      "http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000"
+      "http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000",
     );
     const result = await fetch(
-      "http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000"
+      "http://localhost:3000/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%23FF0000",
     );
 
     expect(result.status).toBe(202);
@@ -84,16 +83,15 @@ describe("middleware", () => {
 
   it("must generate an image from text", async () => {
     const result = await fetch(
-      'http://localhost:3000/850x350/test.webp?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00&resize.fit=fill'
+      'http://localhost:3000/850x350/test.webp?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00&resize.fit=fill',
     );
 
     expect(result.status).toBe(201);
   });
 
   it("must composite images over an image", async () => {
-    
     const result = await fetch(
-      'http://localhost:3000/1920x1200/wp.png?composite.0=santa.png&composite.0.blend=add&composite.1=giraffe.png&composite.1.tile=false&composite.1.blend=multiply&composite.2.text.text=<span foreground="red" size="xx-large">composition</span>&composite.2.text.rgba=true&composite.2.text.height=250&composite.2.text.width=250'
+      'http://localhost:3000/1920x1200/wp.png?composite.0=santa.png&composite.0.blend=add&composite.1=giraffe.png&composite.1.tile=false&composite.1.blend=multiply&composite.2.text.text=<span foreground="red" size="xx-large">composition</span>&composite.2.text.rgba=true&composite.2.text.height=250&composite.2.text.width=250',
     );
 
     expect(result.status).toBe(201);

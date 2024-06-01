@@ -28,7 +28,6 @@ const applyExtractAfterEffect = (
   cachePath: CachePathState,
   logs: boolean,
 ): Result<number, void> => {
-  
   let idx = 0;
   while (state[ImageEffect.EXTRACT] > 0) {
     const extractAfter = getExtractAfterOptions(
@@ -42,7 +41,7 @@ const applyExtractAfterEffect = (
 
     applyExtractEffect(converter, extractAfter.val);
     state[ImageEffect.EXTRACT] -= 1;
-    idx ++;
+    idx++;
   }
 
   return idx > 0 ? Ok(idx) : Err.EMPTY;
@@ -95,12 +94,7 @@ export const convertFile = async (
     );
     if (extractAfterResult.ok) code = 201;
 
-    const compositeResult = compositeImages(
-      converter,
-      dir,
-      effects,
-      cachePath
-    );
+    const compositeResult = compositeImages(converter, dir, effects, cachePath);
     if (compositeResult.ok) code = 201;
 
     const candidateExtension = from

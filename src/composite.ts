@@ -12,9 +12,9 @@ import { join } from "node:path";
 
 export const compositeImages = (
   sharp: Sharp,
-  dir : string,
+  dir: string,
   effects: ParsedQs,
-  cachePath: CachePathState
+  cachePath: CachePathState,
 ): Result<void, Error> => {
   const compositeOptions = getCompositeOptions(effects, cachePath);
   if (compositeOptions.err) return compositeOptions;
@@ -95,13 +95,13 @@ export const compositeImages = (
 
     const textOptions = getTextOptions(
       textRawOptions,
-      (() => {}) as CachePathState
+      (() => {}) as CachePathState,
     );
     if (textOptions.ok) typedImage.input = { text: textOptions.val };
 
     const createOptions = getCreateOptions(
       createRawOptions,
-      (() => {}) as CachePathState
+      (() => {}) as CachePathState,
     );
     if (createOptions.ok) typedImage.input = { create: createOptions.val };
 

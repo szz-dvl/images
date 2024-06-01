@@ -57,7 +57,9 @@ export const getCreateOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Result<Record<string, number | string | boolean>, Error> => {
-  const createKeys = Object.keys(effects).filter((k) => k.startsWith("create."));
+  const createKeys = Object.keys(effects).filter((k) =>
+    k.startsWith("create."),
+  );
 
   if (createKeys.length === 0) {
     return Err(new Error("No create options", { cause: effects }));
@@ -115,7 +117,9 @@ export const getCompositeOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Result<EffectOperation, Error> => {
-  const compositeKeys = Object.keys(effects).filter((k) => k.startsWith("composite."));
+  const compositeKeys = Object.keys(effects).filter((k) =>
+    k.startsWith("composite."),
+  );
 
   if (compositeKeys.length === 0) {
     return Err(new Error("No composite options", { cause: effects }));
@@ -136,7 +140,9 @@ export const getResizeOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Record<string, number | string | boolean> => {
-  const resizeKeys = Object.keys(effects).filter((k) => k.startsWith("resize."));
+  const resizeKeys = Object.keys(effects).filter((k) =>
+    k.startsWith("resize."),
+  );
   const batch: EffectOperation = {};
 
   for (const key of resizeKeys) {

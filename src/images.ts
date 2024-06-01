@@ -104,7 +104,7 @@ export class Images {
     err: Error,
     controller: AbortController,
     cachePath: CachePathState,
-    next: NextFunction
+    next: NextFunction,
   ) {
     try {
       controller.abort();
@@ -121,14 +121,14 @@ export class Images {
     cache: CacheWriter,
     cachePath: CachePathState,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) {
     const toId: NodeJS.Timeout = setTimeout(async () => {
       return await this.abortStream(
         new Error("Timed out", { cause: toId }),
         cache.controller,
         cachePath,
-        next
+        next,
       );
     }, this.opts.timeout);
 
@@ -180,7 +180,7 @@ export class Images {
         urlInfo.val.path,
         this.opts,
         urlInfo.val.size,
-        urlInfo.val.ext
+        urlInfo.val.ext,
       );
       const sharpOptions = getSharpOptions(effects, cachePathState, this.opts);
 
@@ -192,7 +192,7 @@ export class Images {
           return next(
             new Error("An extension is mandatory for generated files.", {
               cause: urlInfo.val,
-            })
+            }),
           );
         }
 
@@ -201,7 +201,7 @@ export class Images {
           return next(
             new Error("Existing file generating image.", {
               cause: first.value,
-            })
+            }),
           );
 
         if (!this.opts.allowGenerated)
@@ -226,12 +226,12 @@ export class Images {
         urlInfo.val.ext,
         this.opts,
         effects,
-        cachePathState
+        cachePathState,
       );
 
       if (converter.err)
         return next(
-          new Error("Error converting file.", { cause: converter.val })
+          new Error("Error converting file.", { cause: converter.val }),
         );
 
       const cachedFile = await checkCache(cachePathState, this.opts.logs);
@@ -248,7 +248,7 @@ export class Images {
         return next(
           new Error("Unable to cache the resulting image.", {
             cause: writer.val,
-          })
+          }),
         );
 
       res
@@ -261,7 +261,7 @@ export class Images {
         writer.val,
         cachePathState,
         res,
-        next
+        next,
       );
     } catch (err) {
       return next(err); /** ¿400? */
