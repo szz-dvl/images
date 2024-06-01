@@ -106,5 +106,5 @@ export const SharpBooleanKeys = [
   "resize.fastShrinkOnLoad",
   "resize.withoutReduction",
   "threshold.grayscale",
-  "threshold.greyscale",
+  "threshold.greyscale"
 ];

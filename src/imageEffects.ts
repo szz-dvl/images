@@ -69,7 +69,7 @@ export const applyImageEffects = async (
   allowedEffects: Record<ImageEffect, number>,
   dir: string,
   cachePath: CachePathState,
-  logs: boolean,
+  logs: boolean
 ): Promise<Result<EffectsState, Error>> => {
   try {
     const state = initEffectsState(cloneDeep(allowedEffects));
@@ -82,7 +82,7 @@ export const applyImageEffects = async (
         .split(".")[0]
         .replaceAll(
           "_",
-          "",
+          ""
         ); /** Several operations of the same kind must be prefixed with as many undescores (_) as times the operation was previously requested */
 
       do {

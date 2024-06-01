@@ -5,11 +5,11 @@ import { CachePathState } from "./utils";
 import { Create, CreateText, SharpOptions } from "sharp";
 import { ImagesOpts } from "./types";
 
-const getTextOptions = (
+export const getTextOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Result<Record<string, number | string | boolean>, Error> => {
-  const textKeys = Object.keys(effects).filter((k) => k.startsWith("text"));
+  const textKeys = Object.keys(effects).filter((k) => k.startsWith("text."));
 
   if (textKeys.length === 0) {
     return Err(new Error("No text options", { cause: effects }));
@@ -53,11 +53,11 @@ const getTextOptions = (
   return Ok(typed);
 };
 
-const getCreateOptions = (
+export const getCreateOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Result<Record<string, number | string | boolean>, Error> => {
-  const createKeys = Object.keys(effects).filter((k) => k.startsWith("create"));
+  const createKeys = Object.keys(effects).filter((k) => k.startsWith("create."));
 
   if (createKeys.length === 0) {
     return Err(new Error("No create options", { cause: effects }));
@@ -111,11 +111,32 @@ const getCreateOptions = (
   return Ok(typed);
 };
 
+export const getCompositeOptions = (
+  effects: ParsedQs,
+  cachePath: CachePathState,
+): Result<EffectOperation, Error> => {
+  const compositeKeys = Object.keys(effects).filter((k) => k.startsWith("composite."));
+
+  if (compositeKeys.length === 0) {
+    return Err(new Error("No composite options", { cause: effects }));
+  }
+
+  const batch: EffectOperation = {};
+
+  for (const key of compositeKeys) {
+    batch[key] = effects[key];
+  }
+
+  cachePath(batch);
+
+  return Ok(batch);
+};
+
 export const getResizeOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Record<string, number | string | boolean> => {
-  const resizeKeys = Object.keys(effects).filter((k) => k.startsWith("resize"));
+  const resizeKeys = Object.keys(effects).filter((k) => k.startsWith("resize."));
   const batch: EffectOperation = {};
 
   for (const key of resizeKeys) {
@@ -158,7 +179,7 @@ export const getExtractAfterOptions = (
   cachePath: CachePathState,
 ): Result<EffectOperation, void> => {
   const extractAfterKeys = Object.keys(effects).filter((k) =>
-    k.startsWith(prefix + "extractAfter"),
+    k.startsWith(prefix + "extractAfter."),
   );
 
   if (extractAfterKeys.length === 0) {

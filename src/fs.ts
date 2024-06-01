@@ -94,5 +94,9 @@ export const getCacheWriter = async (
     signal: controller.signal,
   });
 
+  writeable.on("error", (err) => {
+    controller.abort(err);
+  });
+
   return Ok({ writer: cacheWriter, controller });
 };

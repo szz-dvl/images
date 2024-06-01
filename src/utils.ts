@@ -18,13 +18,13 @@ export const isKnownExtension = (ext: string, current: ImageFormat) => {
 
 export const getAllowedExtension = (
   ext: string,
-  allowedFormats: Set<ImageFormat> | "*",
+  allowedFormats: Set<ImageFormat> | "*"
 ): Result<ImageFormat, Error> => {
   if (allowedFormats === "*") {
     /* https://blog.logrocket.com/iterate-over-enums-typescript */
 
     let found: Result<ImageFormat, Error> = Err(
-      new Error("Unrecognized format", { cause: ext }),
+      new Error("Unrecognized format", { cause: ext })
     );
 
     forIn(ImageFormat, (value, key) => {
@@ -64,7 +64,7 @@ export const globExtension = (path: string): GlobExtension => {
 
 export const allowedSize = (
   [targetWidth, targetHeight]: ImageSize,
-  { limits: { width, height }, allowedSizes }: ImagesOpts,
+  { limits: { width, height }, allowedSizes }: ImagesOpts
 ): boolean => {
   if (targetWidth && targetWidth > width) return false;
 
@@ -123,7 +123,7 @@ export const isGeneratedImage = ({ text, create }: SharpOptions) => {
 export const serializeEffect = (
   effectKey: string,
   effectValue: string,
-  hashCacheNames: boolean,
+  hashCacheNames: boolean
 ): string => {
   let effectiveKey = effectKey,
     effectiveValue = effectValue;
@@ -131,13 +131,23 @@ export const serializeEffect = (
   for (const duplicated in SharpDuplicatedNaming) {
     if (
       (<Record<string, string[]>>SharpDuplicatedNaming)[duplicated].includes(
-        effectiveKey,
+        effectiveKey
       )
     ) {
       effectiveKey = duplicated;
     }
+  }
 
-    if (SharpBooleanKeys.includes(effectiveKey)) {
+  if (SharpBooleanKeys.includes(effectiveKey)) {
+    effectiveValue = effectiveValue === "false" ? effectiveValue : "true";
+  }
+
+  for (const compositeKey of [
+    /composite.\d+.tile/,
+    /composite.\d+.premultiplied/,
+  ]) {
+    const match = compositeKey.exec(effectiveKey);
+    if (match) {
       effectiveValue = effectiveValue === "false" ? effectiveValue : "true";
     }
   }
@@ -149,7 +159,7 @@ export const serializeEffect = (
 
 const getEffectsSuffix = (
   parts: Array<string>,
-  hashCacheNames: boolean,
+  hashCacheNames: boolean
 ): string => {
   parts.sort();
 
@@ -161,14 +171,14 @@ const getEffectsSuffix = (
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type CachePathState = (
   piece?: Record<string, any>,
-  updatExt?: ImageFormat,
+  updatExt?: ImageFormat
 ) => string;
 
 export const initCachePathState = (
   path: string,
   { dir, hashCacheNames }: ImagesOpts,
   size: ImageSize,
-  ext: ImageFormat | null,
+  ext: ImageFormat | null
 ): CachePathState => {
   const sizeDir = buildSizeDirectory(size);
   const requestedExt = extname(path);

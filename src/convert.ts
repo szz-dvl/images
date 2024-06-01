@@ -13,6 +13,7 @@ import { EffectState, applyImageEffects } from "./imageEffects";
 import { ParsedQs } from "qs";
 import { getExtractAfterOptions, getResizeOptions } from "./options";
 import { applyExtractEffect } from "./effects";
+import { compositeImages } from "./composite";
 
 type ConvertResult = {
   sharp: Sharp;
@@ -26,11 +27,12 @@ const applyExtractAfterEffect = (
   state: EffectState,
   cachePath: CachePathState,
   logs: boolean,
-): void => {
+): Result<number, void> => {
+  
   let idx = 0;
   while (state[ImageEffect.EXTRACT] > 0) {
     const extractAfter = getExtractAfterOptions(
-      "_".repeat(idx++),
+      "_".repeat(idx),
       effects,
       cachePath,
     );
@@ -40,7 +42,10 @@ const applyExtractAfterEffect = (
 
     applyExtractEffect(converter, extractAfter.val);
     state[ImageEffect.EXTRACT] -= 1;
+    idx ++;
   }
+
+  return idx > 0 ? Ok(idx) : Err.EMPTY;
 };
 
 export const convertFile = async (
@@ -81,13 +86,22 @@ export const convertFile = async (
       converter.resize(width, height, opts);
     }
 
-    applyExtractAfterEffect(
+    const extractAfterResult = applyExtractAfterEffect(
       converter,
       effects,
       effectsResult.val.state,
       cachePath,
       logs,
     );
+    if (extractAfterResult.ok) code = 201;
+
+    const compositeResult = compositeImages(
+      converter,
+      dir,
+      effects,
+      cachePath
+    );
+    if (compositeResult.ok) code = 201;
 
     const candidateExtension = from
       ? getAllowedExtension(
