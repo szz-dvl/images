@@ -180,12 +180,11 @@ export const getResizeOptions = (
 };
 
 export const getExtractAfterOptions = (
-  prefix: string,
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Result<EffectOperation, void> => {
   const extractAfterKeys = Object.keys(effects).filter((k) =>
-    k.startsWith(prefix + "extractAfter."),
+    k.startsWith("extractAfter."),
   );
 
   if (extractAfterKeys.length === 0) {

@@ -14,12 +14,12 @@ export type UrlInfo = {
 
 export const extractUrlInfo = (
   url: string,
-  { url: { pattern }, allowedFormats }: ImagesOpts,
+  { url: { prefix, pattern }, allowedFormats }: ImagesOpts,
 ): Result<UrlInfo, Error> => {
   /* https://github.com/shopsinc/imgr/blob/master/lib/server.js#L308 */
 
   const constrains = [];
-  const patternMatch = pattern.replace(/\./g, "(?:\\.)?");
+  const patternMatch = prefix + pattern.replace(/\./g, "(?:\\.)?");
   const constrainMatch = /:(dir|size|file|ext)/g;
   const parsed: Record<string, string> = {};
   let match;

@@ -78,17 +78,12 @@ export const applyImageEffects = async (
     for (let i = 0; i < effectsKeys.length; ) {
       let effect = effectsKeys[i];
       const batch: EffectOperation = {};
-      const effectKey = effect
-        .split(".")[0]
-        .replaceAll(
-          "_",
-          "",
-        ); /** Several operations of the same kind must be prefixed with as many undescores (_) as times the operation was previously requested */
+      const effectKey = effect.split(".")[0];
 
       do {
         batch[effect] = effects[effect];
         effect = effectsKeys[++i];
-      } while (effect && effect.replaceAll("_", "").startsWith(effectKey));
+      } while (effect && effect.startsWith(effectKey));
 
       let result: Result<number, Error> = Ok(200);
 
@@ -278,6 +273,7 @@ export const applyImageEffects = async (
               result = applyBandboolEffect(sharp, batch);
           }
           break;
+        case "composite":
         case "extractAfter":
         case "text":
         case "create":

@@ -54,6 +54,7 @@ const opts: ImagesOpts = {
     [ImageEffect.BANDBOOL]: 1,
   },
   allowGenerated: true,
+  allowComposition: true,
   limits: {
     width: 1920,
     height: 1080,

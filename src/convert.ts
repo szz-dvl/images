@@ -30,11 +30,7 @@ const applyExtractAfterEffect = (
 ): Result<number, void> => {
   let idx = 0;
   while (state[ImageEffect.EXTRACT] > 0) {
-    const extractAfter = getExtractAfterOptions(
-      "_".repeat(idx),
-      effects,
-      cachePath,
-    );
+    const extractAfter = getExtractAfterOptions(effects, cachePath);
     if (extractAfter.err) break;
 
     if (logs) console.log(`Applying effect: extractAfter`);
@@ -52,7 +48,7 @@ export const convertFile = async (
   options: SharpOptions,
   [width, height]: ImageSize,
   ext: ImageFormat | null,
-  { formatOpts, allowedEffects, logs, dir }: ImagesOpts,
+  { formatOpts, allowedEffects, logs, dir, allowComposition }: ImagesOpts,
   effects: ParsedQs,
   cachePath: CachePathState,
 ): Promise<Result<ConvertResult, Error>> => {
@@ -94,8 +90,15 @@ export const convertFile = async (
     );
     if (extractAfterResult.ok) code = 201;
 
-    const compositeResult = compositeImages(converter, dir, effects, cachePath);
-    if (compositeResult.ok) code = 201;
+    if (allowComposition) {
+      const compositeResult = compositeImages(
+        converter,
+        dir,
+        effects,
+        cachePath,
+      );
+      if (compositeResult.ok) code = 201;
+    }
 
     const candidateExtension = from
       ? getAllowedExtension(

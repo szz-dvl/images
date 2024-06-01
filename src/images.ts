@@ -76,6 +76,7 @@ export class Images {
         [ImageEffect.BANDBOOL]: 1,
       },
       allowGenerated: true,
+      allowComposition: true,
       sharp: {
         failOn: "warning",
         pages: -1 /** Consider all the pages for multi-page images */,
@@ -169,12 +170,21 @@ export class Images {
       const absolutePath = join(this.opts.dir, urlInfo.val.path);
       const allowed = allowedSize(urlInfo.val.size, this.opts);
 
-      if (!allowed) return next(); /** Size not allowed ¿400? */
+      if (!allowed) {
+        const exactMatch = await checkFile(absolutePath, this.opts.logs);
+        if (exactMatch.ok) return res.status(200).sendFile(exactMatch.val);
+
+        return next();
+      } /** Size not allowed ¿400? */
 
       const { glob, ext } = globExtension(absolutePath);
 
-      if (ext && !urlInfo.val.ext)
+      if (ext && !urlInfo.val.ext) {
+        const exactMatch = await checkFile(absolutePath, this.opts.logs);
+        if (exactMatch.ok) return res.status(200).sendFile(exactMatch.val);
+
         return next(); /** Format not allowed ¿400? */
+      }
 
       const cachePathState = initCachePathState(
         urlInfo.val.path,

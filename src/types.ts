@@ -39,8 +39,9 @@ export type ImagesOpts = {
   url: ImageUrlPattern;
   allowedSizes: Set<ImageSize> | "*";
   allowedFormats: Set<ImageFormat> | "*";
-  allowedEffects: Record<ImageEffect, number>;
+  allowedEffects: Record<ImageEffect, 0 | 1>;
   allowGenerated: boolean;
+  allowComposition: boolean;
   limits: ImageLimits;
   formatOpts?: FormatsOpts;
   hashCacheNames: boolean;
