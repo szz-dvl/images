@@ -93,9 +93,9 @@ describe("converter", () => {
       sharp(),
       { rotate: "90" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:rotate=90.png`);
@@ -111,9 +111,9 @@ describe("converter", () => {
       sharp(),
       { rotate: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -131,9 +131,9 @@ describe("converter", () => {
       sharp(),
       { flip: "weNeedToStandardizeThat" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:flip=true.png`);
@@ -149,9 +149,9 @@ describe("converter", () => {
       sharp(),
       { flop: "weNeedToStandardizeThat" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:flop=true.png`);
@@ -167,9 +167,9 @@ describe("converter", () => {
       sharp(),
       { affine: [".1", ".2", ".1", ".7"] },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -187,9 +187,9 @@ describe("converter", () => {
       sharp(),
       { affine: ["2"] },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -207,9 +207,9 @@ describe("converter", () => {
       sharp(),
       { "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -227,9 +227,9 @@ describe("converter", () => {
       sharp(),
       { "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -247,9 +247,9 @@ describe("converter", () => {
       sharp(),
       { median: "3" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:median=3.png`);
@@ -265,9 +265,9 @@ describe("converter", () => {
       sharp(),
       { median: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -285,9 +285,9 @@ describe("converter", () => {
       sharp(),
       { blur: "3" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:blur=3.png`);
@@ -303,9 +303,9 @@ describe("converter", () => {
       sharp(),
       { blur: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -323,9 +323,9 @@ describe("converter", () => {
       sharp(),
       { "flatten.background": "#00FF00" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -343,9 +343,9 @@ describe("converter", () => {
       sharp(),
       { "flatten.background": "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -363,9 +363,9 @@ describe("converter", () => {
       sharp(),
       { unflatten: "weNeedToStandardizeThat" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:unflatten=true.png`);
@@ -381,9 +381,9 @@ describe("converter", () => {
       sharp(),
       { gamma: ["1", "2"] },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:gamma=1,2.png`);
@@ -399,9 +399,9 @@ describe("converter", () => {
       sharp(),
       { gamma: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -419,9 +419,9 @@ describe("converter", () => {
       sharp(),
       { "negate.alpha": "false" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -439,9 +439,9 @@ describe("converter", () => {
       sharp(),
       { "normalize.upper": "99", "normalize.lower": "1" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -459,9 +459,9 @@ describe("converter", () => {
       sharp(),
       { "normalize.upper": "BAD_VALUE", "normalize.lower": "1" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -479,9 +479,9 @@ describe("converter", () => {
       sharp(),
       { "clahe.width": "100", "clahe.height": "100" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -499,9 +499,9 @@ describe("converter", () => {
       sharp(),
       { "clahe.width": "BAD_VALUE", "clahe.height": "100" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -523,9 +523,9 @@ describe("converter", () => {
         "convolve.kernel": ["-1", "0", "1", "-2", "0", "2", "-1", "0", "1"],
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -547,9 +547,9 @@ describe("converter", () => {
         "convolve.kernel": "BAD_VALUE",
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -567,9 +567,9 @@ describe("converter", () => {
       sharp(),
       { threshold: "128" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:threshold=128.png`);
@@ -585,9 +585,9 @@ describe("converter", () => {
       sharp(),
       { threshold: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -605,9 +605,9 @@ describe("converter", () => {
       sharp(),
       { "boolean.operand": "/test/another.jpg", "boolean.operator": "and" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -628,9 +628,9 @@ describe("converter", () => {
         "boolean.operator": "BAD_VALUE",
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -648,9 +648,9 @@ describe("converter", () => {
       sharp(),
       { "linear.a": ".5", "linear.b": "2" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -668,9 +668,9 @@ describe("converter", () => {
       sharp(),
       { "linear.a": "BAD_VALUE", "linear.b": "2" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -692,9 +692,9 @@ describe("converter", () => {
         "recomb.2": ["1", "1", "1"],
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -716,9 +716,9 @@ describe("converter", () => {
         "recomb.2": ["1", "1", "1"],
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -736,9 +736,9 @@ describe("converter", () => {
       sharp(),
       { "modulate.hue": "80" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:modulate.hue=80.png`);
@@ -754,9 +754,9 @@ describe("converter", () => {
       sharp(),
       { "modulate.hue": "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -774,9 +774,9 @@ describe("converter", () => {
       sharp(),
       { extend: "8" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:extend=8.png`);
@@ -792,9 +792,9 @@ describe("converter", () => {
       sharp(),
       { extend: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -817,9 +817,9 @@ describe("converter", () => {
         "extract.height": "100",
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -842,9 +842,9 @@ describe("converter", () => {
         "extract.height": "100",
       },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -862,9 +862,9 @@ describe("converter", () => {
       sharp(),
       { trim: "weNeedToStandardizeThat" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:trim=true.png`);
@@ -880,9 +880,9 @@ describe("converter", () => {
       sharp(),
       { tint: "#00FF00" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:tint=#00FF00.png`);
@@ -898,9 +898,9 @@ describe("converter", () => {
       sharp(),
       { tint: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -918,9 +918,9 @@ describe("converter", () => {
       sharp(),
       { grayscale: "weNeedToStandardizeThat" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:grayscale=true.png`);
@@ -936,9 +936,9 @@ describe("converter", () => {
       sharp(),
       { pipelineColorspace: "rgb16" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -958,9 +958,9 @@ describe("converter", () => {
       sharp(),
       { pipelineColorspace: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(`undefined`);
@@ -976,9 +976,9 @@ describe("converter", () => {
       sharp(),
       { toColorspace: "rgb16" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -998,9 +998,9 @@ describe("converter", () => {
       sharp(),
       { toColorspace: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(`undefined`);
@@ -1016,9 +1016,9 @@ describe("converter", () => {
       sharp(),
       { removeAlpha: "weNeedToStandardizeThat" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:removeAlpha=true.png`);
@@ -1034,9 +1034,9 @@ describe("converter", () => {
       sharp(),
       { ensureAlpha: ".5" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:ensureAlpha=.5.png`);
@@ -1052,9 +1052,9 @@ describe("converter", () => {
       sharp(),
       { ensureAlpha: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -1072,9 +1072,9 @@ describe("converter", () => {
       sharp(),
       { extractChannel: "red" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -1092,9 +1092,9 @@ describe("converter", () => {
       sharp(),
       { extractChannel: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(
@@ -1112,9 +1112,9 @@ describe("converter", () => {
       sharp(),
       { joinChannel: "/test/other.png" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(
@@ -1132,9 +1132,9 @@ describe("converter", () => {
       sharp(),
       { bandbool: "and" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:bandbool=and.png`);
@@ -1150,9 +1150,9 @@ describe("converter", () => {
       sharp(),
       { bandbool: "BAD_VALUE" },
       opts.allowedEffects,
-      "/test/images",
+      opts,
       cachePath,
-      true,
+      false,
     )) as Err<Error>;
 
     expect(res.val.message).toMatchInlineSnapshot(

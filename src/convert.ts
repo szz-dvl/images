@@ -1,5 +1,5 @@
 import { ImageSize, ImagesOpts } from "./types";
-import { ImageEffect, ImageFormat, ImageMimeType } from "./constants";
+import { ImageFormat, ImageMimeType } from "./constants";
 import sharp, { Sharp, SharpOptions } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import {
@@ -9,10 +9,9 @@ import {
   pruneExtension,
 } from "./utils";
 import { extname } from "path";
-import { EffectState, applyImageEffects } from "./imageEffects";
+import { applyImageEffects } from "./imageEffects";
 import { ParsedQs } from "qs";
-import { getExtractAfterOptions, getResizeOptions } from "./options";
-import { applyExtractEffect } from "./effects";
+import { getResizeOptions } from "./options";
 import { compositeImages } from "./composite";
 
 type ConvertResult = {
@@ -21,52 +20,31 @@ type ConvertResult = {
   mime: ImageMimeType;
 };
 
-const applyExtractAfterEffect = (
-  converter: Sharp,
-  effects: ParsedQs,
-  state: EffectState,
-  cachePath: CachePathState,
-  logs: boolean,
-): Result<number, void> => {
-  let idx = 0;
-  while (state[ImageEffect.EXTRACT] > 0) {
-    const extractAfter = getExtractAfterOptions(effects, cachePath);
-    if (extractAfter.err) break;
-
-    if (logs) console.log(`Applying effect: extractAfter`);
-
-    applyExtractEffect(converter, extractAfter.val);
-    state[ImageEffect.EXTRACT] -= 1;
-    idx++;
-  }
-
-  return idx > 0 ? Ok(idx) : Err.EMPTY;
-};
-
-export const convertFile = async (
+export const convertFile = (
   from: string | void,
   options: SharpOptions,
   [width, height]: ImageSize,
   ext: ImageFormat | null,
-  { formatOpts, allowedEffects, logs, dir, allowComposition }: ImagesOpts,
+  opts: ImagesOpts,
   effects: ParsedQs,
   cachePath: CachePathState,
-): Promise<Result<ConvertResult, Error>> => {
+): Result<ConvertResult, Error> => {
   try {
     let code = 200,
       mime = ImageMimeType.ANY;
 
+    const { formatOpts, allowedEffects, logs, dir, allowComposition } = opts;
+
     const converter = sharp(options).keepMetadata();
 
-    const effectsResult = await applyImageEffects(
+    const effectsResult = applyImageEffects(
       converter,
       effects,
       allowedEffects,
-      dir,
+      opts,
       cachePath,
-      logs,
+      false,
     );
-
     if (effectsResult.err) return effectsResult;
 
     code = effectsResult.val.code;
@@ -81,14 +59,15 @@ export const convertFile = async (
       converter.resize(width, height, opts);
     }
 
-    const extractAfterResult = applyExtractAfterEffect(
+    const effectsAfterResult = applyImageEffects(
       converter,
       effects,
       effectsResult.val.state,
+      opts,
       cachePath,
-      logs,
+      true,
     );
-    if (extractAfterResult.ok) code = 201;
+    if (effectsAfterResult.err) return effectsAfterResult;
 
     if (allowComposition) {
       const compositeResult = compositeImages(

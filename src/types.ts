@@ -39,7 +39,10 @@ export type ImagesOpts = {
   url: ImageUrlPattern;
   allowedSizes: Set<ImageSize> | "*";
   allowedFormats: Set<ImageFormat> | "*";
-  allowedEffects: Record<ImageEffect, 0 | 1>;
+  allowedEffects: Record<
+    ImageEffect,
+    0 | 1 | 2
+  > /** After effects (rotate, extract) may run twice */;
   allowGenerated: boolean;
   allowComposition: boolean;
   limits: ImageLimits;

@@ -38,6 +38,7 @@ import {
   EffectOperation,
 } from "./effects";
 import { CachePathState } from "./utils";
+import { ImagesOpts } from "./types";
 
 export type EffectState = Record<ImageEffect, number>;
 
@@ -63,14 +64,14 @@ const initEffectsState = (state: EffectState) => {
   };
 };
 
-export const applyImageEffects = async (
+export const applyImageEffects = (
   sharp: Sharp,
   effects: ParsedQs,
   allowedEffects: Record<ImageEffect, number>,
-  dir: string,
+  opts: ImagesOpts,
   cachePath: CachePathState,
-  logs: boolean,
-): Promise<Result<EffectsState, Error>> => {
+  after: boolean,
+): Result<EffectsState, Error> => {
   try {
     const state = initEffectsState(cloneDeep(allowedEffects));
     const effectsKeys = Object.keys(effects);
@@ -90,203 +91,220 @@ export const applyImageEffects = async (
       switch (effectKey) {
         case "rotate":
           {
-            if (state(ImageEffect.ROTATE))
+            if (!after && state(ImageEffect.ROTATE))
               result = applyRotationEffect(sharp, batch);
           }
           break;
         case "flip":
           {
-            if (state(ImageEffect.FLIP)) result = applyFlipEffect(sharp, batch);
+            if (!after && state(ImageEffect.FLIP))
+              result = applyFlipEffect(sharp, batch);
           }
           break;
         case "flop":
           {
-            if (state(ImageEffect.FLOP)) result = applyFlopEffect(sharp, batch);
+            if (!after && state(ImageEffect.FLOP))
+              result = applyFlopEffect(sharp, batch);
           }
           break;
         case "affine":
           {
-            if (state(ImageEffect.AFFINE))
+            if (!after && state(ImageEffect.AFFINE))
               result = applyAffineEffect(sharp, batch);
           }
           break;
         case "sharpen":
           {
-            if (state(ImageEffect.SHARPEN))
+            if (!after && state(ImageEffect.SHARPEN))
               result = applySharpenEffect(sharp, batch);
           }
           break;
         case "median":
           {
-            if (state(ImageEffect.MEDIAN))
+            if (!after && state(ImageEffect.MEDIAN))
               result = applyMedianEffect(sharp, batch);
           }
           break;
         case "blur":
           {
-            if (state(ImageEffect.BLUR)) result = applyBlurEffect(sharp, batch);
+            if (!after && state(ImageEffect.BLUR))
+              result = applyBlurEffect(sharp, batch);
           }
           break;
         case "flatten":
           {
-            if (state(ImageEffect.FLATTEN))
+            if (!after && state(ImageEffect.FLATTEN))
               result = applyFlattenEffect(sharp, batch);
           }
           break;
         case "unflatten":
           {
-            if (state(ImageEffect.UNFLATTEN))
+            if (!after && state(ImageEffect.UNFLATTEN))
               result = applyUnflattenEffect(sharp, batch);
           }
           break;
         case "gamma":
           {
-            if (state(ImageEffect.GAMMA))
+            if (!after && state(ImageEffect.GAMMA))
               result = applyGammaEffect(sharp, batch);
           }
           break;
         case "negate":
           {
-            if (state(ImageEffect.NEGATE))
+            if (!after && state(ImageEffect.NEGATE))
               result = applyNegateEffect(sharp, batch);
           }
           break;
         case "normalize":
         case "normalise":
           {
-            if (state(ImageEffect.NORMALISE))
+            if (!after && state(ImageEffect.NORMALISE))
               result = applyNormaliseEffect(sharp, batch);
           }
           break;
         case "clahe":
           {
-            if (state(ImageEffect.CLAHE))
+            if (!after && state(ImageEffect.CLAHE))
               result = applyClaheEffect(sharp, batch);
           }
           break;
         case "convolve":
           {
-            if (state(ImageEffect.CONVOLVE))
+            if (!after && state(ImageEffect.CONVOLVE))
               result = applyConvolveEffect(sharp, batch);
           }
           break;
         case "threshold":
           {
-            if (state(ImageEffect.THRESHOLD))
+            if (!after && state(ImageEffect.THRESHOLD))
               result = applyThresholdEffect(sharp, batch);
           }
           break;
         case "boolean":
           {
-            if (state(ImageEffect.BOOLEAN))
+            if (!after && state(ImageEffect.BOOLEAN))
               result = applyBooleanEffect(sharp, batch);
           }
           break;
         case "linear":
           {
-            if (state(ImageEffect.LINEAR))
+            if (!after && state(ImageEffect.LINEAR))
               result = applyLinearEffect(sharp, batch);
           }
           break;
         case "recomb":
           {
-            if (state(ImageEffect.RECOMB))
+            if (!after && state(ImageEffect.RECOMB))
               result = applyRecombEffect(sharp, batch);
           }
           break;
         case "modulate":
           {
-            if (state(ImageEffect.MODULATE))
+            if (!after && state(ImageEffect.MODULATE))
               result = applyModulateEffect(sharp, batch);
           }
           break;
         case "extend":
           {
-            if (state(ImageEffect.EXTEND))
+            if (!after && state(ImageEffect.EXTEND))
               result = applyExtendEffect(sharp, batch);
           }
           break;
         case "extract":
           {
-            if (state(ImageEffect.EXTRACT))
+            if (!after && state(ImageEffect.EXTRACT))
               result = applyExtractEffect(sharp, batch);
           }
           break;
         case "trim":
           {
-            if (state(ImageEffect.TRIM)) result = applyTrimEffect(sharp, batch);
+            if (!after && state(ImageEffect.TRIM))
+              result = applyTrimEffect(sharp, batch);
           }
           break;
         case "tint":
           {
-            if (state(ImageEffect.TINT)) result = applyTintEffect(sharp, batch);
+            if (!after && state(ImageEffect.TINT))
+              result = applyTintEffect(sharp, batch);
           }
           break;
         case "grayscale":
         case "greyscale":
           {
-            if (state(ImageEffect.GRAYSCALE))
+            if (!after && state(ImageEffect.GRAYSCALE))
               result = applyGrayscaleEffect(sharp, batch);
           }
           break;
         case "pipelineColorspace":
         case "pipelineColourspace":
           {
-            if (state(ImageEffect.PIPELINECOLORSPACE))
+            if (!after && state(ImageEffect.PIPELINECOLORSPACE))
               result = applyPipelineColorspaceEffect(sharp, batch);
           }
           break;
         case "toColorspace":
         case "toColourspace":
           {
-            if (state(ImageEffect.PIPELINECOLORSPACE))
+            if (!after && state(ImageEffect.PIPELINECOLORSPACE))
               result = applyToColorspaceEffect(sharp, batch);
           }
           break;
         case "removeAlpha":
           {
-            if (state(ImageEffect.REMOVEALPHA))
+            if (!after && state(ImageEffect.REMOVEALPHA))
               result = applyRemoveAlphaEffect(sharp, batch);
           }
           break;
         case "ensureAlpha":
           {
-            if (state(ImageEffect.ENSUREALPHA))
+            if (!after && state(ImageEffect.ENSUREALPHA))
               result = applyEnsureAlphaEffect(sharp, batch);
           }
           break;
         case "extractChannel":
           {
-            if (state(ImageEffect.EXTRACTCHANNEL))
+            if (!after && state(ImageEffect.EXTRACTCHANNEL))
               result = applyExtractChannelEffect(sharp, batch);
           }
           break;
         case "joinChannel":
           {
-            if (state(ImageEffect.JOINCHANNEL))
-              result = await applyJoinChannelEffect(sharp, batch, dir);
+            if (!after && state(ImageEffect.JOINCHANNEL))
+              result = applyJoinChannelEffect(sharp, batch, opts);
           }
           break;
         case "bandbool":
           {
-            if (state(ImageEffect.BANDBOOL))
+            if (!after && state(ImageEffect.BANDBOOL))
               result = applyBandboolEffect(sharp, batch);
           }
           break;
-        case "composite":
         case "extractAfter":
+          {
+            if (after && state(ImageEffect.EXTRACT))
+              result = applyExtractEffect(sharp, batch);
+          }
+          break;
+        case "rotateAfter":
+          {
+            if (after && state(ImageEffect.ROTATE))
+              result = applyRotationEffect(sharp, batch);
+          }
+          break;
+        case "composite":
         case "text":
         case "create":
         case "resize":
           continue; /** Treated later on in converter */
         default:
-          console.log(`Ignoring unrecognized effect: ${effectKey}`);
+          if (opts.logs)
+            console.log(`Ignoring unrecognized effect: ${effectKey}`);
       }
 
       if (result.err) return result;
 
       if (result.val === 201) {
-        if (logs) console.log(`Applying effect: ${effectKey}`);
+        if (opts.logs) console.log(`Applying effect: ${effectKey}`);
 
         cachePath(batch);
       }

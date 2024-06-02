@@ -245,7 +245,7 @@ export class Images {
         if (!candidate) return res.status(404).send(); /** Not found */
       }
 
-      const converter = await convertFile(
+      const converter = convertFile(
         candidate,
         sharpOptions,
         urlInfo.val.size,

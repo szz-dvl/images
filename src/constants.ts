@@ -108,3 +108,5 @@ export const SharpBooleanKeys = [
   "threshold.grayscale",
   "threshold.greyscale",
 ];
+
+export const SharpAngles = ["rotate", "modulate.hue"];
