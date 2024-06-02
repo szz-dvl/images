@@ -1,6 +1,5 @@
 import { ParsedQs } from "qs";
 import { Sharp } from "sharp";
-import { ImagesOpts } from "../types";
 import { Result } from "ts-results";
 
 export { applyAffineEffect } from "./affine";
@@ -67,9 +66,9 @@ export const getOperationDefinition = (
   return definition;
 };
 
-export type EffectOpts = Record<string, string | number | boolean | string[]>
+export type EffectOpts = Record<string, string | number | boolean | string[]>;
 
 export type EffectHandler = (
-sharp: Sharp,
-opts: EffectOpts,
-) => Result<number, Error>
+  sharp: Sharp,
+  opts: EffectOpts,
+) => Result<number, Error>;

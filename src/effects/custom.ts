@@ -2,12 +2,12 @@ import { Sharp } from "sharp";
 import { EffectHandler, EffectOperation, getOperationDefinition } from ".";
 import { Ok, Result } from "ts-results";
 import { ImagesOpts } from "../types";
-import { forEach, reduce } from "lodash";
+import { reduce } from "lodash";
 
 export const applyCustomEffect = (
   sharp: Sharp,
   customEffect: EffectOperation,
-  { customEffects }: ImagesOpts
+  { customEffects }: ImagesOpts,
 ): Result<number, Error> => {
   if (customEffects) {
     const { param: key, opts } = getOperationDefinition(customEffect);
@@ -28,7 +28,7 @@ export const applyCustomEffect = (
         return reduce<string, ReturnType<EffectHandler>>(
           key,
           (agg, key) => customEffectFinder(key),
-          Ok(200)
+          Ok(200),
         );
       }
     }

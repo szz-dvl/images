@@ -9,9 +9,12 @@ export const applyThresholdEffect = (
 ): Result<number, Error> => {
   const { param: threshold, opts } = getOperationDefinition(thresholdEffects);
 
-  sharp.threshold(Number(threshold), mapValues(opts, (val) => {
-    return val !== "false";
-  }));
+  sharp.threshold(
+    Number(threshold),
+    mapValues(opts, (val) => {
+      return val !== "false";
+    }),
+  );
 
   return Ok(201);
 };

@@ -1,7 +1,7 @@
 import { Region, Sharp } from "sharp";
-import { EffectOperation, EffectOpts, getOperationDefinition } from "./";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
-import { forEach, mapValues } from "lodash";
+import { mapValues } from "lodash";
 
 export const applyExtractEffect = (
   sharp: Sharp,

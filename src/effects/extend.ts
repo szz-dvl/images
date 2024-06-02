@@ -5,7 +5,7 @@ import { mapValues, omitBy, identity } from "lodash";
 
 export const applyExtendEffect = (
   sharp: Sharp,
-  extendEffects: EffectOperation
+  extendEffects: EffectOperation,
 ): Result<number, Error> => {
   const { param: extend, opts } = getOperationDefinition(extendEffects);
 
@@ -17,20 +17,21 @@ export const applyExtendEffect = (
   sharp.extend(
     omitBy(
       mapValues(opts, (opt, key) => {
-      switch (key) {
-        case "top":
-        case "left":
-        case "bottom":
-        case "right":
-          return Number(opt);
-        case "extendWith":
-        case "background":
-          return opt.toString();
-        default:
-          return null;
-      }
-    }),
-    identity)
+        switch (key) {
+          case "top":
+          case "left":
+          case "bottom":
+          case "right":
+            return Number(opt);
+          case "extendWith":
+          case "background":
+            return opt.toString();
+          default:
+            return null;
+        }
+      }),
+      identity,
+    ),
   );
 
   return Ok(201);

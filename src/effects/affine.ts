@@ -1,11 +1,11 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
-import { Err, Ok, Result } from "ts-results";
-import { compact, filter, map } from "lodash";
+import { Ok, Result } from "ts-results";
+import { filter, map } from "lodash";
 
 export const applyAffineEffect = (
   sharp: Sharp,
-  affineEffects: EffectOperation
+  affineEffects: EffectOperation,
 ): Result<number, Error> => {
   const { param, opts } = getOperationDefinition(affineEffects);
 
@@ -14,7 +14,7 @@ export const applyAffineEffect = (
       map<string, number | null>(param, (elem, idx) => {
         return idx < 4 ? Number(elem) : null;
       }),
-      (elem) => elem !== 0 && elem
+      (elem) => elem !== 0 && elem,
     );
 
     sharp.affine(affineMatrix as [number, number, number, number], opts);
