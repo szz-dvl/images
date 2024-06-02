@@ -1,33 +1,27 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
-import { checkFile } from "../fs";
 import { join } from "node:path";
+import { ImagesOpts } from "../types";
 
-export const applyJoinChannelEffect = async (
+export const applyJoinChannelEffect = (
   sharp: Sharp,
   joinChannelEffects: EffectOperation,
-  dir: string,
-): Promise<Result<number, Error>> => {
+  { dir, sharp: sharpOptions }: ImagesOpts,
+): Result<number, Error> => {
   const { param: images } = getOperationDefinition(joinChannelEffects);
 
-  const exists = [];
+  const local = [];
 
   if (Array.isArray(images)) {
     for (const path of images) {
-      const result = await checkFile(join(dir, path), false);
-      if (result.ok) {
-        exists.push(result.val);
-      }
+      local.push(join(dir, path as string));
     }
   } else {
-    const result = await checkFile(join(dir, images as string), false);
-    if (result.ok) {
-      exists.push(result.val);
-    }
+    local.push(join(dir, images as string));
   }
 
-  sharp.joinChannel(exists);
+  sharp.joinChannel(local, sharpOptions);
 
   return Ok(201);
 };
