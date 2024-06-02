@@ -174,7 +174,7 @@ The images provided in a parameter are assumed to be relative to the `dir` provi
 
 This url will return the image file.png with a sepia filter applied.
 
-- **gamma:** This operation may take an integer as argument or an array of integer if gammaOut needs to be provioded. 
+- **gamma:** This operation may take an integer as argument or an array of integer if gammaOut needs to be provided.
 
 - **joinChannel:** Generated images for joinChannel are not supported, the options provided to the method will be the ones provided in the constructor.
 
@@ -197,6 +197,7 @@ Sharp is able to generate images from text or create images given some parameter
 ```
 /0x0/file.png?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00
 ```
+
 Will generate a promotional image :)
 
 When generating files the filename and extension provided in the URL are used to generate the file in cache, so this name must not exists in the original images folder, otherwise an error is returned.
