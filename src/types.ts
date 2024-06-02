@@ -11,6 +11,7 @@ import {
   WebpOptions,
 } from "sharp";
 import { ImageEffect, ImageFormat } from "./constants";
+import { EffectHandler } from "./effects";
 
 export type ImageSize = [number | null, number | null];
 
@@ -53,4 +54,5 @@ export type ImagesOpts = {
   logs: boolean;
   sharp: Omit<SharpOptions, "create" | "text" | "raw">;
   timeout: number;
+  customEffects?: Record<string, EffectHandler>;
 };

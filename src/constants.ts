@@ -81,6 +81,7 @@ export enum ImageEffect {
   EXTRACTCHANNEL = "extractChannel",
   JOINCHANNEL = "joinChannel",
   BANDBOOL = "bandbool",
+  CUSTOM = "custom",
 }
 
 export const SharpDuplicatedNaming = {

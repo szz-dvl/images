@@ -53,6 +53,8 @@ const opts: ImagesOpts = {
     [ImageEffect.EXTRACTCHANNEL]: 1,
     [ImageEffect.JOINCHANNEL]: 1,
     [ImageEffect.BANDBOOL]: 1,
+
+    [ImageEffect.CUSTOM]: 1,
   },
   allowGenerated: true,
   allowComposition: true,
@@ -76,10 +78,6 @@ const opts: ImagesOpts = {
   hashCacheNames: false,
   logs: true,
   timeout: 5000,
-};
-
-const sharpOpts = {
-  pages: -1,
 };
 
 describe("converter", () => {

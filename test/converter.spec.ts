@@ -52,6 +52,8 @@ const opts: ImagesOpts = {
     [ImageEffect.EXTRACTCHANNEL]: 1,
     [ImageEffect.JOINCHANNEL]: 1,
     [ImageEffect.BANDBOOL]: 1,
+
+    [ImageEffect.CUSTOM]: 1,
   },
   allowGenerated: true,
   allowComposition: true,
