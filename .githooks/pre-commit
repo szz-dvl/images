@@ -53,5 +53,4 @@ npm run build
 npm run lint
 npm run prettier
 npm run test
-git add .
 set +e
