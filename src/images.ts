@@ -23,6 +23,8 @@ import { ImageEffect } from "./constants";
 import { getSharpOptions } from "./options";
 import { Sharp } from "sharp";
 import { addAbortSignal } from "node:stream";
+import { EffectOpts } from "./effects";
+import { Ok } from "ts-results";
 
 export class Images {
   private opts: ImagesOpts;
@@ -75,6 +77,9 @@ export class Images {
         [ImageEffect.EXTRACTCHANNEL]: 1,
         [ImageEffect.JOINCHANNEL]: 1,
         [ImageEffect.BANDBOOL]: 1,
+
+        /** User defined */
+        [ImageEffect.CUSTOM]: 2,
       },
       allowGenerated: true,
       allowComposition: true,
@@ -98,6 +103,17 @@ export class Images {
         height: 1080,
       },
       timeout: 5000,
+      customEffects: {
+        /* eslint-disable @typescript-eslint/no-unused-vars */
+        sepia: (sharp: Sharp, _opts: EffectOpts) => {
+          sharp.recomb([
+            [0.3588, 0.7044, 0.1368],
+            [0.299, 0.587, 0.114],
+            [0.2392, 0.4696, 0.0912],
+          ]);
+          return Ok(201);
+        },
+      },
       ...opts,
     };
   }

@@ -36,6 +36,7 @@ import {
   applyJoinChannelEffect,
   applyBandboolEffect,
   EffectOperation,
+  applyCustomEffect,
 } from "./effects";
 import { CachePathState } from "./utils";
 import { ImagesOpts } from "./types";
@@ -289,6 +290,18 @@ export const applyImageEffects = (
           {
             if (after && state(ImageEffect.ROTATE))
               result = applyRotationEffect(sharp, batch);
+          }
+          break;
+        case "custom":
+          {
+            if (!after && state(ImageEffect.JOINCHANNEL))
+              result = applyCustomEffect(sharp, batch, opts);
+          }
+          break;
+        case "customAfter":
+          {
+            if (after && state(ImageEffect.JOINCHANNEL))
+              result = applyCustomEffect(sharp, batch, opts);
           }
           break;
         case "composite":
