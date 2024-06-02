@@ -1,4 +1,7 @@
 import { ParsedQs } from "qs";
+import { Sharp } from "sharp";
+import { ImagesOpts } from "../types";
+import { Result } from "ts-results";
 
 export { applyAffineEffect } from "./affine";
 export { applyBlurEffect } from "./blur";
@@ -31,6 +34,7 @@ export { applyEnsureAlphaEffect } from "./ensureAlpha";
 export { applyExtractChannelEffect } from "./extractChannel";
 export { applyJoinChannelEffect } from "./joinChannel";
 export { applyBandboolEffect } from "./bandbool";
+export { applyCustomEffect } from "./custom";
 
 type OperationDefinition = {
   param?: string | number | Array<string>;
@@ -62,3 +66,10 @@ export const getOperationDefinition = (
 
   return definition;
 };
+
+export type EffectOpts = Record<string, string | number | boolean | string[]>
+
+export type EffectHandler = (
+sharp: Sharp,
+opts: EffectOpts,
+) => Result<number, Error>

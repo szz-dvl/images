@@ -1,6 +1,7 @@
 import { Region, Sharp } from "sharp";
-import { EffectOperation, getOperationDefinition } from "./";
+import { EffectOperation, EffectOpts, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { forEach, mapValues } from "lodash";
 
 export const applyExtractEffect = (
   sharp: Sharp,
@@ -8,11 +9,7 @@ export const applyExtractEffect = (
 ): Result<number, Error> => {
   const { opts } = getOperationDefinition(extractEffects);
 
-  for (const opt in opts) {
-    opts[opt] = Number(opts[opt]);
-  }
-
-  sharp.extract(opts as unknown as Region);
+  sharp.extract(mapValues(opts, Number) as unknown as Region);
 
   return Ok(201);
 };

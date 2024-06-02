@@ -1,6 +1,7 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { mapValues } from "lodash";
 
 export const applyModulateEffect = (
   sharp: Sharp,
@@ -8,11 +9,7 @@ export const applyModulateEffect = (
 ): Result<number, Error> => {
   const { opts } = getOperationDefinition(modulateEffects);
 
-  for (const opt in opts) {
-    opts[opt] = Number(opts[opt]);
-  }
-
-  sharp.modulate(opts);
+  sharp.modulate(mapValues(opts, Number));
 
   return Ok(201);
 };

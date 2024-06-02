@@ -1,18 +1,17 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { mapValues } from "lodash";
 
 export const applyNegateEffect = (
   sharp: Sharp,
-  negateEffects: EffectOperation,
+  negateEffects: EffectOperation
 ): Result<number, Error> => {
   const { opts } = getOperationDefinition(negateEffects);
 
-  for (const opt in opts) {
-    opts[opt] = opts[opt] !== "false";
-  }
-
-  sharp.negate(opts);
+  sharp.negate(mapValues(opts, (val) => {
+    return val !== "false";
+  }));
 
   return Ok(201);
 };

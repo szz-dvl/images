@@ -1,6 +1,7 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { mapValues } from "lodash";
 
 export const applyThresholdEffect = (
   sharp: Sharp,
@@ -8,11 +9,9 @@ export const applyThresholdEffect = (
 ): Result<number, Error> => {
   const { param: threshold, opts } = getOperationDefinition(thresholdEffects);
 
-  for (const opt in opts) {
-    opts[opt] = opts[opt] !== "false";
-  }
-
-  sharp.threshold(Number(threshold), opts);
+  sharp.threshold(Number(threshold), mapValues(opts, (val) => {
+    return val !== "false";
+  }));
 
   return Ok(201);
 };

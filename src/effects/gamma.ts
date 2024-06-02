@@ -1,6 +1,7 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { map } from "lodash";
 
 export const applyGammaEffect = (
   sharp: Sharp,
@@ -9,7 +10,7 @@ export const applyGammaEffect = (
   const { param: gamma } = getOperationDefinition(gammaEffects);
 
   if (Array.isArray(gamma)) {
-    sharp.gamma(...gamma.map((g) => Number(g)));
+    sharp.gamma(...map(gamma, Number));
     return Ok(201);
   }
 

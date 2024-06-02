@@ -1,24 +1,23 @@
 import { Kernel, Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { identity, map, mapValues, omitBy } from "lodash";
 
 export const applyConvolveEffect = (
   sharp: Sharp,
-  convolveEffects: EffectOperation,
+  convolveEffects: EffectOperation
 ): Result<number, Error> => {
   const { opts } = getOperationDefinition(convolveEffects);
-  const typed: Record<string, number | Array<number>> = {};
 
-  for (const opt in opts) {
-    if (Array.isArray(opts[opt])) {
-      typed[opt] = (<Array<string>>opts[opt]).map((kernel) => Number(kernel));
-      continue;
-    }
+  sharp.convolve(
+    mapValues(opts, (opt) => {
+      if (Array.isArray(opt)) {
+        return map(opt, (kernel) => Number(kernel));
+      }
 
-    typed[opt] = Number(opts[opt]);
-  }
-
-  sharp.convolve(typed as unknown as Kernel);
+      return Number(opt);
+    }) as unknown as Kernel
+  );
 
   return Ok(201);
 };
