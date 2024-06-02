@@ -4,6 +4,8 @@ import { ParsedQs } from "qs";
 import { CachePathState } from "./utils";
 import { Create, CreateText, SharpOptions } from "sharp";
 import { ImagesOpts } from "./types";
+import { SharpValidKeys } from "./constants";
+import { pick, pickBy } from "lodash";
 
 export const getTextOptions = (
   effects: ParsedQs,
@@ -21,7 +23,7 @@ export const getTextOptions = (
     batch[key] = effects[key];
   }
 
-  cachePath(batch);
+  cachePath(pick(batch, SharpValidKeys));
 
   const { opts } = getOperationDefinition(batch);
   const typed: Record<string, number | string | boolean> = {};
@@ -71,7 +73,7 @@ export const getCreateOptions = (
     batch[key] = effects[key];
   }
 
-  cachePath(batch);
+  cachePath(pick(batch, SharpValidKeys));
 
   const { opts } = getOperationDefinition(batch);
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -113,6 +115,45 @@ export const getCreateOptions = (
   return Ok(typed);
 };
 
+const pickCompositeKeys = (batch: EffectOperation): EffectOperation => {
+  const compositeKeys = [
+    /composite.\d+/,
+    /composite.\d+.create.width/,
+    /composite.\d+.create.height/,
+    /composite.\d+.create.channels/,
+    /composite.\d+.create.background/,
+    /composite.\d+.create.noise.type/,
+    /composite.\d+.create.noise.mean/,
+    /composite.\d+.create.noise.sigma/,
+    /composite.\d+.text.width/,
+    /composite.\d+.text.height/,
+    /composite.\d+.text.text/,
+    /composite.\d+.text.font/,
+    /composite.\d+.text.fontfile/,
+    /composite.\d+.text.align/,
+    /composite.\d+.text.justify/,
+    /composite.\d+.text.dpi/,
+    /composite.\d+.text.spacing/,
+    /composite.\d+.text.wrap/,
+    /composite.\d+.blend/,
+    /composite.\d+.gravity/,
+    /composite.\d+.top/,
+    /composite.\d+.left/,
+    /composite.\d+.tile/,
+    /composite.\d+.premultiplied/,
+    /composite.\d+.density/,
+  ];
+
+  return pickBy(batch, (_, key) => {
+    for (const regex of compositeKeys) {
+      const match = regex.exec(key);
+      if (match) return true;
+    }
+
+    return false;
+  });
+};
+
 export const getCompositeOptions = (
   effects: ParsedQs,
   cachePath: CachePathState,
@@ -131,7 +172,7 @@ export const getCompositeOptions = (
     batch[key] = effects[key];
   }
 
-  cachePath(batch);
+  cachePath(pickCompositeKeys(batch));
 
   return Ok(batch);
 };
@@ -149,7 +190,7 @@ export const getResizeOptions = (
     batch[key] = effects[key];
   }
 
-  cachePath(batch);
+  cachePath(pick(batch, SharpValidKeys));
 
   const { opts } = getOperationDefinition(batch);
   const typed: Record<string, number | string | boolean> = {};
@@ -177,29 +218,6 @@ export const getResizeOptions = (
   }
 
   return typed;
-};
-
-export const getExtractAfterOptions = (
-  effects: ParsedQs,
-  cachePath: CachePathState,
-): Result<EffectOperation, void> => {
-  const extractAfterKeys = Object.keys(effects).filter((k) =>
-    k.startsWith("extractAfter."),
-  );
-
-  if (extractAfterKeys.length === 0) {
-    return Err.EMPTY;
-  }
-
-  const batch: EffectOperation = {};
-
-  for (const key of extractAfterKeys) {
-    batch[key] = effects[key];
-  }
-
-  cachePath(batch);
-
-  return Ok(batch);
 };
 
 export const getSharpOptions = (

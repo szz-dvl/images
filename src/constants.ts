@@ -110,3 +110,154 @@ export const SharpBooleanKeys = [
 ];
 
 export const SharpAngles = ["rotate", "modulate.hue"];
+
+export const SharpValidKeys = [
+  "create.width",
+  "create.height",
+  "create.channels",
+  "create.background",
+  "create.noise.type",
+  "create.noise.mean",
+  "create.noise.sigma",
+
+  "text.width",
+  "text.height",
+  "text.text",
+  "text.font",
+  "text.fontfile",
+  "text.align",
+  "text.justify",
+  "text.dpi",
+  "text.spacing",
+  "text.wrap",
+
+  "resize.width",
+  "resize.height",
+  "resize.fit",
+  "resize.position",
+  "resize.background",
+  "resize.kernel",
+  "resize.withoutEnlargement",
+  "resize.withoutReduction",
+  "resize.fastShrinkOnLoad",
+
+  "extend",
+  "extend.top",
+  "extend.left",
+  "extend.bottom",
+  "extend.right",
+  "extend.extendWith",
+  "extend.background",
+
+  "extract.top",
+  "extract.left",
+  "extract.width",
+  "extract.height",
+
+  "extractAfter.top",
+  "extractAfter.left",
+  "extractAfter.width",
+  "extractAfter.height",
+
+  "trim",
+  "trim.background",
+  "trim.threshold",
+  "trim.lineArt",
+
+  "rotate",
+  "rotate.background",
+
+  "rotateAfter",
+  "rotateAfter.background",
+
+  "flip",
+
+  "flop",
+
+  "affine",
+  "affine.background",
+  "affine.idx",
+  "affine.idy",
+  "affine.odx",
+  "affine.ody",
+  "affine.interpolator",
+
+  "sharpen",
+  "sharpen.sigma",
+  "sharpen.m1",
+  "sharpen.m2",
+  "sharpen.x1",
+  "sharpen.y2",
+  "sharpen.y3",
+
+  "median",
+
+  "blur",
+
+  "flatten",
+  "flatten.background",
+
+  "unflatten",
+
+  "gamma" /** !! README */,
+
+  "negate",
+  "negate.alpha",
+
+  "normalise",
+  "normalise.upper",
+  "normalise.lower",
+  "normalize",
+  "normalize.upper",
+  "normalize.lower",
+
+  "clahe.width",
+  "clahe.height",
+  "clahe.maxSlope",
+
+  "convolve.width",
+  "convolve.height",
+  "convolve.kernel",
+  "convolve.scale",
+  "convolve.offset",
+
+  "threshold",
+  "threshold.greyscale",
+  "threshold.grayscale",
+
+  "boolean.operand",
+  "boolean.operator",
+
+  "linear.a",
+  "linear.b",
+
+  "recomb.0",
+  "recomb.1",
+  "recomb.2",
+
+  "modulate.brightness",
+  "modulate.saturation",
+  "modulate.hue",
+  "modulate.lightness",
+
+  "tint",
+
+  "greyscale",
+  "grayscale",
+
+  "pipelineColorspace",
+  "pipelineColourspace",
+
+  "toColorspace",
+  "toColourspace",
+
+  "removeAlpha",
+
+  "ensureAlpha",
+
+  "extractChannel",
+
+  "joinChannel",
+
+  "bandbool",
+];

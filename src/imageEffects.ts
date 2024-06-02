@@ -1,8 +1,8 @@
 import { Sharp } from "sharp";
 import { Err, Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
-import { ImageEffect } from "./constants";
-import { cloneDeep } from "lodash";
+import { ImageEffect, SharpValidKeys } from "./constants";
+import { cloneDeep, pick } from "lodash";
 import {
   applyRotationEffect,
   applyFlipEffect,
@@ -306,7 +306,7 @@ export const applyImageEffects = (
       if (result.val === 201) {
         if (opts.logs) console.log(`Applying effect: ${effectKey}`);
 
-        cachePath(batch);
+        cachePath(pick(batch, SharpValidKeys));
       }
     }
 

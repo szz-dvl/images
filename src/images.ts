@@ -163,6 +163,8 @@ export class Images {
 
     addAbortSignal(cache.controller.signal, converter);
 
+    if (this.opts.logs) console.log("Streaming converted image");
+
     if (candidate) {
       return createReadStream(candidate)
         .pipe(converter)
