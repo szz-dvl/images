@@ -106,13 +106,12 @@ export class Images {
       customEffects: {
         /* eslint-disable @typescript-eslint/no-unused-vars */
         sepia: (sharp: Sharp, _opts: EffectOpts) => {
-          
           sharp.recomb([
             [0.3588, 0.7044, 0.1368],
             [0.299, 0.587, 0.114],
             [0.2392, 0.4696, 0.0912],
           ]);
-          
+
           return Ok(201);
         },
       },

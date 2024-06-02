@@ -1178,7 +1178,7 @@ describe("converter", () => {
 
     const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG);
 
-   await applyImageEffects(
+    await applyImageEffects(
       sharp(),
       { custom: "sepia" },
       opts.allowedEffects,
