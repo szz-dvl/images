@@ -19,13 +19,13 @@ export const isKnownExtension = (ext: string, current: ImageFormat) => {
 
 export const getAllowedExtension = (
   ext: string,
-  allowedFormats: Set<ImageFormat> | "*"
+  allowedFormats: Set<ImageFormat> | "*",
 ): Result<ImageFormat, Error> => {
   if (allowedFormats === "*") {
     /* https://blog.logrocket.com/iterate-over-enums-typescript */
 
     let found: Result<ImageFormat, Error> = Err(
-      new Error("Unrecognized format", { cause: ext })
+      new Error("Unrecognized format", { cause: ext }),
     );
 
     forIn(ImageFormat, (value, key) => {
@@ -65,7 +65,7 @@ export const globExtension = (path: string): GlobExtension => {
 
 export const allowedSize = (
   [targetWidth, targetHeight]: ImageSize,
-  { limits: { width, height }, allowedSizes }: ImagesOpts
+  { limits: { width, height }, allowedSizes }: ImagesOpts,
 ): boolean => {
   if (targetWidth && targetWidth > width) return false;
 
@@ -124,7 +124,7 @@ export const isGeneratedImage = ({ text, create }: SharpOptions) => {
 export const serializeEffect = (
   effectKey: string,
   effectValue: string,
-  hashCacheNames: boolean
+  hashCacheNames: boolean,
 ): string => {
   let effectiveKey = effectKey,
     effectiveValue = effectValue;
@@ -132,7 +132,7 @@ export const serializeEffect = (
   for (const duplicated in SharpDuplicatedNaming) {
     if (
       (<Record<string, string[]>>SharpDuplicatedNaming)[duplicated].includes(
-        effectiveKey
+        effectiveKey,
       )
     ) {
       effectiveKey = duplicated;
@@ -164,9 +164,8 @@ export const serializeEffect = (
 
 const getEffectsSuffix = (
   parts: Array<string>,
-  hashCacheNames: boolean
+  hashCacheNames: boolean,
 ): string => {
-
   const orderDependent = [];
   const orderIndependent = [];
 
@@ -187,24 +186,27 @@ const getEffectsSuffix = (
   }
 
   orderIndependent.sort();
-  orderIndependent.push.apply(orderIndependent, orderDependent);
+  orderIndependent.push(...orderDependent);
 
   return parts.length
-    ? ":" + (hashCacheNames ? md5(orderIndependent.join("-")) : orderIndependent.join("-"))
+    ? ":" +
+        (hashCacheNames
+          ? md5(orderIndependent.join("-"))
+          : orderIndependent.join("-"))
     : "";
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type CachePathState = (
   piece?: Record<string, any>,
-  updatExt?: ImageFormat
+  updatExt?: ImageFormat,
 ) => string;
 
 export const initCachePathState = (
   path: string,
   { dir, hashCacheNames }: ImagesOpts,
   size: ImageSize,
-  ext: ImageFormat | null
+  ext: ImageFormat | null,
 ): CachePathState => {
   const sizeDir = buildSizeDirectory(size);
   const requestedExt = extname(path);
@@ -230,7 +232,7 @@ export const initCachePathState = (
       }
 
       partial.sort();
-      parts.push(partial.join("-"));
+      if (partial.length) parts.push(partial.join("-"));
 
       return cachePath + `.${ext}`;
     }
