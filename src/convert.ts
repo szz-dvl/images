@@ -27,7 +27,7 @@ export const convertFile = (
   ext: ImageFormat | null,
   opts: ImagesOpts,
   effects: ParsedQs,
-  cachePath: CachePathState,
+  cachePath: CachePathState
 ): Result<ConvertResult, Error> => {
   try {
     let code = 200,
@@ -43,7 +43,7 @@ export const convertFile = (
       allowedEffects,
       opts,
       cachePath,
-      false,
+      false
     );
     if (effectsResult.err) return effectsResult;
 
@@ -65,7 +65,7 @@ export const convertFile = (
       effectsResult.val.state,
       opts,
       cachePath,
-      true,
+      true
     );
     if (effectsAfterResult.err) return effectsAfterResult;
 
@@ -74,7 +74,7 @@ export const convertFile = (
         converter,
         dir,
         effects,
-        cachePath,
+        cachePath
       );
       if (compositeResult.ok) code = 201;
     }
@@ -82,7 +82,7 @@ export const convertFile = (
     const candidateExtension = from
       ? getAllowedExtension(
           pruneExtension(extname(from)),
-          "*" /** Force all known extensions here, in case the configuration changed over time */,
+          "*" /** Force all known extensions here, in case the configuration changed over time */
         )
       : Ok(null);
 
@@ -138,6 +138,11 @@ export const convertFile = (
             converter.heif(formatOpts?.heif);
           }
           break;
+        case ImageFormat.RAW:
+          {
+            converter.raw(formatOpts?.raw);
+          }
+          break;
       }
     } else {
       if (!ext) {
@@ -152,7 +157,7 @@ export const convertFile = (
           return Err(
             new Error("Missing extension for cached file", {
               cause: candidateExtension,
-            }),
+            })
           );
         }
 

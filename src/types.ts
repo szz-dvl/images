@@ -5,6 +5,7 @@ import {
   Jp2Options,
   JpegOptions,
   PngOptions,
+  RawOptions,
   SharpOptions,
   TiffOptions,
   WebpOptions,
@@ -22,6 +23,7 @@ export type FormatsOpts = {
   gif?: GifOptions;
   jp2?: Jp2Options;
   heif?: HeifOptions;
+  raw?: RawOptions;
 };
 
 export type ImageUrlPattern = {

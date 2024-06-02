@@ -8,6 +8,7 @@ export enum ImageFormat {
   SVG = "svg",
   JP2 = "jp2",
   HEIF = "heif",
+  RAW = "raw",
 
   /** Accepting globs in the url we may be able to deal with DZI. Some effects may take advantage of this feature too. */
 }
@@ -45,6 +46,7 @@ export const ImageKnownExtensions = {
     "mj2",
   ],
   [ImageFormat.HEIF]: ["heif", "heifs", "heic", "heics", "avci", "avcs", "HIF"],
+  [ImageFormat.RAW]: ["raw"],
 };
 
 export enum ImageEffect {
@@ -199,7 +201,7 @@ export const SharpValidKeys = [
 
   "unflatten",
 
-  "gamma" /** !! README */,
+  "gamma",
 
   "negate",
   "negate.alpha",
