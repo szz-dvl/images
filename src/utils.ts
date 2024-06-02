@@ -4,6 +4,7 @@ import {
   ImageFormat,
   ImageKnownExtensions,
   ImageMimeType,
+  SharpAngles,
   SharpBooleanKeys,
   SharpDuplicatedNaming,
 } from "./constants";
@@ -18,13 +19,13 @@ export const isKnownExtension = (ext: string, current: ImageFormat) => {
 
 export const getAllowedExtension = (
   ext: string,
-  allowedFormats: Set<ImageFormat> | "*",
+  allowedFormats: Set<ImageFormat> | "*"
 ): Result<ImageFormat, Error> => {
   if (allowedFormats === "*") {
     /* https://blog.logrocket.com/iterate-over-enums-typescript */
 
     let found: Result<ImageFormat, Error> = Err(
-      new Error("Unrecognized format", { cause: ext }),
+      new Error("Unrecognized format", { cause: ext })
     );
 
     forIn(ImageFormat, (value, key) => {
@@ -64,7 +65,7 @@ export const globExtension = (path: string): GlobExtension => {
 
 export const allowedSize = (
   [targetWidth, targetHeight]: ImageSize,
-  { limits: { width, height }, allowedSizes }: ImagesOpts,
+  { limits: { width, height }, allowedSizes }: ImagesOpts
 ): boolean => {
   if (targetWidth && targetWidth > width) return false;
 
@@ -123,7 +124,7 @@ export const isGeneratedImage = ({ text, create }: SharpOptions) => {
 export const serializeEffect = (
   effectKey: string,
   effectValue: string,
-  hashCacheNames: boolean,
+  hashCacheNames: boolean
 ): string => {
   let effectiveKey = effectKey,
     effectiveValue = effectValue;
@@ -131,7 +132,7 @@ export const serializeEffect = (
   for (const duplicated in SharpDuplicatedNaming) {
     if (
       (<Record<string, string[]>>SharpDuplicatedNaming)[duplicated].includes(
-        effectiveKey,
+        effectiveKey
       )
     ) {
       effectiveKey = duplicated;
@@ -152,6 +153,10 @@ export const serializeEffect = (
     }
   }
 
+  if (SharpAngles.includes(effectiveKey)) {
+    effectiveValue = `${normaliseAngle(Number(effectiveValue))}`;
+  }
+
   return hashCacheNames
     ? `${effectiveKey}=${effectiveValue}`
     : `${effectiveKey}=${effectiveValue}`.replaceAll("/", "|");
@@ -159,26 +164,47 @@ export const serializeEffect = (
 
 const getEffectsSuffix = (
   parts: Array<string>,
-  hashCacheNames: boolean,
+  hashCacheNames: boolean
 ): string => {
-  parts.sort();
+
+  const orderDependent = [];
+  const orderIndependent = [];
+
+  for (const part of parts) {
+    /** Generate unique names in cache for each different image */
+    const key = part.split("=")[0].split(".")[0];
+
+    switch (key) {
+      case "extract":
+      case "extractAfter":
+      case "rotate":
+      case "rotateAfter":
+        orderDependent.push(part);
+        break;
+      default:
+        orderIndependent.push(part);
+    }
+  }
+
+  orderIndependent.sort();
+  orderIndependent.push.apply(orderIndependent, orderDependent);
 
   return parts.length
-    ? ":" + (hashCacheNames ? md5(parts.join("-")) : parts.join("-"))
+    ? ":" + (hashCacheNames ? md5(orderIndependent.join("-")) : orderIndependent.join("-"))
     : "";
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type CachePathState = (
   piece?: Record<string, any>,
-  updatExt?: ImageFormat,
+  updatExt?: ImageFormat
 ) => string;
 
 export const initCachePathState = (
   path: string,
   { dir, hashCacheNames }: ImagesOpts,
   size: ImageSize,
-  ext: ImageFormat | null,
+  ext: ImageFormat | null
 ): CachePathState => {
   const sizeDir = buildSizeDirectory(size);
   const requestedExt = extname(path);
@@ -197,14 +223,28 @@ export const initCachePathState = (
     }
 
     if (piece) {
+      const partial = [];
       for (const effect in piece) {
         const effectValue = piece[effect];
-        parts.push(serializeEffect(effect, effectValue, hashCacheNames));
+        partial.push(serializeEffect(effect, effectValue, hashCacheNames));
       }
+
+      partial.sort();
+      parts.push(partial.join("-"));
 
       return cachePath + `.${ext}`;
     }
 
     return cachePath + getEffectsSuffix(parts, hashCacheNames) + `.${ext}`;
   };
+};
+
+export const normaliseAngle = (angle: number) => {
+  if (isNaN(angle)) return angle;
+
+  if (angle < 0) return angle + (angle % 360);
+
+  if (angle > 360) return angle - (angle % 360);
+
+  return angle;
 };
