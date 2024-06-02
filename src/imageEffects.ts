@@ -294,13 +294,13 @@ export const applyImageEffects = (
           break;
         case "custom":
           {
-            if (!after && state(ImageEffect.JOINCHANNEL))
+            if (!after && state(ImageEffect.CUSTOM))
               result = applyCustomEffect(sharp, batch, opts);
           }
           break;
         case "customAfter":
           {
-            if (after && state(ImageEffect.JOINCHANNEL))
+            if (after && state(ImageEffect.CUSTOM))
               result = applyCustomEffect(sharp, batch, opts);
           }
           break;

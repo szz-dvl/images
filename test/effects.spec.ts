@@ -3,8 +3,9 @@ import { ImageEffect, ImageFormat } from "../src/constants";
 import { initCachePathState } from "../src/utils";
 import { ImageSize, ImagesOpts } from "../src/types";
 import { applyImageEffects } from "../src/imageEffects";
-import sharp from "sharp";
-import { Err } from "ts-results";
+import sharp, { Sharp } from "sharp";
+import { Err, Ok } from "ts-results";
+import { EffectOpts } from "../src/effects";
 
 const opts: ImagesOpts = {
   dir: `/test/images`,
@@ -54,7 +55,7 @@ const opts: ImagesOpts = {
     [ImageEffect.JOINCHANNEL]: 1,
     [ImageEffect.BANDBOOL]: 1,
 
-    [ImageEffect.CUSTOM]: 1,
+    [ImageEffect.CUSTOM]: 2,
   },
   allowGenerated: true,
   allowComposition: true,
@@ -78,6 +79,19 @@ const opts: ImagesOpts = {
   hashCacheNames: false,
   logs: true,
   timeout: 5000,
+  customEffects: {
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    sepia: (sharp: Sharp, _opts: EffectOpts) => {
+      console.log("sepia");
+      sharp.recomb([
+        [0.3588, 0.7044, 0.1368],
+        [0.299, 0.587, 0.114],
+        [0.2392, 0.4696, 0.0912],
+      ]);
+      console.log("recomb");
+      return Ok(201);
+    },
+  },
 };
 
 describe("converter", () => {
@@ -1156,5 +1170,23 @@ describe("converter", () => {
     expect(res.val.message).toMatchInlineSnapshot(
       `"Expected one of: and, or, eor for boolOp but received BAD_VALUE of type string"`,
     );
+  });
+
+  it("must apply a custom effect", async () => {
+    const path = "image.png";
+    const size: ImageSize = [null, null];
+
+    const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG);
+
+   await applyImageEffects(
+      sharp(),
+      { custom: "sepia" },
+      opts.allowedEffects,
+      opts,
+      cachePath,
+      false,
+    );
+
+    expect(cachePath()).toBe(`/test/images/.cache/image:custom=sepia.png`);
   });
 });

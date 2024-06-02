@@ -263,4 +263,7 @@ export const SharpValidKeys = [
   "joinChannel",
 
   "bandbool",
+
+  "custom",
+  "customAfter",
 ];
