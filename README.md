@@ -12,7 +12,7 @@ npm i --save @szz_dev/images
 
 ## Usage
 
-The main options object look as follows:
+The main options object looks as follows:
 
 ```typescript
 export type ImagesOpts = {
@@ -174,6 +174,10 @@ The images provided in a parameter are assumed to be relative to the `dir` provi
 
 This url will return the image file.png with a sepia filter applied.
 
+- **gamma:** This operation may take an integer as argument or an array of integer if gammaOut needs to be provioded. 
+
+- **joinChannel:** Generated images for joinChannel are not supported, the options provided to the method will be the ones provided in the constructor.
+
 Whenever a color needs to be provided only the hexadecimal string representation of the color is allowed (#000000).
 
 Generated images use the keys `text` and `create`, the following URL will generate an image from text:
@@ -182,9 +186,20 @@ Generated images use the keys `text` and `create`, the following URL will genera
 /0x0/file.png?text.text=test&text.height=150&text.width=150&text.rgba=true
 ```
 
-Besides sharp operations, there is a "virtual" key `extractAfter` to apply extractions after the resize operation, the signature is the same that for `extract` operation, which by default, happens before the resize.
+Besides sharp operations, there is a couple of "virtual" keys `extractAfter` and `rotateAfter` to apply extractions/rotations after the resize operation, the signature is the same that for `extract` and `rotate` operations, which by default, happens before the resize.
 
 Only one effect of each kind is allowed per request.
+
+### Genarated images
+
+Sharp is able to generate images from text or create images given some parameters, this functionality is offered in the query string of our request through the keys `create` and `text`. It follows the same pattern described by effects, please refer to [sharp documentation](https://sharp.pixelplumbing.com/api-constructor) for further details. As an instance:
+
+```
+/0x0/file.png?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00
+```
+Will generate a promotional image :)
+
+When generating files the filename and extension provided in the URL are used to generate the file in cache, so this name must not exists in the original images folder, otherwise an error is returned.
 
 ### Simple server
 
