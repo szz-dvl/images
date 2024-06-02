@@ -29,6 +29,7 @@ export type ImagesOpts = {
   logs: boolean;
   sharp: Omit<SharpOptions, "create" | "text" | "raw">;
   timeout: number;
+  customEffects?: Record<string, EffectHandler>;
 ```
 
 The options are defined like:
@@ -129,6 +130,8 @@ export type FormatsOpts = {
 
 - **timeout:** Conversion timeout.
 
+- **customEffects:** A map of custom effects to be applied using the `custom` / `customAfter` keys.
+
 ### Effects
 
 We are able to convert and resize images, but sharp can do a lot more than that. To expose sharp functionalities we will use the query string in our URL. The format of the query string follows the pattern of the sharp parameters for each method, as an instance:
@@ -180,15 +183,39 @@ This url will return the image file.png with a sepia filter applied.
 
 Whenever a color needs to be provided only the hexadecimal string representation of the color is allowed (#000000).
 
-Generated images use the keys `text` and `create`, the following URL will generate an image from text:
-
-```
-/0x0/file.png?text.text=test&text.height=150&text.width=150&text.rgba=true
-```
-
 Besides sharp operations, there is a couple of "virtual" keys `extractAfter` and `rotateAfter` to apply extractions/rotations after the resize operation, the signature is the same that for `extract` and `rotate` operations, which by default, happens before the resize.
 
 Only one effect of each kind is allowed per request.
+
+### Custom images
+
+By using the keys `custom` and `customAfter` you may apply effects previously configured in the server, assuming a config like:
+
+```typescript
+{
+  ...
+
+    customEffects: {
+      sepia: (sharp, _opts) => {
+        sharp.recomb([
+          [0.3588, 0.7044, 0.1368],
+          [0.299, 0.587, 0.114],
+          [0.2392, 0.4696, 0.0912],
+        ]);
+
+        return Ok(201);
+      },
+    },
+
+  ...
+};
+```
+
+The following url will apply a sepia filter to our file:
+
+```
+/0x0/file.png?custom=sepia
+```
 
 ### Genarated images
 
@@ -277,6 +304,18 @@ const images = new Images({
   },
   hashCacheNames: true,
   logs: true,
+  timeout: 5000,
+  customEffects: {
+    sepia: (sharp, _opts) => {
+      sharp.recomb([
+        [0.3588, 0.7044, 0.1368],
+        [0.299, 0.587, 0.114],
+        [0.2392, 0.4696, 0.0912],
+      ]);
+
+      return Ok(201);
+    },
+  },
 });
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;

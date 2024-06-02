@@ -233,7 +233,7 @@ export class Images {
 
       if (isGeneratedImage(sharpOptions)) {
         if (!urlInfo.val.ext) {
-          /** We forcedly need an extension for generated files, raw files are not suported by now */
+          /** We forcedly need an extension for generated files */
           return next(
             new Error("An extension is mandatory for generated files.", {
               cause: urlInfo.val,
