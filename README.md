@@ -202,8 +202,6 @@ By using the keys `custom` and `customAfter` you may apply effects previously co
           [0.299, 0.587, 0.114],
           [0.2392, 0.4696, 0.0912],
         ]);
-
-        return Ok(201);
       },
     },
 
@@ -312,8 +310,6 @@ const images = new Images({
         [0.299, 0.587, 0.114],
         [0.2392, 0.4696, 0.0912],
       ]);
-
-      return Ok(201);
     },
   },
 });

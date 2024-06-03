@@ -1,6 +1,5 @@
 import { ParsedQs } from "qs";
 import { Sharp } from "sharp";
-import { Result } from "ts-results";
 
 export { applyAffineEffect } from "./affine";
 export { applyBlurEffect } from "./blur";
@@ -71,4 +70,4 @@ export type EffectOpts = Record<string, string | number | boolean | string[]>;
 export type EffectHandler = (
   sharp: Sharp,
   opts: EffectOpts,
-) => Result<number, Error>;
+) => void;

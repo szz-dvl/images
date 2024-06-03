@@ -1,5 +1,5 @@
 import { Sharp } from "sharp";
-import { EffectHandler, EffectOperation, getOperationDefinition } from ".";
+import { EffectOperation, getOperationDefinition } from ".";
 import { Ok, Result } from "ts-results";
 import { ImagesOpts } from "../types";
 import { reduce } from "lodash";
@@ -15,7 +15,8 @@ export const applyCustomEffect = (
     const customEffectFinder = (key: string) => {
       const effectHandler = customEffects[key];
       if (effectHandler) {
-        return effectHandler(sharp, opts);
+        effectHandler(sharp, opts);
+        return Ok(201);
       }
       return Ok(200);
     };
@@ -25,7 +26,7 @@ export const applyCustomEffect = (
         return customEffectFinder(key);
       }
       if (Array.isArray(key)) {
-        return reduce<string, ReturnType<EffectHandler>>(
+        return reduce<string, Ok<number>>(
           key,
           (agg, key) => customEffectFinder(key),
           Ok(200),

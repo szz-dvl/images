@@ -24,7 +24,6 @@ import { getSharpOptions } from "./options";
 import { Sharp } from "sharp";
 import { addAbortSignal } from "node:stream";
 import { EffectOpts } from "./effects";
-import { Ok } from "ts-results";
 
 export class Images {
   private opts: ImagesOpts;
@@ -111,8 +110,6 @@ export class Images {
             [0.299, 0.587, 0.114],
             [0.2392, 0.4696, 0.0912],
           ]);
-
-          return Ok(201);
         },
       },
       ...opts,
