@@ -159,7 +159,9 @@ export const serializeEffect = (
 
   return hashCacheNames
     ? `${effectiveKey}=${effectiveValue}`
-    : `${effectiveKey}=${effectiveValue}`.replaceAll("/", "|").replaceAll(":", "|");
+    : `${effectiveKey}=${effectiveValue}`
+        .replaceAll("/", "|")
+        .replaceAll(":", "|");
 };
 
 const getEffectsSuffix = (
