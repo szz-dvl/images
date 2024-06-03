@@ -84,6 +84,7 @@ ImageFormat {
   SVG = "svg",
   JP2 = "jp2",
   HEIF = "heif"
+  RAW = "raw"
 }
 ```
 
@@ -120,6 +121,7 @@ export type FormatsOpts = {
   gif?: GifOptions;
   jp2?: Jp2Options;
   heif?: HeifOptions;
+  raw?: RawOptions;
 };
 ```
 
@@ -157,7 +159,7 @@ So, as a general rule, the URLs must look like:
 
 Some exeptions to this roule are:
 
-- **boolean:** The parameters for raw re discarded in this operation
+- **boolean:** The parameters for raw re discarded in this operation.
 - **linear:** The two parameters `a` and `b` must be provided as options, like:
 
 ```
