@@ -12,6 +12,8 @@ import {
   Sharp,
 } from "sharp";
 
+import { RequestHandler, RouteParameters, Route } from "express";
+
 declare module "@szz_dev/images" {
   export type ImageSize = [number | null, number | null];
 
@@ -60,6 +62,7 @@ declare module "@szz_dev/images" {
 
   export class Images {
     constructor(ImagesOpts: ImagesOpts);
+    middleware: RequestHandler<RouteParameters<Route>>;
   }
 
   export enum ImageFormat {
