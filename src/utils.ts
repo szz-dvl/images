@@ -257,9 +257,8 @@ export const normaliseAngle = (angle: number) => {
 };
 
 export const getCacheSuffix = (cachePath: CachePathState) => {
-
   const path = cachePath();
   const suffix = basename(path, extname(path)).split(":").slice(1).join(":");
 
   return suffix;
-}
+};
