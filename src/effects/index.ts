@@ -67,7 +67,4 @@ export const getOperationDefinition = (
 
 export type EffectOpts = Record<string, string | number | boolean | string[]>;
 
-export type EffectHandler = (
-  sharp: Sharp,
-  opts: EffectOpts,
-) => void;
+export type EffectHandler = (sharp: Sharp, opts: EffectOpts) => void;
