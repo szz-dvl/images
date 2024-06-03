@@ -9,7 +9,7 @@ import {
   SharpOptions,
   TiffOptions,
   WebpOptions,
-  Sharp
+  Sharp,
 } from "sharp";
 
 declare module "@szz_dev/images" {
