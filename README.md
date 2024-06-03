@@ -30,6 +30,7 @@ export type ImagesOpts = {
   sharp: Omit<SharpOptions, "create" | "text" | "raw">;
   timeout: number;
   customEffects?: Record<string, EffectHandler>;
+  publicCacheNames: boolean;
 ```
 
 The options are defined like:
@@ -132,6 +133,8 @@ export type FormatsOpts = {
 
 - **customEffects:** A map of custom effects to be applied using the `custom` / `customAfter` keys.
 
+- **publicCacheNames:** When true the cache suffix will be returned in the header `X-Images-Cache-Suffix`.
+
 ### Effects
 
 We are able to convert and resize images, but sharp can do a lot more than that. To expose sharp functionalities we will use the query string in our URL. The format of the query string follows the pattern of the sharp parameters for each method, as an instance:
@@ -229,12 +232,14 @@ When generating files the filename and extension provided in the URL are used to
 
 ### Simple server
 
+The options used here are the default values:
+
 ```typescript
 const { ImageEffect, Images } = require("images");
 const express = require("express");
 
 const images = new Images({
-  dir: `/home/szz/Pictures`,
+  dir: `${__dirname}/images`,
   url: {
     prefix: "/image",
     pattern: "/:dir/:size/:file.:ext",
@@ -280,6 +285,9 @@ const images = new Images({
     [ImageEffect.EXTRACTCHANNEL]: 1,
     [ImageEffect.JOINCHANNEL]: 1,
     [ImageEffect.BANDBOOL]: 1,
+
+    /* User defined */
+    [ImageEffect.CUSTOM]: 2,
   },
   allowGenerated: true,
   allowComposition: true,
@@ -301,7 +309,7 @@ const images = new Images({
     height: 1080,
   },
   hashCacheNames: true,
-  logs: true,
+  logs: false,
   timeout: 5000,
   customEffects: {
     sepia: (sharp, _opts) => {
@@ -312,6 +320,7 @@ const images = new Images({
       ]);
     },
   },
+  publicCacheNames: false,
 });
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
