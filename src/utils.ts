@@ -210,9 +210,14 @@ export const initCachePathState = (
 ): CachePathState => {
   const sizeDir = buildSizeDirectory(size);
   const requestedExt = extname(path);
-  const file = basename(path);
-  const filename = file.replace(requestedExt, "");
-  const pathDir = dirname(path);
+  const filename = basename(path, requestedExt);
+  let pathDir = dirname(path);
+
+  if (pathDir.startsWith(".cache")) {
+    /** Strip cache from destination if exists to avoid an infinite hierarchy */
+    pathDir = join(...pathDir.split("/").slice(1));
+  }
+
   const parts: Array<string> = [];
 
   const cachePath = join(dir, ".cache", sizeDir, pathDir, filename);
@@ -250,3 +255,11 @@ export const normaliseAngle = (angle: number) => {
 
   return angle;
 };
+
+export const getCacheSuffix = (cachePath: CachePathState) => {
+
+  const path = cachePath();
+  const suffix = basename(path, extname(path)).split(":").slice(1).join(":");
+
+  return suffix;
+}

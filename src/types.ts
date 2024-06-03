@@ -55,4 +55,5 @@ export type ImagesOpts = {
   sharp: Omit<SharpOptions, "create" | "text" | "raw">;
   timeout: number;
   customEffects?: Record<string, EffectHandler>;
+  publicCacheNames: boolean;
 };

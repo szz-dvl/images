@@ -3,6 +3,7 @@ import { extractUrlInfo } from "./regex";
 import {
   CachePathState,
   allowedSize,
+  getCacheSuffix,
   globExtension,
   initCachePathState,
   isGeneratedImage,
@@ -112,6 +113,7 @@ export class Images {
           ]);
         },
       },
+      publicCacheNames: false,
       ...opts,
     };
   }
@@ -292,6 +294,11 @@ export class Images {
             cause: writer.val,
           }),
         );
+
+      if (this.opts.publicCacheNames) {
+        const suffix = getCacheSuffix(cachePathState);
+        res.setHeader("X-Images-Cache-Suffix", suffix);
+      }
 
       res
         .status(converter.val.code)

@@ -92,6 +92,7 @@ const opts: ImagesOpts = {
       return Ok(201);
     },
   },
+  publicCacheNames: false,
 };
 
 describe("converter", () => {

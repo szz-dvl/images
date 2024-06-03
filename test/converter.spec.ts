@@ -77,6 +77,7 @@ const opts: ImagesOpts = {
   hashCacheNames: false,
   logs: true,
   timeout: 5000,
+  publicCacheNames: false,
 };
 
 const sharpOpts = {
