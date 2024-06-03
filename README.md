@@ -142,7 +142,7 @@ export type FormatsOpts = {
 We are able to convert and resize images, but sharp can do a lot more than that. To expose sharp functionalities we will use the query string in our URL. The format of the query string follows the pattern of the sharp parameters for each method, as an instance:
 
 ```
-/150x150/file.png?modulate.hue=80 => file.jpg with a width and height of 150px using the default resize options converted to PNG format and with a modulate operation of 80 degrees applied.
+/150x150/file.png?modulate.hue=80 => file.jpg with a width and height of 150px using the default resize options converted to PNG format and with a modulate operation of 80 degrees on hue applied.
 ```
 
 Main function parameters expects no dot in the query parameter, as an instance a rotation of 90 degrees may be expressed as:
@@ -225,7 +225,7 @@ The following url will apply a sepia filter to our file:
 Sharp is able to generate images from text or create images given some parameters, this functionality is offered in the query string of our request through the keys `create` and `text`. It follows the same pattern described by effects, please refer to [sharp documentation](https://sharp.pixelplumbing.com/api-constructor) for further details. As an instance:
 
 ```
-/0x0/file.png?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00
+/0x0/generated.png?text.text=<span foreground="red" size="xx-large">szz</span><span background="cyan" size="xx-small">software</span>&text.height=250&text.width=250&text.rgba=true&tint=%2300FF00
 ```
 
 Will generate a promotional image :)
