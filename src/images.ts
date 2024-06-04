@@ -122,7 +122,7 @@ export class Images {
     err: Error,
     controller: AbortController,
     cachePath: CachePathState,
-    next: NextFunction,
+    next: NextFunction
   ) {
     try {
       controller.abort();
@@ -142,7 +142,7 @@ export class Images {
     cache: CacheWriter,
     cachePath: CachePathState,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) {
     let aborted = false;
     const toId: NodeJS.Timeout = setTimeout(async () => {
@@ -152,7 +152,7 @@ export class Images {
           new Error("Timed out", { cause: toId }),
           cache.controller,
           cachePath,
-          next,
+          next
         );
       }
     }, this.opts.timeout);
@@ -193,20 +193,53 @@ export class Images {
     }
   }
 
+  private returnCode(
+    res: Response,
+    code: 200 | 201 | 202 | 404,
+    file: string | void
+  ): number;
+  private returnCode(res: NextFunction, code: null): number;
+  private returnCode(
+    res: Response | NextFunction,
+    code: 200 | 201 | 202 | 404 | null,
+    file?: string
+  ): number | null {
+    switch (code) {
+      case 200:
+      case 201:
+      case 202:
+        (<Response>res).status(code).sendFile(file!);
+        break;
+      case 404:
+        (<Response>res).status(code).end();
+        break;
+      default:
+        (<NextFunction>res)();
+        break;
+    }
+
+    return code;
+  }
+
+  private returnError(next: NextFunction, err: Error) {
+    next(err);
+    return null;
+  }
+
   public async middleware(req: Request, res: Response, next: NextFunction) {
     try {
       const effects = req.query;
       const requestUrl = req.url.split("?")[0];
       const urlInfo = extractUrlInfo(requestUrl, this.opts);
 
-      if (urlInfo.err) return next();
+      if (urlInfo.err) return this.returnCode(next, null);
 
       const absolutePath = join(this.opts.dir, urlInfo.val.path);
       const allowed = allowedSize(urlInfo.val.size, this.opts);
 
       if (!allowed) {
         const exactMatch = await checkFile(absolutePath, this.opts.logs);
-        if (exactMatch.ok) return res.status(200).sendFile(exactMatch.val);
+        if (exactMatch.ok) return this.returnCode(res, 200, exactMatch.val);
 
         return next();
       } /** Size not allowed ¿400? */
@@ -215,7 +248,7 @@ export class Images {
 
       if (ext && !urlInfo.val.ext) {
         const exactMatch = await checkFile(absolutePath, this.opts.logs);
-        if (exactMatch.ok) return res.status(200).sendFile(exactMatch.val);
+        if (exactMatch.ok) return this.returnCode(res, 200, exactMatch.val);
 
         return next(); /** Format not allowed ¿400? */
       }
@@ -224,7 +257,7 @@ export class Images {
         urlInfo.val.path,
         this.opts,
         urlInfo.val.size,
-        urlInfo.val.ext,
+        urlInfo.val.ext
       );
       const sharpOptions = getSharpOptions(effects, cachePathState, this.opts);
 
@@ -233,23 +266,29 @@ export class Images {
       if (isGeneratedImage(sharpOptions)) {
         if (!urlInfo.val.ext) {
           /** We forcedly need an extension for generated files */
-          return next(
+          return this.returnError(
+            next,
             new Error("An extension is mandatory for generated files.", {
               cause: urlInfo.val,
-            }),
+            })
           );
         }
 
         const first = await findFirst(glob);
-        if (first.value)
-          return next(
+        if (first.value) {
+          return this.returnError(
+            next,
             new Error("Existing file generating image.", {
               cause: first.value,
-            }),
+            })
           );
+        }
 
         if (!this.opts.allowGenerated)
-          return next(); /** Generated images not allowed ¿400? */
+          return this.returnCode(
+            next,
+            null
+          ); /** Generated images not allowed ¿400? */
 
         candidate = void 0;
       } else {
@@ -260,7 +299,8 @@ export class Images {
           candidate = first.value;
         }
 
-        if (!candidate) return res.status(404).send(); /** Not found */
+        if (!candidate)
+          return this.returnCode(res, 404, candidate); /** Not found */
       }
 
       const converter = convertFile(
@@ -270,31 +310,34 @@ export class Images {
         urlInfo.val.ext,
         this.opts,
         effects,
-        cachePathState,
+        cachePathState
       );
 
-      if (converter.err)
-        return next(
-          new Error("Error converting file.", { cause: converter.val }),
+      if (converter.err) {
+        return this.returnError(
+          next,
+          new Error("Error converting file.", { cause: converter.val })
         );
+      }
 
       const cachedFile = await checkCache(cachePathState, this.opts.logs);
-      if (cachedFile.ok) return res.status(202).sendFile(cachedFile.val);
+      if (cachedFile.ok) return this.returnCode(res, 202, cachedFile.val);
 
-      if (candidate && converter.val.code === 200)
-        return res
-          .status(converter.val.code)
-          .sendFile(candidate); /** No change */
+      if (candidate && converter.val.code === 200) {
+        return this.returnCode(res, 200, candidate); /** No change */
+      }
 
       const writer = await getCacheWriter(cachePathState);
 
-      if (writer.err)
-        return next(
+      if (writer.err) {
+        return this.returnError(
+          next,
           new Error("Unable to cache the resulting image.", {
             cause: writer.val,
-          }),
+          })
         );
-
+      }
+      
       if (this.opts.publicCacheNames) {
         const suffix = getCacheSuffix(cachePathState);
         res.setHeader("X-Images-Cache-Suffix", suffix);
@@ -304,14 +347,17 @@ export class Images {
         .status(converter.val.code)
         .setHeader("Content-Type", converter.val.mime);
 
-      return this.streamImage(
+      this.streamImage(
         candidate,
         converter.val.sharp,
         writer.val,
         cachePathState,
         res,
-        next,
+        next
       );
+
+      return converter.val.code;
+
     } catch (err) {
       return next(err); /** ¿400? */
     }
