@@ -156,7 +156,6 @@ So, as a general rule, the URLs must look like:
 ```
 /{width}x{height}/{filename}.{desiredformat}?{operation1}={operation1 param}&{operation1}.{operation1option}={operation1 option}&{operation2}={operation2 param} ... {operationN}={operationN param}&{operationN}.{operationNoption}={operationN option}
 ```
-
 Some exeptions to this roule are:
 
 - **boolean:** The parameters for raw re discarded in this operation.
@@ -191,6 +190,8 @@ Whenever a color needs to be provided only the hexadecimal string representation
 Besides sharp operations, there is a couple of "virtual" keys `extractAfter` and `rotateAfter` to apply extractions/rotations after the resize operation, the signature is the same that for `extract` and `rotate` operations, which by default, happens before the resize.
 
 Only one effect of each kind is allowed per request.
+
+In the section `Open Api` you can find an specifiation for a PathItem compliant with OAS 3.0 with the input parameters defined.
 
 ### Custom images
 
@@ -664,22 +665,32 @@ Given that the functionality offered in this package is made available through a
         name: sharpen.m1
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.m2
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.x1
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.y2
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.y3
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: median
         schema:
@@ -688,6 +699,8 @@ Given that the functionality offered in this package is made available through a
         name: blur
         schema:
           type: number
+          minimum: .3
+          maximum: 1000
       - in: query
         name: flatten
         schema:
@@ -706,9 +719,13 @@ Given that the functionality offered in this package is made available through a
         schema:
           oneOf:
             - type: number
+              minimum: 1
+              maximum: 3
             - type: array
               items:
                 type: number
+                minimum: 1
+                maximum: 3
               maxItems: 2
               minItems: 2
       - in: query
@@ -727,10 +744,14 @@ Given that the functionality offered in this package is made available through a
         name: normalise.upper
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: normalise.lower
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: normalize
         schema:
@@ -739,10 +760,14 @@ Given that the functionality offered in this package is made available through a
         name: normalize.upper
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: normalize.lower
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: clahe.width
         schema:
@@ -755,6 +780,8 @@ Given that the functionality offered in this package is made available through a
         name: clahe.maxSlope
         schema:
           type: number
+          minimum: 0
+          maximum: 100
       - in: query
         name: convolve.width
         schema:
@@ -781,6 +808,8 @@ Given that the functionality offered in this package is made available through a
         name: threshold
         schema:
           type: number
+          minimum: 0
+          maximum: 255
       - in: query
         name: threshold.greyscale
         schema:
@@ -974,7 +1003,8 @@ Given that the functionality offered in this package is made available through a
         name: ensureAlpha
         schema:
           type: number
-          default: 1
+          minimum: 0
+          maximum: 1
       - in: query
         name: extractChannel
         schema:
@@ -1012,4 +1042,5 @@ Given that the functionality offered in this package is made available through a
         name: customAfter
         schema:
           type: string
+
 ```

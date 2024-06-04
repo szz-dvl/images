@@ -322,22 +322,32 @@
         name: sharpen.m1
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.m2
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.x1
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.y2
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: sharpen.y3
         schema:
           type: number
+          minimum: 0
+          maximum: 1000000
       - in: query
         name: median
         schema:
@@ -346,6 +356,8 @@
         name: blur
         schema:
           type: number
+          minimum: .3
+          maximum: 1000
       - in: query
         name: flatten
         schema:
@@ -364,9 +376,13 @@
         schema:
           oneOf:
             - type: number
+              minimum: 1
+              maximum: 3
             - type: array
               items:
                 type: number
+                minimum: 1
+                maximum: 3
               maxItems: 2
               minItems: 2
       - in: query
@@ -385,10 +401,14 @@
         name: normalise.upper
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: normalise.lower
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: normalize
         schema:
@@ -397,10 +417,14 @@
         name: normalize.upper
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: normalize.lower
         schema:
           type: number
+          minimum: 1
+          maximum: 99
       - in: query
         name: clahe.width
         schema:
@@ -413,6 +437,8 @@
         name: clahe.maxSlope
         schema:
           type: number
+          minimum: 0
+          maximum: 100
       - in: query
         name: convolve.width
         schema:
@@ -439,6 +465,8 @@
         name: threshold
         schema:
           type: number
+          minimum: 0
+          maximum: 255
       - in: query
         name: threshold.greyscale
         schema:
@@ -632,7 +660,8 @@
         name: ensureAlpha
         schema:
           type: number
-          default: 1
+          minimum: 0
+          maximum: 1
       - in: query
         name: extractChannel
         schema:
