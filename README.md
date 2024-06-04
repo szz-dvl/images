@@ -192,7 +192,7 @@ Besides sharp operations, there is a couple of "virtual" keys `extractAfter` and
 
 Only one effect of each kind is allowed per request.
 
-In the section `Open Api` you can find an specifiation for a PathItem compliant with OAS 3.0 with the input parameters defined.
+In the section `Open Api` you can find an specifiation for a PathItem compliant with OAS 3.0 with the input parameters defined able to composite images with up to one more image.
 
 ### Custom images
 
@@ -446,6 +446,10 @@ Given that the functionality offered in this package is made available through a
             - word-char
             - char
             - none
+      - in: query
+        name: text.rgba
+        schema:
+          type: boolean
       - in: query
         name: resize.width
         schema:
@@ -1043,4 +1047,150 @@ Given that the functionality offered in this package is made available through a
         name: customAfter
         schema:
           type: string
+      - in: query
+        name: composite.0
+        schema:
+          type: string
+      - in: query
+        name: composite.0.blend
+        schema:
+          type: string
+          enum:
+            - clear
+            - source
+            - over
+            - in
+            - out
+            - atop
+            - dest
+            - dest-over
+            - dest-in
+            - dest-out
+            - dest-atop
+            - xor
+            - add
+            - saturate
+            - multiply
+            - screen
+            - overlay
+            - darken
+            - lighten
+            - colour-dodge
+            - color-dodge
+            - colour-burn
+            - color-burn
+            - hard-light
+            - soft-light
+            - difference
+            - exclusion
+      - in: query
+        name: composite.0.gravity
+        schema:
+          type: string
+          enum:
+            - center
+      - in: query
+        name: composite.0.create.top
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.left
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.density
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.tile
+        schema:
+          type: boolean
+      - in: query
+        name: composite.0.create.premultiplied
+        schema:
+          type: boolean
+      - in: query
+        name: composite.0.create.width
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.height
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.channels
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.background
+        schema:
+          type: string
+          pattern: "^#[0-9A-F]{6}$"
+      - in: query
+        name: composite.0.create.noise.type
+        schema:
+          type: string
+          enum:
+            - gaussian
+      - in: query
+        name: composite.0.create.noise.mean
+        schema:
+          type: number
+      - in: query
+        name: composite.0.create.noise.sigma
+        schema:
+          type: number
+      - in: query
+        name: composite.0.text.width
+        schema:
+          type: number
+      - in: query
+        name: composite.0.text.height
+        schema:
+          type: number
+      - in: query
+        name: composite.0.text.text
+        schema:
+          type: string
+      - in: query
+        name: composite.0.text.font
+        schema:
+          type: string
+      - in: query
+        name: composite.0.text.fontfile
+        schema:
+          type: string
+      - in: query
+        name: composite.0.text.align
+        schema:
+          type: string
+          enum:
+            - left
+            - center
+            - right
+      - in: query
+        name: composite.0.text.justify
+        schema:
+          type: boolean
+      - in: query
+        name: composite.0.text.dpi
+        schema:
+          type: number
+      - in: query
+        name: composite.0.text.spacing
+        schema:
+          type: number
+      - in: query
+        name: composite.0.text.wrap
+        schema:
+          type: string
+          enum:
+            - word
+            - word-char
+            - char
+            - none
+      - in: query
+        name: composite.0.text.rgba
+        schema:
+          type: boolean
 ```
