@@ -337,7 +337,7 @@ app.listen(port, () => {
 
 ### Open Api
 
-Given that the functionality offered in this package is made available through an express middleware, makes sense to provide an Open Api spec to validate incoming requests, the following specification must validate requests to our endpoint if we are using "/image" as prefix:
+Given that the functionality offered in this package is made available through an express middleware, makes sense to provide an Open Api spec to validate incoming requests, the following PathItem specification must validate requests to our endpoint if we are using "/image" as prefix:
 
 ```yaml
 /image/{size}/{path}:
