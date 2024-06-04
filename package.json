@@ -1,6 +1,6 @@
 {
   "name": "@szz_dev/images",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "description": "NPM package to expose sharp functionalities trough express middleware.",
   "main": "dist/index.js",
   "types": "images.d.ts",
