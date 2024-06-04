@@ -64,7 +64,11 @@ declare module "@szz_dev/images" {
 
   export class Images {
     constructor(ImagesOpts: ImagesOpts);
-    middleware: (req: Request, res: Response, next: NextFunction) => StatusCode | null;
+    middleware: (
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => StatusCode | null;
   }
 
   export enum ImageFormat {

@@ -122,7 +122,7 @@ export class Images {
     err: Error,
     controller: AbortController,
     cachePath: CachePathState,
-    next: NextFunction
+    next: NextFunction,
   ) {
     try {
       controller.abort();
@@ -142,7 +142,7 @@ export class Images {
     cache: CacheWriter,
     cachePath: CachePathState,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) {
     let aborted = false;
     const toId: NodeJS.Timeout = setTimeout(async () => {
@@ -152,7 +152,7 @@ export class Images {
           new Error("Timed out", { cause: toId }),
           cache.controller,
           cachePath,
-          next
+          next,
         );
       }
     }, this.opts.timeout);
@@ -196,13 +196,13 @@ export class Images {
   private returnCode(
     res: Response,
     code: 200 | 201 | 202 | 404,
-    file: string | void
+    file: string | void,
   ): number;
   private returnCode(res: NextFunction, code: null): number;
   private returnCode(
     res: Response | NextFunction,
     code: 200 | 201 | 202 | 404 | null,
-    file?: string
+    file?: string,
   ): number | null {
     switch (code) {
       case 200:
@@ -257,7 +257,7 @@ export class Images {
         urlInfo.val.path,
         this.opts,
         urlInfo.val.size,
-        urlInfo.val.ext
+        urlInfo.val.ext,
       );
       const sharpOptions = getSharpOptions(effects, cachePathState, this.opts);
 
@@ -270,7 +270,7 @@ export class Images {
             next,
             new Error("An extension is mandatory for generated files.", {
               cause: urlInfo.val,
-            })
+            }),
           );
         }
 
@@ -280,14 +280,14 @@ export class Images {
             next,
             new Error("Existing file generating image.", {
               cause: first.value,
-            })
+            }),
           );
         }
 
         if (!this.opts.allowGenerated)
           return this.returnCode(
             next,
-            null
+            null,
           ); /** Generated images not allowed ¿400? */
 
         candidate = void 0;
@@ -310,13 +310,13 @@ export class Images {
         urlInfo.val.ext,
         this.opts,
         effects,
-        cachePathState
+        cachePathState,
       );
 
       if (converter.err) {
         return this.returnError(
           next,
-          new Error("Error converting file.", { cause: converter.val })
+          new Error("Error converting file.", { cause: converter.val }),
         );
       }
 
@@ -334,10 +334,10 @@ export class Images {
           next,
           new Error("Unable to cache the resulting image.", {
             cause: writer.val,
-          })
+          }),
         );
       }
-      
+
       if (this.opts.publicCacheNames) {
         const suffix = getCacheSuffix(cachePathState);
         res.setHeader("X-Images-Cache-Suffix", suffix);
@@ -353,11 +353,10 @@ export class Images {
         writer.val,
         cachePathState,
         res,
-        next
+        next,
       );
 
       return converter.val.code;
-
     } catch (err) {
       return next(err); /** ¿400? */
     }
