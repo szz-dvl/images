@@ -68,7 +68,7 @@ declare module "@szz_dev/images" {
       req: Request,
       res: Response,
       next: NextFunction,
-    ) => StatusCode | null;
+    ) => Promise<StatusCode | null>;
   }
 
   export enum ImageFormat {
