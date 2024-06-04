@@ -156,6 +156,7 @@ So, as a general rule, the URLs must look like:
 ```
 /{width}x{height}/{filename}.{desiredformat}?{operation1}={operation1 param}&{operation1}.{operation1option}={operation1 option}&{operation2}={operation2 param} ... {operationN}={operationN param}&{operationN}.{operationNoption}={operationN option}
 ```
+
 Some exeptions to this roule are:
 
 - **boolean:** The parameters for raw re discarded in this operation.
@@ -1042,5 +1043,4 @@ Given that the functionality offered in this package is made available through a
         name: customAfter
         schema:
           type: string
-
 ```
