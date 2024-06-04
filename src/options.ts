@@ -135,6 +135,7 @@ const pickCompositeKeys = (batch: EffectOperation): EffectOperation => {
     /composite.\d+.text.dpi/,
     /composite.\d+.text.spacing/,
     /composite.\d+.text.wrap/,
+    /composite.\d+.text.rgba/,
     /composite.\d+.blend/,
     /composite.\d+.gravity/,
     /composite.\d+.top/,

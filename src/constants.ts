@@ -133,6 +133,7 @@ export const SharpValidKeys = [
   "text.dpi",
   "text.spacing",
   "text.wrap",
+  "text.rgba",
 
   "resize.width",
   "resize.height",
