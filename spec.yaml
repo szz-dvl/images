@@ -12,7 +12,7 @@
         name: size
         schema:
           type: string
-          pattern: '^\\d+x{1}|x{1}\\d+|\\d+x{1}\\dx+$'
+          pattern: '^\\d+x{1}|x{1}\\d+|\\d+x{1}\\d+$'
         required: true
         description: Size as understood by @szz_dev/images
       - in: path

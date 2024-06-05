@@ -356,7 +356,7 @@ Given that the functionality offered in this package is made available through a
         name: size
         schema:
           type: string
-          pattern: '^\\d+x{1}|x{1}\\d+|\\d+x{1}\\dx+$'
+          pattern: '^\\d+x{1}|x{1}\\d+|\\d+x{1}\\d+$'
         required: true
         description: Size as understood by @szz_dev/images
       - in: path
@@ -1194,3 +1194,5 @@ Given that the functionality offered in this package is made available through a
         schema:
           type: boolean
 ```
+
+Due to OAS limitations this is only valid for one level depth directory.
