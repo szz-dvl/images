@@ -10,7 +10,7 @@ export const applyEnsureAlphaEffect = (
 
   const num = Number(alpha);
 
-  if (isNaN(num) && alpha === "") {
+  if (!isNaN(num) && num === 0) {
     sharp.ensureAlpha();
     return Ok(201);
   }

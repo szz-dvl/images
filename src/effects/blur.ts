@@ -10,7 +10,7 @@ export const applyBlurEffect = (
 
   const num = Number(sigma);
 
-  if (isNaN(num) && sigma === "") {
+  if (!isNaN(num) && num === 0) {
     sharp.blur();
     return Ok(201);
   }
