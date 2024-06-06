@@ -4,7 +4,7 @@ import { Ok, Result } from "ts-results";
 
 export const applyBlurEffect = (
   sharp: Sharp,
-  blurEffects: EffectOperation
+  blurEffects: EffectOperation,
 ): Result<number, Error> => {
   const { param: sigma } = getOperationDefinition(blurEffects);
 
