@@ -1,13 +1,18 @@
 import { Sharp } from "sharp";
-import { EffectOperation } from "./";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const applyGrayscaleEffect = (
   sharp: Sharp,
-  _grayscaleEffects: EffectOperation,
+  grayscaleEffects: EffectOperation,
 ): Result<number, Error> => {
-  sharp.grayscale();
+  const { param } = getOperationDefinition(grayscaleEffects);
 
-  return Ok(201);
+  if (param !== "false") {
+    sharp.grayscale();
+    return Ok(201);
+  }
+
+  return Ok(200);
 };

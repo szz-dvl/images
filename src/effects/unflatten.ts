@@ -1,13 +1,18 @@
 import { Sharp } from "sharp";
-import { EffectOperation } from "./";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const applyUnflattenEffect = (
   sharp: Sharp,
-  _unflattenEffects: EffectOperation,
+  unflattenEffects: EffectOperation
 ): Result<number, Error> => {
-  sharp.unflatten();
+  const { param } = getOperationDefinition(unflattenEffects);
 
-  return Ok(201);
+  if (param !== "false") {
+    sharp.unflatten();
+    return Ok(201);
+  }
+
+  return Ok(200);
 };

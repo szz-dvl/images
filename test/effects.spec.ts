@@ -95,7 +95,7 @@ const opts: ImagesOpts = {
   publicCacheNames: false,
 };
 
-describe("converter", () => {
+describe("effects", () => {
   it("must append a rotation effect", async () => {
     const path = "image.png";
     const size: ImageSize = [null, null];
@@ -150,6 +150,24 @@ describe("converter", () => {
     );
 
     expect(cachePath()).toBe(`/test/images/.cache/image:flip=true.png`);
+  });
+
+  it("must NOT append a flip effect", async () => {
+    const path = "image.png";
+    const size: ImageSize = [null, null];
+
+    const cachePath = initCachePathState(path, opts, size, ImageFormat.PNG);
+
+    await applyImageEffects(
+      sharp(),
+      { flip: "false" },
+      opts.allowedEffects,
+      opts,
+      cachePath,
+      false,
+    );
+
+    expect(cachePath()).toBe(`/test/images/.cache/image.png`);
   });
 
   it("must append a flop effect", async () => {

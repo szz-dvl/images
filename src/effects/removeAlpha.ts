@@ -1,13 +1,19 @@
 import { Sharp } from "sharp";
-import { EffectOperation } from "./";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const applyRemoveAlphaEffect = (
   sharp: Sharp,
-  _removeAlphaEffects: EffectOperation,
+  removeAlphaEffects: EffectOperation,
 ): Result<number, Error> => {
-  sharp.removeAlpha();
 
-  return Ok(201);
+  const { param } = getOperationDefinition(removeAlphaEffects);
+
+  if (param !== "false") {
+    sharp.removeAlpha();
+    return Ok(201);
+  }
+
+  return Ok(200);
 };

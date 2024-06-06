@@ -1,13 +1,20 @@
 import { Sharp } from "sharp";
-import { EffectOperation } from "./";
+import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const applyFlopEffect = (
   sharp: Sharp,
-  _flopEffects: EffectOperation,
+  flopEffects: EffectOperation,
 ): Result<number, Error> => {
-  sharp.flop();
 
-  return Ok(201);
+  const { param } = getOperationDefinition(flopEffects);
+
+  if (param !== "false") {
+    sharp.flop();
+    return Ok(201);
+  }
+
+  return Ok(200);
 };
+
