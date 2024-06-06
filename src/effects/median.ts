@@ -10,11 +10,11 @@ export const applyMedianEffect = (
 
   const num = Number(median);
 
-  if (isNaN(num)) {
+  if (isNaN(num) && median === "") {
     sharp.median();
+    return Ok(201);
   }
 
   sharp.median(num);
-
   return Ok(201);
 };

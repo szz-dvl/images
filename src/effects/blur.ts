@@ -4,17 +4,17 @@ import { Ok, Result } from "ts-results";
 
 export const applyBlurEffect = (
   sharp: Sharp,
-  blurEffects: EffectOperation,
+  blurEffects: EffectOperation
 ): Result<number, Error> => {
   const { param: sigma } = getOperationDefinition(blurEffects);
 
   const num = Number(sigma);
 
-  if (isNaN(num)) {
+  if (isNaN(num) && sigma === "") {
     sharp.blur();
+    return Ok(201);
   }
 
   sharp.blur(num);
-
   return Ok(201);
 };
