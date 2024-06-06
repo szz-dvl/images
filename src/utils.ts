@@ -269,12 +269,12 @@ export const getCacheSuffix = (cachePath: CachePathState) => {
 
 export const isTruthyValue = (value: unknown): boolean => {
   if (typeof value === "string") {
-    return value !== "false"
+    return value !== "false";
   }
 
   if (typeof value === "boolean") {
-    return value
+    return value;
   }
 
   return !!value;
-}
+};

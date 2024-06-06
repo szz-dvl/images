@@ -12,7 +12,7 @@ export const applyNormaliseEffect = (
 
   if (isTruthyValue(param)) {
     sharp.normalise(mapValues(opts, Number));
-    return Ok(201);  
+    return Ok(201);
   }
   return Ok(200);
 };

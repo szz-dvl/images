@@ -352,7 +352,7 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { "flatten.background": "#00FF00", "flatten": "" },
+      { "flatten.background": "#00FF00", flatten: "" },
       opts.allowedEffects,
       opts,
       cachePath,

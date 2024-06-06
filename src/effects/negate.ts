@@ -11,10 +11,8 @@ export const applyNegateEffect = (
   const { param, opts } = getOperationDefinition(negateEffects);
 
   if (isTruthyValue(param)) {
-    sharp.negate(
-      mapValues(opts, isTruthyValue),
-    );
-    return Ok(201);  
+    sharp.negate(mapValues(opts, isTruthyValue));
+    return Ok(201);
   }
 
   return Ok(200);
