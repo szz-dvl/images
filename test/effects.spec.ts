@@ -236,7 +236,12 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { sharpen: "", "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" },
+      {
+        sharpen: "",
+        "sharpen.sigma": ".7",
+        "sharpen.m1": "1",
+        "sharpen.m2": "2",
+      },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -256,7 +261,12 @@ describe("effects", () => {
 
     const res = (await applyImageEffects(
       sharp(),
-      { sharpen: "", "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" },
+      {
+        sharpen: "",
+        "sharpen.sigma": "BAD_VALUE",
+        "sharpen.m1": "1",
+        "sharpen.m2": "2",
+      },
       opts.allowedEffects,
       opts,
       cachePath,
