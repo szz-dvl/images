@@ -2,7 +2,6 @@ import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export const applyFlipEffect = (
   sharp: Sharp,
   flipEffects: EffectOperation,
