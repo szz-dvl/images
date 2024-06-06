@@ -5,7 +5,7 @@ import { Ok, Result } from "ts-results";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const applyUnflattenEffect = (
   sharp: Sharp,
-  unflattenEffects: EffectOperation
+  unflattenEffects: EffectOperation,
 ): Result<number, Error> => {
   const { param } = getOperationDefinition(unflattenEffects);
 

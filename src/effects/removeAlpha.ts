@@ -7,7 +7,6 @@ export const applyRemoveAlphaEffect = (
   sharp: Sharp,
   removeAlphaEffects: EffectOperation,
 ): Result<number, Error> => {
-
   const { param } = getOperationDefinition(removeAlphaEffects);
 
   if (param !== "false") {

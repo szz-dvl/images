@@ -6,7 +6,7 @@
   "types": "images.d.ts",
   "scripts": {
     "test": "npx jest",
-    "lint": "npx eslint --config eslint.config.mjs src",
+    "lint": "npx eslint --config eslint.config.mjs --fix src",
     "build": "rm -rf dist && npx tsc",
     "prettier": "npx prettier . --write"
   },

@@ -7,7 +7,6 @@ export const applyFlopEffect = (
   sharp: Sharp,
   flopEffects: EffectOperation,
 ): Result<number, Error> => {
-
   const { param } = getOperationDefinition(flopEffects);
 
   if (param !== "false") {
@@ -17,4 +16,3 @@ export const applyFlopEffect = (
 
   return Ok(200);
 };
-
