@@ -14,7 +14,7 @@ import { SharpOptions } from "sharp";
 import md5 from "md5";
 
 export const isKnownExtension = (ext: string, current: ImageFormat) => {
-  return ImageKnownExtensions[current].includes(ext);
+  return ImageKnownExtensions[current].includes(ext.toLowerCase());
 };
 
 export const getAllowedExtension = (
