@@ -10,7 +10,7 @@ export const applyFlipEffect = (
   const { param } = getOperationDefinition(flipEffects);
 
   if (isTruthyValue(param)) {
-    sharp.flop();
+    sharp.flip();
     return Ok(201);
   }
   return Ok(200);
