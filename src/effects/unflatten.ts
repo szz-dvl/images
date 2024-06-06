@@ -1,6 +1,7 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { isTruthyValue } from "../utils";
 
 export const applyUnflattenEffect = (
   sharp: Sharp,
@@ -8,7 +9,7 @@ export const applyUnflattenEffect = (
 ): Result<number, Error> => {
   const { param } = getOperationDefinition(unflattenEffects);
 
-  if (param !== "false") {
+  if (isTruthyValue(param)) {
     sharp.unflatten();
     return Ok(201);
   }

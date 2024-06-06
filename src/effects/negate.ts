@@ -2,18 +2,20 @@ import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
 import { mapValues } from "lodash";
+import { isTruthyValue } from "../utils";
 
 export const applyNegateEffect = (
   sharp: Sharp,
   negateEffects: EffectOperation,
 ): Result<number, Error> => {
-  const { opts } = getOperationDefinition(negateEffects);
+  const { param, opts } = getOperationDefinition(negateEffects);
 
-  sharp.negate(
-    mapValues(opts, (val) => {
-      return val !== "false";
-    }),
-  );
+  if (isTruthyValue(param)) {
+    sharp.negate(
+      mapValues(opts, isTruthyValue),
+    );
+    return Ok(201);  
+  }
 
-  return Ok(201);
+  return Ok(200);
 };

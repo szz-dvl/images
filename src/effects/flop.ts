@@ -1,6 +1,7 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { isTruthyValue } from "../utils";
 
 export const applyFlopEffect = (
   sharp: Sharp,
@@ -8,7 +9,7 @@ export const applyFlopEffect = (
 ): Result<number, Error> => {
   const { param } = getOperationDefinition(flopEffects);
 
-  if (param !== "false") {
+  if (isTruthyValue(param)) {
     sharp.flop();
     return Ok(201);
   }

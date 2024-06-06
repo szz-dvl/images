@@ -140,16 +140,18 @@ export const serializeEffect = (
   }
 
   if (SharpBooleanKeys.includes(effectiveKey)) {
-    effectiveValue = effectiveValue === "false" ? effectiveValue : "true";
+    effectiveValue = isTruthyValue(effectiveValue) ? "true" : "false";
   }
 
   for (const compositeKey of [
     /composite.\d+.tile/,
     /composite.\d+.premultiplied/,
+    /composite.\d+.text.rgba/,
+    /composite.\d+.text.justify/,
   ]) {
     const match = compositeKey.exec(effectiveKey);
     if (match) {
-      effectiveValue = effectiveValue === "false" ? effectiveValue : "true";
+      effectiveValue = isTruthyValue(effectiveValue) ? "true" : "false";
     }
   }
 
@@ -264,3 +266,15 @@ export const getCacheSuffix = (cachePath: CachePathState) => {
 
   return suffix;
 };
+
+export const isTruthyValue = (value: unknown): boolean => {
+  if (typeof value === "string") {
+    return value !== "false"
+  }
+
+  if (typeof value === "boolean") {
+    return value
+  }
+
+  return !!value;
+}

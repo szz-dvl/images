@@ -95,6 +95,9 @@ export const SharpDuplicatedNaming = {
 };
 
 export const SharpBooleanKeys = [
+  "flatten",
+  "normalise",
+  "removeAlpha",
   "flip",
   "flop",
   "unflatten",

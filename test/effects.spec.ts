@@ -160,7 +160,7 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { flip: "false" },
+      { flip: false as unknown as string },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -352,7 +352,7 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { "flatten.background": "#00FF00" },
+      { "flatten.background": "#00FF00", "flatten": "" },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -360,7 +360,7 @@ describe("effects", () => {
     );
 
     expect(cachePath()).toBe(
-      `/test/images/.cache/image:flatten.background=#00FF00.png`,
+      `/test/images/.cache/image:flatten.background=#00FF00-flatten=true.png`,
     );
   });
 
@@ -372,7 +372,7 @@ describe("effects", () => {
 
     const res = (await applyImageEffects(
       sharp(),
-      { "flatten.background": "BAD_VALUE" },
+      { "flatten.background": "BAD_VALUE", flatten: "" },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -448,7 +448,7 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { "negate.alpha": "false" },
+      { "negate.alpha": "false", negate: "" },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -456,7 +456,7 @@ describe("effects", () => {
     );
 
     expect(cachePath()).toBe(
-      `/test/images/.cache/image:negate.alpha=false.png`,
+      `/test/images/.cache/image:negate.alpha=false-negate=true.png`,
     );
   });
 
@@ -468,7 +468,7 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { "normalize.upper": "99", "normalize.lower": "1" },
+      { "normalize.upper": "99", "normalize.lower": "1", normalize: "" },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -476,7 +476,7 @@ describe("effects", () => {
     );
 
     expect(cachePath()).toBe(
-      `/test/images/.cache/image:normalize.lower=1-normalize.upper=99.png`,
+      `/test/images/.cache/image:normalise=true-normalize.lower=1-normalize.upper=99.png`,
     );
   });
 
@@ -488,7 +488,7 @@ describe("effects", () => {
 
     const res = (await applyImageEffects(
       sharp(),
-      { "normalize.upper": "BAD_VALUE", "normalize.lower": "1" },
+      { "normalize.upper": "BAD_VALUE", "normalize.lower": "1", normalize: "" },
       opts.allowedEffects,
       opts,
       cachePath,

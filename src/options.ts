@@ -1,7 +1,7 @@
 import { EffectOperation, getOperationDefinition } from "./effects";
 import { Err, Ok, Result } from "ts-results";
 import { ParsedQs } from "qs";
-import { CachePathState } from "./utils";
+import { CachePathState, isTruthyValue } from "./utils";
 import { Create, CreateText, SharpOptions } from "sharp";
 import { ImagesOpts } from "./types";
 import { SharpValidKeys } from "./constants";
@@ -45,7 +45,7 @@ export const getTextOptions = (
         break;
       case "justify":
       case "rgba":
-        typed[opt] = opts[opt] !== "false";
+        typed[opt] = isTruthyValue(opts[opt]);
         break;
       default:
         continue;
@@ -211,7 +211,7 @@ export const getResizeOptions = (
       case "withoutEnlargement":
       case "withoutReduction":
       case "fastShrinkOnLoad":
-        typed[opt] = opts[opt] !== "false";
+        typed[opt] = isTruthyValue(opts[opt]);
         break;
       default:
         continue;

@@ -1,14 +1,18 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { isTruthyValue } from "../utils";
 
 export const applyFlattenEffect = (
   sharp: Sharp,
   flattenEffects: EffectOperation,
 ): Result<number, Error> => {
-  const { opts } = getOperationDefinition(flattenEffects);
+  const { param, opts } = getOperationDefinition(flattenEffects);
 
-  sharp.flatten(opts);
+  if (isTruthyValue(param)) {
+    sharp.flatten(opts);
+    return Ok(201);
+  }
 
-  return Ok(201);
+  return Ok(200);
 };

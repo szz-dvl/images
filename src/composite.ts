@@ -5,7 +5,7 @@ import {
   getCreateOptions,
   getTextOptions,
 } from "./options";
-import { CachePathState } from "./utils";
+import { CachePathState, isTruthyValue } from "./utils";
 import { EffectOperation, getOperationDefinition } from "./effects";
 import { Ok, Result } from "ts-results";
 import { join } from "node:path";
@@ -86,7 +86,7 @@ export const compositeImages = (
           break;
         case "tile":
         case "premultiplied":
-          typedImage[effectiveKey] = image[imageKey] !== "false";
+          typedImage[effectiveKey] = isTruthyValue(image[imageKey]);
           break;
         default:
           continue;
