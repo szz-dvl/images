@@ -8,7 +8,13 @@ export const applyBlurEffect = (
 ): Result<number, Error> => {
   const { param: sigma } = getOperationDefinition(blurEffects);
 
-  sharp.blur(Number(sigma));
+  const num = Number(sigma);
+
+  if (isNaN(num)) {
+    sharp.blur();
+  }
+
+  sharp.blur(num);
 
   return Ok(201);
 };

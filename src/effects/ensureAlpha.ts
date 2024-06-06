@@ -8,7 +8,13 @@ export const applyEnsureAlphaEffect = (
 ): Result<number, Error> => {
   const { param: alpha } = getOperationDefinition(ensureAlphaEffects);
 
-  sharp.ensureAlpha(Number(alpha));
+  const num = Number(alpha);
+
+  if (isNaN(num)) {
+    sharp.ensureAlpha();
+  }
+
+  sharp.ensureAlpha(num);
 
   return Ok(201);
 };

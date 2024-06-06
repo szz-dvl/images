@@ -106,6 +106,7 @@ export const SharpBooleanKeys = [
   "negate.alpha",
   "trim",
   "grayscale",
+  "sharpen",
   "text.justify",
   "text.rgba",
   "resize.withoutEnlargement",

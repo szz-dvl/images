@@ -8,7 +8,13 @@ export const applyMedianEffect = (
 ): Result<number, Error> => {
   const { param: median } = getOperationDefinition(medianEffects);
 
-  sharp.median(Number(median));
+  const num = Number(median);
+
+  if (isNaN(num)) {
+    sharp.median();
+  }
+
+  sharp.median(num);
 
   return Ok(201);
 };

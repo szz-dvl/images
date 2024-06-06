@@ -236,7 +236,7 @@ describe("effects", () => {
 
     await applyImageEffects(
       sharp(),
-      { "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" },
+      { sharpen: "", "sharpen.sigma": ".7", "sharpen.m1": "1", "sharpen.m2": "2" },
       opts.allowedEffects,
       opts,
       cachePath,
@@ -244,7 +244,7 @@ describe("effects", () => {
     );
 
     expect(cachePath()).toBe(
-      `/test/images/.cache/image:sharpen.m1=1-sharpen.m2=2-sharpen.sigma=.7.png`,
+      `/test/images/.cache/image:sharpen.m1=1-sharpen.m2=2-sharpen.sigma=.7-sharpen=true.png`,
     );
   });
 
@@ -256,7 +256,7 @@ describe("effects", () => {
 
     const res = (await applyImageEffects(
       sharp(),
-      { "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" },
+      { sharpen: "", "sharpen.sigma": "BAD_VALUE", "sharpen.m1": "1", "sharpen.m2": "2" },
       opts.allowedEffects,
       opts,
       cachePath,
