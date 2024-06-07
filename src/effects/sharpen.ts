@@ -11,6 +11,13 @@ export const applySharpenEffect = (
   const { param, opts } = getOperationDefinition(sharpenEffects);
 
   if (isTruthyValue(param)) {
+    const keys = Object.keys(opts);
+
+    if (keys.length === 0) {
+      sharp.sharpen();
+      return Ok(201);
+    }
+
     sharp.sharpen(mapValues(opts, Number) as unknown as SharpenOptions);
     return Ok(201);
   }
