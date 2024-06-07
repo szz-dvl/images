@@ -7,11 +7,14 @@ import { join } from "node:path";
 export const applyBooleanEffect = (
   sharp: Sharp,
   booleanEffects: EffectOperation,
-  { dir }: ImagesOpts
+  { dir }: ImagesOpts,
 ): Result<number, Error> => {
   const { opts } = getOperationDefinition(booleanEffects);
 
-  sharp.boolean(join(dir, opts.operand as string), opts.operator as keyof BoolEnum);
+  sharp.boolean(
+    join(dir, opts.operand as string),
+    opts.operator as keyof BoolEnum,
+  );
 
   return Ok(201);
 };
