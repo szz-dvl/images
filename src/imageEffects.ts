@@ -184,7 +184,7 @@ export const applyImageEffects = (
         case "boolean":
           {
             if (!after && state(ImageEffect.BOOLEAN))
-              result = applyBooleanEffect(sharp, batch);
+              result = applyBooleanEffect(sharp, batch, opts);
           }
           break;
         case "linear":
