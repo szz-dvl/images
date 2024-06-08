@@ -1,7 +1,7 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
-import { mapValues, omitBy, identity } from "lodash";
+import { mapValues } from "lodash";
 
 export const applyExtendEffect = (
   sharp: Sharp,
@@ -15,23 +15,20 @@ export const applyExtendEffect = (
   }
 
   sharp.extend(
-    omitBy(
-      mapValues(opts, (opt, key) => {
-        switch (key) {
-          case "top":
-          case "left":
-          case "bottom":
-          case "right":
-            return Number(opt);
-          case "extendWith":
-          case "background":
-            return opt.toString();
-          default:
-            return null;
-        }
-      }),
-      identity,
-    ),
+    mapValues(opts, (opt, key) => {
+      switch (key) {
+        case "top":
+        case "left":
+        case "bottom":
+        case "right":
+          return Number(opt);
+        case "extendWith":
+        case "background":
+          return opt as string;
+        default:
+          return opt;
+      }
+    }),
   );
 
   return Ok(201);
