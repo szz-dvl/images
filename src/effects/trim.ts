@@ -1,6 +1,8 @@
 import { Sharp } from "sharp";
 import { EffectOperation, getOperationDefinition } from "./";
 import { Ok, Result } from "ts-results";
+import { mapValues } from "lodash";
+import { isTruthyValue } from "../utils";
 
 export const applyTrimEffect = (
   sharp: Sharp,
@@ -8,21 +10,20 @@ export const applyTrimEffect = (
 ): Result<number, Error> => {
   const { opts } = getOperationDefinition(trimEffects);
 
-  for (const opt in opts) {
-    switch (opt) {
-      case "threshold":
-        opts[opt] = Number(opts[opt]);
-        break;
-      case "lineArt":
-        opts[opt] !== "false";
-        break;
-      case "background":
-        opts[opt] = opts[opt].toString();
-        break;
-    }
-  }
-
-  sharp.trim(opts);
+  sharp.trim(
+    mapValues(opts, (opt, key) => {
+      switch (key) {
+        case "threshold":
+          return Number(opt);
+        case "lineArt":
+          return isTruthyValue(opt);
+        case "background":
+          return opt as string;
+        default:
+          return opt;
+      }
+    }),
+  );
 
   return Ok(201);
 };
