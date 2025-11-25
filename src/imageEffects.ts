@@ -83,7 +83,7 @@ export const applyImageEffects = (
       const effectKey = effect.split(".")[0];
 
       do {
-        batch[effect] = effects[effect];
+        batch[effect] = effects[effect] as string;
         effect = effectsKeys[++i];
       } while (effect && effect.startsWith(effectKey));
 
@@ -246,7 +246,7 @@ export const applyImageEffects = (
         case "toColorspace":
         case "toColourspace":
           {
-            if (!after && state(ImageEffect.PIPELINECOLORSPACE))
+            if (!after && state(ImageEffect.TOCOLORSPACE))
               result = applyToColorspaceEffect(sharp, batch);
           }
           break;
