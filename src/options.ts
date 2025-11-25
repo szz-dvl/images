@@ -20,7 +20,7 @@ export const getTextOptions = (
   const batch: EffectOperation = {};
 
   for (const key of textKeys) {
-    batch[key] = effects[key];
+    batch[key] = effects[key] as string;
   }
 
   cachePath(pick(batch, SharpValidKeys));
@@ -70,7 +70,7 @@ export const getCreateOptions = (
   const batch: EffectOperation = {};
 
   for (const key of createKeys) {
-    batch[key] = effects[key];
+    batch[key] = effects[key] as string;
   }
 
   cachePath(pick(batch, SharpValidKeys));
@@ -170,7 +170,7 @@ export const getCompositeOptions = (
   const batch: EffectOperation = {};
 
   for (const key of compositeKeys) {
-    batch[key] = effects[key];
+    batch[key] = effects[key] as string;
   }
 
   cachePath(pickCompositeKeys(batch));
@@ -188,7 +188,7 @@ export const getResizeOptions = (
   const batch: EffectOperation = {};
 
   for (const key of resizeKeys) {
-    batch[key] = effects[key];
+    batch[key] = effects[key] as string;
   }
 
   cachePath(pick(batch, SharpValidKeys));

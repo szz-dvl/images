@@ -208,7 +208,7 @@ export class Images {
       case 200:
       case 201:
       case 202:
-        (<Response>res).status(code).sendFile(file!);
+        (<Response>res).status(code).sendFile(file!, { dotfiles: "allow" });
         break;
       case 404:
         (<Response>res).status(code).end();
@@ -322,7 +322,7 @@ export class Images {
 
       const cachedFile = await checkCache(cachePathState, this.opts.logs);
       if (cachedFile.ok) return this.returnCode(res, 202, cachedFile.val);
-
+      
       if (candidate && converter.val.code === 200) {
         return this.returnCode(res, 200, candidate); /** No change */
       }
