@@ -82,13 +82,11 @@ const opts: ImagesOpts = {
   customEffects: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     sepia: (sharp: Sharp, _opts: EffectOpts) => {
-      console.log("sepia");
       sharp.recomb([
         [0.3588, 0.7044, 0.1368],
         [0.299, 0.587, 0.114],
         [0.2392, 0.4696, 0.0912],
       ]);
-      console.log("recomb");
       return Ok(201);
     },
   },
@@ -349,9 +347,7 @@ describe("effects", () => {
       false,
     )) as Err<Error>;
 
-    expect(res.val.message).toMatchInlineSnapshot(
-      `"Expected number between 0.3 and 1000 for sigma but received NaN of type number"`,
-    );
+    expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 0.3 and 1000 for sigma but received undefined of type undefined"`);
   });
 
   it("must append a flatten effect", async () => {
@@ -762,9 +758,7 @@ describe("effects", () => {
       false,
     )) as Err<Error>;
 
-    expect(res.val.message).toMatchInlineSnapshot(
-      `"Cannot read properties of undefined (reading 'length')"`,
-    );
+    expect(res.val.message).toMatchInlineSnapshot(`"Expected cardinality of 9 or 16 for inputMatrix but received 6 of type number"`);
   });
 
   it("must append a modulate effect", async () => {
@@ -987,7 +981,7 @@ describe("effects", () => {
     );
   });
 
-  it.skip("must fail to append a pipelineColorspace effect", async () => {
+  it("must fail to append a pipelineColorspace effect", async () => {
     /** This one is not failing :( ... */
 
     const path = "image.png";
@@ -1027,7 +1021,7 @@ describe("effects", () => {
     );
   });
 
-  it.skip("must fail to append a toColorspace effect", async () => {
+  it("must fail to append a toColorspace effect", async () => {
     /** This one is not failing :( ... */
 
     const path = "image.png";

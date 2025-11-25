@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { getAllowedExtension } from "../src/utils";
+import { findFirst } from "../src/fs";
 
 describe("getAllowedExtension", () => {
   it("must succeed", () => {
@@ -17,4 +18,11 @@ describe("getAllowedExtension", () => {
 
     expect(result.val).toBe("jpeg");
   });
+
+  it("Must find the first file matching a glob path", async () => {
+    const result = await findFirst(`${__dirname}/images/giraffe.*`);
+
+    expect(result.value).toContain("images/test/images/giraffe.png");
+  });
 });
+
