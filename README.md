@@ -31,6 +31,7 @@ export type ImagesOpts = {
   timeout: number;
   customEffects?: Record<string, EffectHandler>;
   publicCacheNames: boolean;
+}
 ```
 
 The options are defined like:
@@ -232,7 +233,7 @@ Sharp is able to generate images from text or create images given some parameter
 
 Will generate a promotional image :)
 
-When generating files the filename and extension provided in the URL are used to generate the file in cache, so this name must not exists in the original images folder, otherwise an error is returned.
+When generating files the filename and extension provided in the URL are used to generate the file in cache, so this name must not exist in the original images folder, otherwise an error is returned.
 
 ### Simple server
 
