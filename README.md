@@ -102,7 +102,7 @@ Following with the options object abowe, we have:
 
 - **allowComposition:** Boolean indicating if composited images (`composite` operation) are allowed.
 
-- **allowComposition:** Boolean indicating if preview images (uncached images) are allowed.
+- **allowPreview:** Boolean indicating if preview images (uncached images) are allowed.
 
 - **limits:** Limits for width and height conversions:
 
@@ -303,6 +303,7 @@ const images = new Images({
   },
   allowGenerated: true,
   allowComposition: true,
+  allowPreview: false,
   sharp: {
     failOn: "warning",
     pages: -1 /** Consider all the pages for multi-page images */,
