@@ -281,5 +281,5 @@ export const isTruthyValue = (value: unknown): boolean => {
 };
 
 export const isPreview = (options: ParsedQs): boolean => {
-  return "preview" in options && isTruthyValue(options["preview"])
+  return "preview" in options && isTruthyValue(options["preview"]);
 };

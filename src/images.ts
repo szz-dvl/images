@@ -88,7 +88,7 @@ export class Images {
       allowPreview: false,
       sharp: {
         failOn: "warning",
-        pages: -1, /** Consider all the pages for multi-page images */
+        pages: -1 /** Consider all the pages for multi-page images */,
         limitInputPixels: 268402689,
         unlimited: false,
         sequentialRead: true,
@@ -97,7 +97,7 @@ export class Images {
         page: 0,
         subifd: -1,
         level: 0,
-        animated: true, /** Same as above */
+        animated: true /** Same as above */,
       },
       hashCacheNames: true,
       logs: false,
@@ -200,10 +200,7 @@ export class Images {
           .pipe(res);
       }
 
-      return createReadStream(candidate)
-        .pipe(converter)
-        .pipe(res);
-
+      return createReadStream(candidate).pipe(converter).pipe(res);
     } else {
       /** Generated images */
 
@@ -229,13 +226,13 @@ export class Images {
     switch (code) {
       case 200:
       case 202:
-        (<Response> res).status(code).sendFile(file!, { dotfiles: "allow" });
+        (<Response>res).status(code).sendFile(file!, { dotfiles: "allow" });
         break;
       case 404:
-        (<Response> res).status(code).end();
+        (<Response>res).status(code).end();
         break;
       default:
-        (<NextFunction> res)();
+        (<NextFunction>res)();
         break;
     }
 
@@ -362,11 +359,11 @@ export class Images {
             }),
           );
         }
-      }
 
-      if (this.opts.publicCacheNames) {
-        const suffix = getCacheSuffix(cachePathState);
-        res.setHeader("X-Images-Cache-Suffix", suffix);
+        if (this.opts.publicCacheNames) {
+          const suffix = getCacheSuffix(cachePathState);
+          res.setHeader("X-Images-Cache-Suffix", suffix);
+        }
       }
 
       res

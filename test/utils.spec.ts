@@ -25,4 +25,3 @@ describe("getAllowedExtension", () => {
     expect(result.value).toContain("images/test/images/giraffe.png");
   });
 });
-

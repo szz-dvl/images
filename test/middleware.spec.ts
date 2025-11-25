@@ -107,5 +107,4 @@ describe("middleware", () => {
 
     expect(result.status).toBe(201);
   });
-  
 });

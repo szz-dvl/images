@@ -348,7 +348,9 @@ describe("effects", () => {
       false,
     )) as Err<Error>;
 
-    expect(res.val.message).toMatchInlineSnapshot(`"Expected number between 0.3 and 1000 for sigma but received undefined of type undefined"`);
+    expect(res.val.message).toMatchInlineSnapshot(
+      `"Expected number between 0.3 and 1000 for sigma but received undefined of type undefined"`,
+    );
   });
 
   it("must append a flatten effect", async () => {
@@ -759,7 +761,9 @@ describe("effects", () => {
       false,
     )) as Err<Error>;
 
-    expect(res.val.message).toMatchInlineSnapshot(`"Expected cardinality of 9 or 16 for inputMatrix but received 6 of type number"`);
+    expect(res.val.message).toMatchInlineSnapshot(
+      `"Expected cardinality of 9 or 16 for inputMatrix but received 6 of type number"`,
+    );
   });
 
   it("must append a modulate effect", async () => {

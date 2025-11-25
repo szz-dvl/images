@@ -32,7 +32,7 @@ export type ImagesOpts = {
   timeout: number;
   customEffects?: Record<string, EffectHandler>;
   publicCacheNames: boolean;
-}
+};
 ```
 
 The options are defined like:
@@ -240,7 +240,7 @@ When generating files the filename and extension provided in the URL are used to
 
 ### Preview Images
 
-This middleware will accept an extra parameter ("preview") in the query string. If this parameter is found in the query string and it have a truthy value, no cached image will be generated for this request. Additionally, allowPreview must be set to a truthy value in the server for this parameter to take effect. This option can be useful to test image effects before deciding wich one to apply.  
+This middleware will accept an extra parameter ("preview") in the query string. If this parameter is found in the query string and it have a truthy value, no cached image will be generated for this request. Additionally, allowPreview must be set to a truthy value in the server for this parameter to take effect. This option can be useful to test image effects before deciding wich one to apply.
 
 ### Simple server
 
