@@ -28,6 +28,7 @@ describe("middleware", () => {
               const images = new Images({
                 dir: `${__dirname}/images`,
                 allowGenerated: true,
+                allowPreview: true,
                 limits: {
                   width: 5000,
                   height: 5000,
@@ -96,4 +97,15 @@ describe("middleware", () => {
 
     expect(result.status).toBe(201);
   });
+  it("must NOT create a cache file for preview images", async () => {
+    await fetch(
+      "http://localhost:3000/image/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%2300FF00&preview=true",
+    );
+    const result = await fetch(
+      "http://localhost:3000/image/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%2300FF00",
+    );
+
+    expect(result.status).toBe(201);
+  });
+  
 });

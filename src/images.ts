@@ -1,12 +1,13 @@
 import { ImagesOpts } from "./types";
 import { extractUrlInfo } from "./regex";
 import {
-  CachePathState,
   allowedSize,
+  CachePathState,
   getCacheSuffix,
   globExtension,
   initCachePathState,
   isGeneratedImage,
+  isPreview,
 } from "./utils";
 import { join } from "node:path";
 import {
@@ -19,12 +20,13 @@ import {
 import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
 import { unlink } from "node:fs/promises";
-import { Response, Request, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ImageEffect } from "./constants";
 import { getSharpOptions } from "./options";
 import { Sharp } from "sharp";
 import { addAbortSignal } from "node:stream";
 import { EffectOpts } from "./effects";
+import { Ok, Result } from "ts-results";
 
 export class Images {
   private opts: ImagesOpts;
@@ -83,9 +85,10 @@ export class Images {
       },
       allowGenerated: true,
       allowComposition: true,
+      allowPreview: false,
       sharp: {
         failOn: "warning",
-        pages: -1 /** Consider all the pages for multi-page images */,
+        pages: -1, /** Consider all the pages for multi-page images */
         limitInputPixels: 268402689,
         unlimited: false,
         sequentialRead: true,
@@ -94,7 +97,7 @@ export class Images {
         page: 0,
         subifd: -1,
         level: 0,
-        animated: true /** Same as above */,
+        animated: true, /** Same as above */
       },
       hashCacheNames: true,
       logs: false,
@@ -139,18 +142,20 @@ export class Images {
   private streamImage(
     candidate: string | void,
     converter: Sharp,
-    cache: CacheWriter,
+    cache: CacheWriter | null,
     cachePath: CachePathState,
     res: Response,
     next: NextFunction,
   ) {
+    let controller = cache === null ? new AbortController() : cache.controller;
     let aborted = false;
+
     const toId: NodeJS.Timeout = setTimeout(async () => {
       if (!aborted) {
         aborted = true;
         return await this.abortStream(
           new Error("Timed out", { cause: toId }),
-          cache.controller,
+          controller,
           cachePath,
           next,
         );
@@ -161,60 +166,76 @@ export class Images {
       if (!aborted) {
         aborted = true;
         clearTimeout(toId);
-        return await this.abortStream(err, cache.controller, cachePath, next);
+        return await this.abortStream(err, controller, cachePath, next);
       }
     });
 
-    cache.writer.on("error", async (err) => {
-      if (!aborted) {
-        aborted = true;
+    if (cache !== null) {
+      cache.writer.on("error", async (err) => {
+        if (!aborted) {
+          aborted = true;
+          clearTimeout(toId);
+          return await this.abortStream(err, controller, cachePath, next);
+        }
+      });
+
+      cache.writer.on("close", () => {
         clearTimeout(toId);
-        return await this.abortStream(err, cache.controller, cachePath, next);
-      }
-    });
+      });
+    } else {
+      converter.on("close", () => {
+        clearTimeout(toId);
+      });
+    }
 
-    cache.writer.on("close", () => {
-      clearTimeout(toId);
-    });
-
-    addAbortSignal(cache.controller.signal, converter);
+    addAbortSignal(controller.signal, converter);
 
     if (this.opts.logs) console.log("Streaming converted image");
 
     if (candidate) {
+      if (cache !== null) {
+        return createReadStream(candidate)
+          .pipe(converter)
+          .pipe(cache.writer)
+          .pipe(res);
+      }
+
       return createReadStream(candidate)
         .pipe(converter)
-        .pipe(cache.writer)
         .pipe(res);
+
     } else {
       /** Generated images */
 
-      return converter.pipe(cache.writer).pipe(res);
+      if (cache !== null) {
+        return converter.pipe(cache.writer).pipe(res);
+      }
+
+      return converter.pipe(res);
     }
   }
 
   private returnCode(
     res: Response,
-    code: 200 | 201 | 202 | 404,
+    code: 200 | 202 | 404,
     file: string | void,
   ): number;
   private returnCode(res: NextFunction, code: null): number;
   private returnCode(
     res: Response | NextFunction,
-    code: 200 | 201 | 202 | 404 | null,
+    code: 200 | 202 | 404 | null,
     file?: string,
   ): number | null {
     switch (code) {
       case 200:
-      case 201:
       case 202:
-        (<Response>res).status(code).sendFile(file!, { dotfiles: "allow" });
+        (<Response> res).status(code).sendFile(file!, { dotfiles: "allow" });
         break;
       case 404:
-        (<Response>res).status(code).end();
+        (<Response> res).status(code).end();
         break;
       default:
-        (<NextFunction>res)();
+        (<NextFunction> res)();
         break;
     }
 
@@ -284,11 +305,12 @@ export class Images {
           );
         }
 
-        if (!this.opts.allowGenerated)
+        if (!this.opts.allowGenerated) {
           return this.returnCode(
             next,
             null,
           ); /** Generated images not allowed ¿400? */
+        }
 
         candidate = void 0;
       } else {
@@ -299,8 +321,9 @@ export class Images {
           candidate = first.value;
         }
 
-        if (!candidate)
+        if (!candidate) {
           return this.returnCode(res, 404, candidate); /** Not found */
+        }
       }
 
       const converter = convertFile(
@@ -322,20 +345,23 @@ export class Images {
 
       const cachedFile = await checkCache(cachePathState, this.opts.logs);
       if (cachedFile.ok) return this.returnCode(res, 202, cachedFile.val);
-      
+
       if (candidate && converter.val.code === 200) {
         return this.returnCode(res, 200, candidate); /** No change */
       }
 
-      const writer = await getCacheWriter(cachePathState);
+      let writer: Result<CacheWriter | null, Error> = Ok(null);
+      if (!isPreview(effects) || !this.opts.allowPreview) {
+        writer = await getCacheWriter(cachePathState);
 
-      if (writer.err) {
-        return this.returnError(
-          next,
-          new Error("Unable to cache the resulting image.", {
-            cause: writer.val,
-          }),
-        );
+        if (writer.err) {
+          return this.returnError(
+            next,
+            new Error("Unable to cache the resulting image.", {
+              cause: writer.val,
+            }),
+          );
+        }
       }
 
       if (this.opts.publicCacheNames) {

@@ -23,6 +23,7 @@ export type ImagesOpts = {
   allowedEffects: Record<ImageEffect, number>;
   allowGenerated: boolean;
   allowComposition: boolean;
+  allowPreview: boolean;
   limits: ImageLimits;
   formatOpts?: FormatsOpts;
   hashCacheNames: boolean;
@@ -100,6 +101,8 @@ Following with the options object abowe, we have:
 - **allowGenerated:** Boolean indicating if generated images (`create` and `text` options of sharp constructor) are allowed.
 
 - **allowComposition:** Boolean indicating if composited images (`composite` operation) are allowed.
+
+- **allowComposition:** Boolean indicating if preview images (uncached images) are allowed.
 
 - **limits:** Limits for width and height conversions:
 
@@ -234,6 +237,10 @@ Sharp is able to generate images from text or create images given some parameter
 Will generate a promotional image :)
 
 When generating files the filename and extension provided in the URL are used to generate the file in cache, so this name must not exist in the original images folder, otherwise an error is returned.
+
+### Preview Images
+
+This middleware will accept an extra parameter ("preview") in the query string. If this parameter is found in the query string and it have a truthy value, no cached image will be generated for this request. Additionally, allowPreview must be set to a truthy value in the server for this parameter to take effect. This option can be useful to test image effects before deciding wich one to apply.  
 
 ### Simple server
 

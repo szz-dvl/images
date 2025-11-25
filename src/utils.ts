@@ -1,4 +1,5 @@
 import { forIn } from "lodash";
+import { ParsedQs } from "qs";
 import { ImageSize, ImagesOpts } from "./types";
 import {
   ImageFormat,
@@ -277,4 +278,8 @@ export const isTruthyValue = (value: unknown): boolean => {
   }
 
   return !!value;
+};
+
+export const isPreview = (options: ParsedQs): boolean => {
+  return "preview" in options && isTruthyValue(options["preview"])
 };

@@ -308,6 +308,7 @@ export const applyImageEffects = (
         case "text":
         case "create":
         case "resize":
+        case "preview":
           continue; /** Treated later on in converter */
         default:
           if (opts.logs)

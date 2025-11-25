@@ -48,6 +48,7 @@ export type ImagesOpts = {
   > /** After effects (rotate, extract) may run twice */;
   allowGenerated: boolean;
   allowComposition: boolean;
+  allowPreview: boolean;
   limits: ImageLimits;
   formatOpts?: FormatsOpts;
   hashCacheNames: boolean;
