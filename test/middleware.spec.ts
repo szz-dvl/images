@@ -5,6 +5,7 @@ import { Images } from "../src/images";
 import { rmSync } from "fs";
 import { createDirIfNotExists } from "../src/fs";
 import { cp } from "fs/promises";
+import { openAsBlob } from "node:fs";
 
 describe("middleware", () => {
   jest.setTimeout(10000);
@@ -38,6 +39,7 @@ describe("middleware", () => {
                     compression: "av1",
                   },
                 },
+                logs: true,
                 hashCacheNames: true,
               });
 
@@ -103,6 +105,24 @@ describe("middleware", () => {
     );
     const result = await fetch(
       "http://localhost:3000/image/150x100/giraffe.jpeg?resize.fit=contain&resize.position=left&resize.background=%2300FF00",
+    );
+
+    expect(result.status).toBe(201);
+  });
+
+  it("must convert a POSTed image", async () => {
+
+    const blob = await openAsBlob(`${__dirname}/images/giraffe.png`, { type: "image/png" });
+
+    const result = await fetch(
+      "http://localhost:3000/image/0x1080/post.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%2300FF00&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%230000FF&flop",
+      {
+        method: "POST",
+        body: blob,
+        headers: {
+          Accept: "image/jpeg"
+        }
+      },
     );
 
     expect(result.status).toBe(201);

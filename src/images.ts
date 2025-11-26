@@ -4,10 +4,13 @@ import {
   allowedSize,
   CachePathState,
   getCacheSuffix,
+  getExtFromMime,
+  getReadableFromCandidate,
   globExtension,
   initCachePathState,
   isGeneratedImage,
   isPreview,
+  isStreamedImage,
 } from "./utils";
 import { join } from "node:path";
 import {
@@ -21,7 +24,7 @@ import { convertFile } from "./convert";
 import { createReadStream } from "node:fs";
 import { unlink } from "node:fs/promises";
 import { NextFunction, Request, Response } from "express";
-import { ImageEffect } from "./constants";
+import { ImageEffect, ImageMimeType } from "./constants";
 import { getSharpOptions } from "./options";
 import { Sharp } from "sharp";
 import { addAbortSignal } from "node:stream";
@@ -140,7 +143,7 @@ export class Images {
   }
 
   private streamImage(
-    candidate: string | void,
+    candidate: string | void | Request,
     converter: Sharp,
     cache: CacheWriter | null,
     cachePath: CachePathState,
@@ -194,13 +197,14 @@ export class Images {
 
     if (candidate) {
       if (cache !== null) {
-        return createReadStream(candidate)
+
+        return getReadableFromCandidate(candidate)
           .pipe(converter)
           .pipe(cache.writer)
           .pipe(res);
       }
 
-      return createReadStream(candidate).pipe(converter).pipe(res);
+      return getReadableFromCandidate(candidate).pipe(converter).pipe(res);
     } else {
       /** Generated images */
 
@@ -310,6 +314,31 @@ export class Images {
         }
 
         candidate = void 0;
+
+      } else if (isStreamedImage(req)) {
+        
+        const first = await findFirst(glob);
+        if (first.value) {
+          return this.returnError(
+            next,
+            new Error("Existing file for streamed image.", {
+              cause: first.value,
+            }),
+          );
+        }
+
+        const ext = getExtFromMime(req.is('*/*') as ImageMimeType)
+        if (ext.err) {
+          return this.returnError(
+            next,
+            new Error("Unrecognized MIME type.", {
+              cause: ext,
+            }),
+          );
+        }
+
+        candidate = glob.replace( ".*", `.${ext.val}`)
+
       } else {
         const exactMatch = await checkFile(absolutePath, this.opts.logs);
         if (exactMatch.ok) candidate = exactMatch.val;
@@ -371,7 +400,7 @@ export class Images {
         .setHeader("Content-Type", converter.val.mime);
 
       this.streamImage(
-        candidate,
+        isStreamedImage(req) ? req : candidate,
         converter.val.sharp,
         writer.val,
         cachePathState,

@@ -13,6 +13,8 @@ import { basename, dirname, extname, join } from "node:path";
 import { Err, Ok, Result } from "ts-results";
 import { SharpOptions } from "sharp";
 import md5 from "md5";
+import { Request } from "express";
+import { createReadStream } from "node:fs";
 
 export const isKnownExtension = (ext: string, current: ImageFormat) => {
   return ImageKnownExtensions[current].includes(ext.toLowerCase());
@@ -118,8 +120,53 @@ export const getFormatMimeType = (ext: ImageFormat | null): ImageMimeType => {
   return ImageMimeType.ANY;
 };
 
+export const getExtFromMime = (mime: ImageMimeType): Result<ImageFormat, Error> => {
+  switch (mime) {
+    case ImageMimeType.PNG: {
+      return Ok(ImageFormat.PNG);
+    }
+    case ImageMimeType.AVIF: {
+      return Ok(ImageFormat.AVIF);
+    }
+    case ImageMimeType.WEBP: {
+      return Ok(ImageFormat.WEBP);
+    }
+    case ImageMimeType.JPEG: {
+      return Ok(ImageFormat.JPEG);
+    }
+    case ImageMimeType.GIF: {
+      return Ok(ImageFormat.GIF);
+    }
+    case ImageMimeType.TIFF: {
+      return Ok(ImageFormat.TIFF);
+    }
+    case ImageMimeType.JP2: {
+      return Ok(ImageFormat.JP2);
+    }
+    case ImageMimeType.HEIF: {
+      return Ok(ImageFormat.HEIF);
+    }
+    case ImageMimeType.ANY: {
+      return Ok(ImageFormat.RAW);
+    }
+  }
+
+  return Err(new Error("Mime type not understood", { cause: mime }));
+};
+
+export const getReadableFromCandidate = (candidate: string | Request) => {
+  if(typeof candidate === "string") 
+    return createReadStream(candidate);
+  
+  return candidate
+};
+
 export const isGeneratedImage = ({ text, create }: SharpOptions) => {
   return !!text || !!create;
+};
+
+export const isStreamedImage = (req: Request) => {
+  return req.method === 'POST';
 };
 
 export const serializeEffect = (

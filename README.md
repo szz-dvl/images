@@ -242,6 +242,30 @@ When generating files the filename and extension provided in the URL are used to
 
 This middleware will accept an extra parameter ("preview") in the query string. If this parameter is found in the query string and it have a truthy value, no cached image will be generated for this request. Additionally, allowPreview must be set to a truthy value in the server for this parameter to take effect. This option can be useful to test image effects before deciding wich one to apply.
 
+### POSTed images
+
+Since version 2.0.3 you can now send a blob to the server using POST method, when doing so, the filename provided will be used to generate the cache name for the image if no preview is requested, then the image provided in the request will be converted according to the parameters passed, as an instance, assuming that we have a server running in port 3000, and that the file test.png is available, the following snippet will convert the file:
+
+```typescript
+
+const blob = await openAsBlob("test.png", { type: "image/png" });
+
+const result = await fetch(
+  "http://localhost:3000/image/0x1080/post.jpeg?resize.fit=inside&modulate.hue=180&rotate=120&rotate.background=%2300FF00&affine=1&affine=.3&affine=.1&affine=.7&affine.background=%230000FF&flop",
+  {
+    method: "POST",
+    body: blob,
+    headers: {
+      Accept: "image/jpeg"
+    }
+  },
+);
+```
+
+### Limitations
+
+When generating images or converting POSTed images the names provided in the url will be used to generate the cache name, please notice that, if another file is created later on with the same name used in a generated or POSTed image, further requests may serve the previously generated or POSTed image if the effect applied match the one being requested. To overcome this situation, is strongly encouradged to use patterns for generated or POSTed files, and do not allow this patterns in file creation.
+
 ### Simple server
 
 The options used here are the default values:
