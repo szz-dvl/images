@@ -57,6 +57,7 @@ const opts: ImagesOpts = {
   },
   allowGenerated: true,
   allowComposition: true,
+  allowPreview: false,
   limits: {
     width: 1920,
     height: 1080,
